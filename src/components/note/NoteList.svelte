@@ -1,40 +1,45 @@
 <script lang="ts">
-  import { link } from 'svelte-spa-router'
-  import ViewNoteThumb from './ViewNoteThumb.svelte'
-  import DateFormat from '@/lib/dateFormat'
-  import type { Note, SelectedNote } from '@/lib/types'
-  import { vCard, vCardText } from '@/lib/vuetify-classes'
+  import { link } from "svelte-spa-router";
+  import ViewNoteThumb from "./ViewNoteThumb.svelte";
+  import DateFormat from "@/lib/dateFormat";
+  import type { Note, SelectedNote } from "@/lib/types";
+  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
-    notes: Note[]
-    onNotesSelected?: (selected: SelectedNote) => void
-    onNotesEdit?: boolean
-    onClearNotesEdit?: boolean
+    notes: Note[];
+    onNotesSelected?: (selected: SelectedNote) => void;
+    onNotesEdit?: boolean;
+    onClearNotesEdit?: boolean;
   }
-  let { notes, onNotesSelected, onNotesEdit = false, onClearNotesEdit }: Props = $props()
+  let {
+    notes,
+    onNotesSelected,
+    onNotesEdit = false,
+    onClearNotesEdit,
+  }: Props = $props();
 
-  let isChecked = $state<Record<string, boolean>>({})
+  let isChecked = $state<Record<string, boolean>>({});
 
   $effect(() => {
     if (onClearNotesEdit) {
-      isChecked = {}
-      onNotesSelected?.({ selected: [] })
+      isChecked = {};
+      onNotesSelected?.({ selected: [] });
     }
-  })
+  });
 
   const updateCheckbox = (noteId: string, checked: boolean) => {
-    isChecked = { ...isChecked, [noteId]: checked }
+    isChecked = { ...isChecked, [noteId]: checked };
     const selected = Object.entries(isChecked)
       .filter(([, v]) => v)
-      .map(([k]) => k)
-    onNotesSelected?.({ selected })
-  }
+      .map(([k]) => k);
+    onNotesSelected?.({ selected });
+  };
 
   const handleCheckboxChange = (noteId: string, e: Event) => {
-    e.stopPropagation()
-    const target = e.target as HTMLInputElement
-    updateCheckbox(noteId, target.checked)
-  }
+    e.stopPropagation();
+    const target = e.target as HTMLInputElement;
+    updateCheckbox(noteId, target.checked);
+  };
 </script>
 
 <ul class="notes_list">
@@ -53,24 +58,24 @@
             tabindex={onNotesEdit ? 0 : -1}
             onclick={(e) => {
               if (onNotesEdit) {
-                e.preventDefault()
-                updateCheckbox(note._id, !isChecked[note._id])
+                e.preventDefault();
+                updateCheckbox(note._id, !isChecked[note._id]);
               }
             }}
             onkeydown={(e) => {
-              if (onNotesEdit && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault()
-                updateCheckbox(note._id, !isChecked[note._id])
+              if (onNotesEdit && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                updateCheckbox(note._id, !isChecked[note._id]);
               }
             }}
           >
-            <div class={vCard('note_list_card')}>
-              <div class={vCardText('cardcontent')}>
+            <div class={vCard("note_list_card")}>
+              <div class={vCardText("cardcontent")}>
                 <div class="thumb_image">
                   <ViewNoteThumb text={note.note} />
                 </div>
                 <div class="date_format date_format_notes">
-                  {DateFormat(note.updatedAt ?? '')}
+                  {DateFormat(note.updatedAt ?? "")}
                 </div>
               </div>
             </div>

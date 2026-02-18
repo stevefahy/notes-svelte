@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { children } = $props()
+  let { children } = $props();
 </script>
 
 <div class="page_footer">
@@ -34,9 +34,5 @@
     align-items: center;
     flex-wrap: nowrap;
     flex-direction: row;
-  }
-
-  .page_footer_container button {
-    pointer-events: auto;
   }
 </style>

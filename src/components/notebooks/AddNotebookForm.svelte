@@ -1,82 +1,92 @@
 <script lang="ts">
-  import APPLICATION_CONSTANTS from '@/lib/constants'
-  import { FolderOptions } from '@/lib/folderOptions'
-  import ErrorAlert from '@/components/UI/ErrorAlert.svelte'
-  import type { NotebookCoverType } from '@/lib/types'
-  import { vCard, vCardText } from '@/lib/vuetify-classes'
+  import APPLICATION_CONSTANTS from "@/lib/constants";
+  import { FolderOptions } from "@/lib/folderOptions";
+  import ErrorAlert from "@/components/UI/ErrorAlert.svelte";
+  import type { NotebookCoverType } from "@/lib/types";
+  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
-    method?: 'create' | 'edit'
-    notebook?: { notebook_name: string; notebook_cover: NotebookCoverType }
-    onAddNotebook?: (name: string, cover: string) => void | Promise<void>
-    onCancel: () => void
+    method?: "create" | "edit";
+    notebook?: { notebook_name: string; notebook_cover: NotebookCoverType };
+    onAddNotebook?: (name: string, cover: string) => void | Promise<void>;
+    onCancel: () => void;
   }
-  let { method = 'create', notebook, onAddNotebook, onCancel }: Props = $props()
+  let {
+    method = "create",
+    notebook,
+    onAddNotebook,
+    onCancel,
+  }: Props = $props();
 
-  const AC = APPLICATION_CONSTANTS
+  const AC = APPLICATION_CONSTANTS;
 
-  let selectedCover = $state<NotebookCoverType>('default')
-  let selectedName = $state('')
+  let selectedCover = $state<NotebookCoverType>("default");
+  let selectedName = $state("");
 
   $effect(() => {
-    if (method === 'edit' && notebook) {
-      selectedCover = notebook.notebook_cover
-      selectedName = notebook.notebook_name
+    if (method === "edit" && notebook) {
+      selectedCover = notebook.notebook_cover;
+      selectedName = notebook.notebook_name;
     }
-  })
+  });
 
-  const originalName = $derived(method === 'edit' && notebook ? notebook.notebook_name : '')
+  const originalName = $derived(
+    method === "edit" && notebook ? notebook.notebook_name : "",
+  );
   const originalCover = $derived(
-    method === 'edit' && notebook ? notebook.notebook_cover : ('default' as NotebookCoverType)
-  )
+    method === "edit" && notebook
+      ? notebook.notebook_cover
+      : ("default" as NotebookCoverType),
+  );
 
   const formChanged = $derived.by(() => {
-    if (method === 'create') {
+    if (method === "create") {
       return (
         selectedName.length >= AC.NOTEBOOK_NAME_MIN &&
         selectedName.length <= AC.NOTEBOOK_NAME_MAX
-      )
+      );
     }
     // Edit mode: changed from original AND name is valid
-    const hasChange = selectedName !== originalName || selectedCover !== originalCover
+    const hasChange =
+      selectedName !== originalName || selectedCover !== originalCover;
     const nameValid =
       selectedName.length >= AC.NOTEBOOK_NAME_MIN &&
-      selectedName.length <= AC.NOTEBOOK_NAME_MAX
-    return hasChange && nameValid
-  })
+      selectedName.length <= AC.NOTEBOOK_NAME_MAX;
+    return hasChange && nameValid;
+  });
 
-  const isConfirmDisabled = $derived(!formChanged)
+  const isConfirmDisabled = $derived(!formChanged);
 
-  let error = $state({ error_state: false, message: '' })
+  let error = $state({ error_state: false, message: "" });
 
   const cancelHandler = (e: Event) => {
-    e.preventDefault()
-    e.stopPropagation()
-    error = { error_state: false, message: '' }
-    onCancel()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    error = { error_state: false, message: "" };
+    onCancel();
+  };
 
   const submitHandler = async (e: Event) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (isConfirmDisabled) return
-    error = { error_state: false, message: '' }
+    e.preventDefault();
+    e.stopPropagation();
+    if (isConfirmDisabled) return;
+    error = { error_state: false, message: "" };
 
     if (!selectedName || selectedName.length < AC.NOTEBOOK_NAME_MIN) {
-      error = { error_state: true, message: AC.NOTEBOOK_NAME_MIN_ERROR }
-      return
+      error = { error_state: true, message: AC.NOTEBOOK_NAME_MIN_ERROR };
+      return;
     }
     if (selectedName.length > AC.NOTEBOOK_NAME_MAX) {
-      error = { error_state: true, message: AC.NOTEBOOK_NAME_MAX_ERROR }
-      return
+      error = { error_state: true, message: AC.NOTEBOOK_NAME_MAX_ERROR };
+      return;
     }
-    const cover = selectedCover || 'default'
-    await onAddNotebook?.(selectedName, cover)
-  }
+    const cover = selectedCover || "default";
+    await onAddNotebook?.(selectedName, cover);
+  };
 
   function focusDialog(node: HTMLElement) {
-    node.focus()
-    return {}
+    node.focus();
+    return {};
   }
 </script>
 
@@ -88,24 +98,24 @@
     aria-label="Close dialog"
     onclick={(e) => cancelHandler(e)}
     onkeydown={(e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault()
-    cancelHandler(e)
-  }
-}}
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        cancelHandler(e);
+      }
+    }}
   ></div>
   <div
-    class={vCard('card', 'modal-dialog', 'dialogue_container')}
+    class={vCard("card", "modal-dialog", "dialogue_container")}
     role="dialog"
     aria-modal="true"
     aria-labelledby="add-notebook-title"
     tabindex="-1"
     use:focusDialog
-    onkeydown={(e) => e.key === 'Escape' && cancelHandler(e)}
+    onkeydown={(e) => e.key === "Escape" && cancelHandler(e)}
   >
     <div class={vCardText()}>
       <h2 id="add-notebook-title" class="dialogue-title">
-        {method === 'edit' ? 'Edit Notebook' : 'Add Notebook'}
+        {method === "edit" ? "Edit Notebook" : "Add Notebook"}
       </h2>
       <form onsubmit={submitHandler} class="form">
         <div class="control">
@@ -114,7 +124,11 @@
         </div>
         <div class="control">
           <label for="new-notebook-cover">Cover</label>
-          <select id="new-notebook-cover" class="select_dialogue" bind:value={selectedCover}>
+          <select
+            id="new-notebook-cover"
+            class="select_dialogue"
+            bind:value={selectedCover}
+          >
             {#each FolderOptions as folder}
               <option value={folder.value}>{folder.viewValue}</option>
             {/each}
@@ -128,15 +142,24 @@
             class="btn-contained v-btn--size-default"
             disabled={isConfirmDisabled}
             onclick={(e) => submitHandler(e)}
-            aria-label={method === 'edit' ? 'Edit notebook button' : 'Add notebook button'}
+            aria-label={method === "edit"
+              ? "Edit notebook button"
+              : "Add notebook button"}
           >
-            {method === 'edit' ? 'Confirm' : 'Add'}
+            {method === "edit" ? "Confirm" : "Add"}
           </button>
         </div>
         <div>
-          <button type="button" class="btn-contained v-btn--size-default" onclick={cancelHandler} aria-label="Cancel button">
+          <button
+            type="button"
+            class="btn-contained v-btn--size-default"
+            onclick={cancelHandler}
+            aria-label="Cancel button"
+          >
             <span class="icon_text">
-              <span class="material-symbols-outlined button_icon white">cancel</span>
+              <span class="material-symbols-outlined button_icon white"
+                >cancel</span
+              >
               Cancel
             </span>
           </button>
@@ -207,20 +230,6 @@
     cursor: pointer;
   }
 
-  /* .modal-dialog {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1001;
-    cursor: default;
-    background-color: white;
-  } */
-
-  /* .dialogue_container {
-    max-width: 300px;
-  } */
-
   .select_dialogue {
     width: 100%;
     display: block;
@@ -235,12 +244,6 @@
     display: flex;
     justify-content: space-between;
   }
-
-  /* .icon_text {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  } */
 
   .button_icon.white {
     color: white;

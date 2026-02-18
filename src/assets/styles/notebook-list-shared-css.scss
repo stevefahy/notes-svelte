@@ -1,72 +1,72 @@
-.notebooks_list {
-  list-style: none;
-  color: white;
-  margin-block-start: 0em;
-  padding-inline-start: 0px;
-  padding-left: 10px;
-  padding-right: 10px;
-}
+// .notebooks_list {
+//   list-style: none;
+//   color: white;
+//   margin-block-start: 0em;
+//   padding-inline-start: 0px;
+//   padding-left: 10px;
+//   padding-right: 10px;
+// }
 
-.notebooks_list li {
-  display: flex;
-  margin-bottom: 2px;
-}
+// .notebooks_list li {
+//   display: flex;
+//   margin-bottom: 2px;
+// }
 
-.notebooks_list li div:hover {
-  background-color: #f7f7f7;
-}
+// .notebooks_list li div:hover {
+//   background-color: #f7f7f7;
+// }
 
-.notebooks_list li:first-child {
-  padding-top: 10px;
-}
+// .notebooks_list li:first-child {
+//   padding-top: 10px;
+// }
 
-ul.notebooks_list .notebooks_list_bg {
-  padding-top: 10px;
-}
+// ul.notebooks_list .notebooks_list_bg {
+//   padding-top: 10px;
+// }
 
-.notebooks_list_left {
-  width: 20px;
-  border-bottom-left-radius: 6px;
-  border-top-left-radius: 6px;
-  border-radius: 6px;
-  overflow: hidden;
-}
+// .notebooks_list_left {
+//   width: 20px;
+//   border-bottom-left-radius: 6px;
+//   border-top-left-radius: 6px;
+//   border-radius: 6px;
+//   overflow: hidden;
+// }
 
-.notebooks_list_right {
-  display: flex;
-  width: 100%;
-  padding-left: 10px;
-  align-self: center;
-  font-size: var(--size-4a);
-  color: var(--color-grey-600);
-  flex-direction: column;
-  justify-content: center;
-}
+// .notebooks_list_right {
+//   display: flex;
+//   width: 100%;
+//   padding-left: 10px;
+//   align-self: center;
+//   font-size: var(--size-4a);
+//   color: var(--color-grey-600);
+//   flex-direction: column;
+//   justify-content: center;
+// }
 
-.notebooks_list_outer {
-  width: 100%;
-  height: 50px;
-  display: flex;
-}
+// .notebooks_list_outer {
+//   width: 100%;
+//   height: 50px;
+//   display: flex;
+// }
 
 
 // .cardcontent {
 //   padding: 16px 0 !important;
 // }
 
-.notebooks_list li:first-child {
-  padding-top: 10px;
-}
+// .notebooks_list li:first-child {
+//   padding-top: 10px;
+// }
 
-.notebooks_list_bg {
-  position: relative;
-  padding-top: 10px;
-}
+// .notebooks_list_bg {
+//   position: relative;
+//   padding-top: 10px;
+// }
 
-.notebook_default {
-  color: var(--notebook-color-default);
-  background: var(--notebook-color-bg-default);
-}
+// .notebook_default {
+//   color: var(--notebook-color-default);
+//   background: var(--notebook-color-bg-default);
+// }
 
 .tab_default {
   background: var(--notebook-color-tab-default);
@@ -86,6 +86,6 @@ ul.notebooks_list .notebooks_list_bg {
   background: var(--notebook-color-tab-loading);
 }
 
-li.notebooks_list_bg .v-card {
-  width: 100%;
-}
+// li.notebooks_list_bg .v-card {
+//   width: 100%;
+// }

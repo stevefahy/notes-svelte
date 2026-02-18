@@ -2,7 +2,7 @@
   import { link } from "svelte-spa-router";
   import DateFormat from "@/lib/dateFormat";
   import type { Notebook } from "@/lib/types";
-  import { vCard, vCardText } from '@/lib/vuetify-classes';
+  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
     notebook_item: Notebook;
@@ -13,7 +13,7 @@
 <a href="/notebook/{notebook_item._id}" use:link class="notebook-link">
   <li class="notebooks_list_bg">
     <div class={vCard()}>
-      <div class={vCardText('cardcontent')}>
+      <div class={vCardText("cardcontent")}>
         <div class="notebooks_list_outer">
           <div
             class="notebooks_list_left tab_{notebook_item.notebook_cover}"
@@ -31,5 +31,5 @@
 </a>
 
 <style>
-  @import url('../../assets/styles/notebook-list-shared-css.scss');
+  @import url("../../assets/styles/notebook-list-shared-css.scss");
 </style>

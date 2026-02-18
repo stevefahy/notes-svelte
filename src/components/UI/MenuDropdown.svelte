@@ -60,7 +60,6 @@
     <span class="v-btn_overlay"></span>
     <span class="v-btn_underlay"></span>
     {#if open}
-      <!-- <div class="dropdown-menu" role="menu" transition:fly={{ y: -8, duration: 200 }}> -->
       <div
         class="dropdown-menu"
         role="menu"
@@ -116,11 +115,6 @@
   }
 
   .icon :global(.v-btn__content .material-icons) {
-    color: white !important;
-  }
-
-  .icon span .material-icons,
-  .icon span :global(.material-symbols-outlined) {
     color: white !important;
   }
 

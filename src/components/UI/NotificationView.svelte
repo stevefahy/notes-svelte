@@ -1,13 +1,13 @@
 <script lang="ts">
   interface Props {
-    n_status: 'pending' | 'success' | 'error' | null
-    title: string
-    message: string
+    n_status: "pending" | "success" | "error" | null;
+    title: string;
+    message: string;
   }
 
-  let { n_status, title, message }: Props = $props()
+  let { n_status, title, message }: Props = $props();
 
-  const isSuccess = $derived(n_status === 'success')
+  const isSuccess = $derived(n_status === "success");
 </script>
 
 <div class="notification_outer">
@@ -44,10 +44,6 @@
 
   .success {
     background-color: #1ad1b9;
-  }
-
-  .pending {
-    background-color: rgb(253, 220, 159);
   }
 
   .notification_outer {

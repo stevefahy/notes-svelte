@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link } from 'svelte-spa-router'
+  import { link } from "svelte-spa-router";
 </script>
 
 <a href="/notebooks" use:link class="no_link">
@@ -12,5 +12,6 @@
 </a>
 
 <style>
-  @import url('../../assets/styles/breadcrumb_shared.scss');
+  @import url("../../assets/styles/breadcrumb_shared.scss");
+  @import url("../../assets/styles/breadcrumb_shared_link.scss");
 </style>
