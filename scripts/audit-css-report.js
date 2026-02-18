@@ -17,13 +17,10 @@ const config = {
   css: ['dist/assets/*.css'],
   rejected: true,
   rejectedCss: true,
-  safelist: [
-    'table',
-    'table-striped',
-    'image',
-    /^hljs-/,
-    /^language-/,
-  ],
+  safelist: {
+    standard: ['table', 'table-striped', 'image', /^hljs-/, /^language-/],
+    greedy: [/^svelte-/, /^table/, /table-striped/], // Svelte hashes + markdown table compounds
+  },
   skippedContentGlobs: ['node_modules/**'],
 };
 
@@ -94,6 +91,7 @@ function buildReport(results) {
   lines.push('| `hljs`, `hljs-*` | markdown.ts | highlight.js output |');
   lines.push('| `language-*` | Possible markdown code blocks | If Prism/lang classes are used |');
   lines.push('| Vuetify-style classes | bits-ui, components | .v-btn, .v-theme--*, etc. |');
+  lines.push('| `svelte-*` | Svelte components | Scoped class hashes (safelisted via greedy) |');
   lines.push('');
   lines.push(
     'If any of the above appear in the unused list, add them to `safelist` in purgecss.config.js and re-run.'

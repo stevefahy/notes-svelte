@@ -9,14 +9,17 @@ export default {
   css: ['dist/assets/*.css'],
   rejected: true,
   rejectedCss: true,
-  safelist: [
-    // Dynamic classes from markdown rendering (markdown.ts)
-    'table',
-    'table-striped',
-    'image',
-    /^hljs-/, // highlight.js syntax classes
-    /^language-/, // Prism/lang prefix (if any markdown uses it)
-    // bits-ui / component lib classes if needed
-  ],
+  safelist: {
+    standard: [
+      'table',
+      'table-striped',
+      'image',
+      /^hljs-/,
+      /^language-/,
+    ],
+    // Keep all Svelte scoped component styles (.svelte-xxxxx)
+    // Keep table compounds (markdown.ts renders tables with .table, .table-striped)
+    greedy: [/^svelte-/, /^table/, /table-striped/],
+  },
   skippedContentGlobs: ['node_modules/**'],
 };

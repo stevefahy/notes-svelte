@@ -165,10 +165,6 @@ $color-secondary: #b30000;
   letter-spacing: 0.0075em !important;
 }
 
-notebooklistitem {
-  width: 100%;
-}
-
 input,
 select,
 textarea {
@@ -183,6 +179,7 @@ input {
 select {
   -moz-appearance: auto !important;
   -webkit-appearance: auto !important;
+  appearance: auto !important;
 }
 
 .v-overlay__scrim {
@@ -230,8 +227,8 @@ select {
   border-radius: 4px;
   font-size: 0.875rem;
   display: flex;
-align-items: center;
-justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-contained:hover {
@@ -357,10 +354,7 @@ justify-content: center;
 * {
   box-sizing: border-box;
 }
-user agent stylesheet div {
-  display: block;
-  unicode-bidi: isolate;
-}
+
 .v-overlay__content {
   outline: none;
   position: absolute;
@@ -391,7 +385,6 @@ user agent stylesheet div {
 .dialogue_container {
   max-width: 300px;
   padding: 10px;
-
 }
 
 // .v-dialog > .v-overlay__content > .v-card > .v-card-text,
@@ -516,5 +509,8 @@ user agent stylesheet div {
 
 /* Override veutify.min.css for ViewNote/EditNote cards */
 .note-card.v-card--variant-elevated {
-  box-shadow: #0003 0 3px 3px -2px, #00000024 0 3px 4px, #0000001f 0 1px 8px !important;
+  box-shadow:
+    #0003 0 3px 3px -2px,
+    #00000024 0 3px 4px,
+    #0000001f 0 1px 8px !important;
 }

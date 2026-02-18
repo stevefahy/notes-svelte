@@ -106,10 +106,10 @@ body {
 
   margin: 0;
   color: rgb(98, 98, 98);
-  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-family: "Helvetica", "Arial", sans-serif;
 }
 
-input[type='checkbox']:focus {
+input[type="checkbox"]:focus {
   outline: 0;
 }
 
@@ -200,20 +200,26 @@ select {
 
 .page_scrollable_header_breadcrumb_footer {
   height: calc(
-    var(--jsvh) - (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) * 1px
+    var(--jsvh) -
+      (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) *
+      1px
   );
 }
 
 .page_scrollable_header_breadcrumb_footer_list {
   overflow-y: scroll;
   height: calc(
-    var(--jsvh) - (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) * 1px
+    var(--jsvh) -
+      (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) *
+      1px
   );
 }
 
 .page_scrollable_header_breadcrumb_list {
   overflow-y: auto;
-  height: calc(var(--jsvh) - (var(--header-height) + var(--breadcrumb-height)) * 1px);
+  height: calc(
+    var(--jsvh) - (var(--header-height) + var(--breadcrumb-height)) * 1px
+  );
 }
 
 .viewnote_content {
@@ -233,7 +239,7 @@ select {
 
 .thumb_outer .v-card {
   padding-top: 16px;
-  padding-bottom: 16px
+  padding-bottom: 16px;
 }
 
 .viewnote_content a {
@@ -260,46 +266,11 @@ span.token {
   word-break: break-word;
 }
 
-// .viewnote_content ol, ul {
-//   margin-top: 0;
-//   margin-bottom: 0;
-// }
-
-.viewnote_content ul, 
+.viewnote_content ul,
 .viewnote_content ol {
   padding-inline-start: 25px;
   margin-block-start: 10px;
 }
-
-// .viewnote_content ul {
-//   padding-inline-start: 25px;
-//   margin-block-start: 10px;
-//   margin-block-end: 0;
-// }
-
-// .viewnote_thumb.viewnote_content ul {
-//   margin-bottom: 10px !important;
-// }
-
-// .viewnote_content ul ul {
-//   padding-inline-start: 25px;
-// }
-
-// .viewnote_content ul ol {
-//   padding-inline-start: 25px;
-// }
-
-// .viewnote_content ol ul {
-//   padding-inline-start: 25px;
-// }
-
-// .viewnote_content ol ol {
-//   padding-inline-start: 25px;
-// }
-
-// .viewnote_content ol {
-//   padding-inline-start: 25px;
-// }
 
 .viewnote_content ul li.task-list-item {
   display: flex;
@@ -332,21 +303,12 @@ span.token {
   display: contents;
 }
 
-.MuiCardContent-root:last-child {
-  padding-bottom: 16px;
-}
-
-.MuiCardContent-root {
-  padding: 16px;
-  padding-bottom: 10px !important;
-}
-
 .material-symbols-outlined {
   font-variation-settings:
-    'FILL' 0,
-    'wght' 700,
-    'GRAD' 0,
-    'opsz' 48;
+    "FILL" 0,
+    "wght" 700,
+    "GRAD" 0,
+    "opsz" 48;
   color: rgba(0, 0, 0, 0.54);
 }
 
@@ -366,22 +328,6 @@ span.token {
   .material-symbols-outlined {
     font-size: 20px;
   }
-
-  svg.MuiSvgIcon-root {
-    font-size: 1.2rem;
-  }
-
-  button.MuiButtonBase-root {
-    font-size: 12px;
-    padding-left: 12px;
-    padding-right: 12px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  // .button_icon {
-  //   margin-right: 4px !important;
-  // }
 
   .icon_text {
     font-size: 12px;
@@ -551,7 +497,7 @@ blockquote::before {
   margin-top: 0px;
   left: -10px;
   top: -5px;
-  content: ' ';
+  content: " ";
   height: 26px;
   background-color: #fff;
   background-repeat: no-repeat;
@@ -579,11 +525,11 @@ ins::before {
 }
 
 .delete_md::before {
-  content: '−';
+  content: "−";
 }
 
 ins::before {
-  content: '+';
+  content: "+";
 }
 
 code {
@@ -591,7 +537,8 @@ code {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 .footnotes-list {
@@ -620,7 +567,7 @@ ul p {
     inset 0 -40px 40px rgba(0, 0, 0, 0.2),
     inset 0 25px 10px rgba(0, 0, 0, 0.2),
     0 5px 6px 5px rgba(0, 0, 0, 0.2);
-  font-family: 'Permanent Marker', cursive;
+  font-family: "Permanent Marker", cursive;
   line-height: 1.7em;
   mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
   -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
@@ -633,7 +580,7 @@ ul p {
 }
 
 .post-it:before {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   width: 20px;
@@ -649,7 +596,7 @@ ul p {
 }
 
 .post-it:after {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   width: 75%;
@@ -679,11 +626,18 @@ ul p {
 .edit {
   overflow-y: scroll;
   height: calc(
-      (var(--jsvh) - (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) * 1px) -
-        0px
-    ) !important;
-    display: block !important;
-  }
+    (
+        var(--jsvh) -
+          (
+            var(--header-height) + var(--footer-height) +
+              var(--breadcrumb-height)
+          ) *
+          1px
+      ) -
+      0px
+  ) !important;
+  display: block !important;
+}
 
 .icon_no_margin {
   margin-right: 0px;
@@ -712,15 +666,12 @@ ul p {
   align-items: flex-start;
 }
 
-.MuiBreadcrumbs-separator {
-  margin-left: 2px !important;
-  margin-right: 2px !important;
-}
-
 .loading_routes {
   width: 100%;
   height: calc(
-    var(--jsvh) - (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) * 1px
+    var(--jsvh) -
+      (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) *
+      1px
   );
   display: flex;
   align-items: center;
@@ -815,7 +766,7 @@ li code {
 .viewnote_content pre {
   color: rgb(197, 200, 198);
   text-shadow: rgba(0, 0, 0, 0.3) 0px 1px;
-  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier, monospace;
+  font-family: Inconsolata, Monaco, Consolas, "Courier New", Courier, monospace;
   direction: ltr;
   text-align: left;
   white-space: pre;
@@ -854,18 +805,6 @@ li code {
 
 .snackbar {
   background: #2196f3;
-}
-
-.mat-mdc-snack-bar-container {
-  &.snackbar {
-    border-radius: 15px;
-    --mdc-snackbar-container-color: rgb(236, 247, 237);
-    --mat-mdc-snack-bar-button-color: #116600;
-    --mdc-snackbar-supporting-text-color: #116600;
-    --mat-snack-bar-button-color: #116600;
-    position: relative;
-    bottom: 70px;
-  }
 }
 
 .md_anchorlink {
@@ -916,8 +855,6 @@ li code {
 }
 
 .viewnote_content.editable {
-  // min-height: 60px;
-  // padding: 16px;
   outline: none;
   white-space: pre-wrap;
   margin-bottom: 10px;
@@ -930,18 +867,14 @@ li code {
 /* Svelte: note-card replaces v-card for ViewNote/EditNote */
 .note-card {
   display: block;
-  // overflow: hidden;
   position: relative;
   border-radius: 4px;
-  // padding: 0 16px 16px 16px !important;
   box-shadow:
     rgb(0 0 0 / 0.2) 0 3px 3px -2px,
     rgb(0 0 0 / 0.14) 0 3px 4px,
     rgb(0 0 0 / 0.12) 0 1px 8px;
   background: #fff;
 }
-
-
 
 /* Svelte: dropdown replaces v-menu */
 .dropdown {
@@ -973,7 +906,7 @@ li code {
   text-align: left;
   font-size: 0.875rem;
   width: 100%;
-  color: rgba(0, 0, 0, .87);
+  color: rgba(0, 0, 0, 0.87);
   font-size: 16px;
   font-weight: 400;
 }
@@ -990,8 +923,6 @@ li code {
   z-index: 1000;
 }
 
-
-
 /* Vuetify-style class names for Svelte (matches Vue/Vuetify structure) */
 
 /* src/app.css */
@@ -1001,13 +932,12 @@ li code {
   --v-theme-on-surface: 0, 0, 0;
   --v-theme-secondary: 179, 0, 0;
   --v-theme-on-secondary: 255, 255, 255;
-  
+
   /* Opacity defaults from your Vue logs */
   --v-high-emphasis-opacity: 0.87;
   --v-shadow-key-umbra-opacity: rgba(0, 0, 0, 0.2);
   --v-btn-height: 36px;
 }
-
 
 /* 1. The Core Button (v-btn) */
 .v-btn {
@@ -1017,11 +947,13 @@ li code {
   grid-template-columns: max-content auto max-content;
   font-weight: 500;
   justify-content: center;
-  letter-spacing: .0892857143em;
+  letter-spacing: 0.0892857143em;
   line-height: normal;
   position: relative;
   text-transform: uppercase;
-  transition: box-shadow .28s, background .28s;
+  transition:
+    box-shadow 0.28s,
+    background 0.28s;
   user-select: none;
   vertical-align: middle;
   border-radius: 4px; /* default */
@@ -1029,7 +961,7 @@ li code {
 
 /* 2. Sizing Logic */
 .v-btn--size-default {
-  --v-btn-size: .875rem;
+  --v-btn-size: 0.875rem;
   --v-btn-height: 36px;
   font-size: var(--v-btn-size);
   min-width: 64px;
@@ -1045,15 +977,16 @@ li code {
 }
 
 .v-btn--variant-elevated {
-  box-shadow: 0 3px 1px -2px var(--v-shadow-key-umbra-opacity), 
-              0 2px 2px 0 rgba(0,0,0,.14), 
-              0 1px 5px 0 rgba(0,0,0,.12);
+  box-shadow:
+    0 3px 1px -2px var(--v-shadow-key-umbra-opacity),
+    0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
 /* 4. Hover State (From your Vue logs) */
 .v-btn.contained:hover {
-    background-color: #7d0000 !important; /* The darkened red */
-    text-decoration: none;
+  background-color: #7d0000 !important; /* The darkened red */
+  text-decoration: none;
 }
 
 .modal-dialog {
@@ -1071,7 +1004,6 @@ li code {
 .form button.btn-contained {
   padding: 10px 20px;
 }
-
 
 .profile {
   margin: 3rem auto;
