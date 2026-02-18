@@ -1,12 +1,12 @@
 <script lang="ts">
   interface Props {
-    userName?: string;
-    email?: string;
+    userName?: string
+    email?: string
   }
-  let { userName, email }: Props = $props();
+  let { userName, email }: Props = $props()
 </script>
 
-<div>
+<div >
   {#if userName}
     <h2>{userName}</h2>
   {/if}
@@ -16,6 +16,15 @@
 </div>
 
 <style>
+  .profile {
+    margin: 3rem auto;
+    text-align: center;
+    display: flex;
+    overflow-y: visible;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .profile_email {
     font-size: 1rem;
     color: #666;

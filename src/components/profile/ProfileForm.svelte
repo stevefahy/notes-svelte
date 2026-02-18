@@ -1,116 +1,117 @@
 <script lang="ts">
-  import { get } from "svelte/store";
-  import { authStore } from "@/stores/auth";
-  import { changeUsername, changePassword } from "@/lib/api";
-  import { notificationStore } from "@/stores/notification";
-  import { snackStore } from "@/stores/snack";
-  import APPLICATION_CONSTANTS from "@/lib/constants";
-  import ErrorAlert from "@/components/UI/ErrorAlert.svelte";
-  import type { ProfileFormProps } from "@/lib/types";
+  import { get } from 'svelte/store'
+  import { authStore } from '@/stores/auth'
+  import { changeUsername, changePassword } from '@/lib/api'
+  import { notificationStore } from '@/stores/notification'
+  import { snackStore } from '@/stores/snack'
+  import APPLICATION_CONSTANTS from '@/lib/constants'
+  import ErrorAlert from '@/components/UI/ErrorAlert.svelte'
+  import type { ProfileFormProps } from '@/lib/types'
 
-  let { userName, onChangePassword, onChangeUsername }: ProfileFormProps =
-    $props();
+  let { userName, onChangePassword, onChangeUsername }: ProfileFormProps = $props()
 
-  let newUsername = $state("");
-  let oldPassword = $state("");
-  let newPassword = $state("");
+  let newUsername = $state('')
+  let oldPassword = $state('')
+  let newPassword = $state('')
   // let confirmPassword = $state('')
-  let error = $state({ error_state: false, message: "" });
-  let isSubmitting = $state(false);
-  let userNameToggle = $state(false);
-  let passwordToggle = $state(false);
+  let error = $state({ error_state: false, message: '' })
+  let isSubmitting = $state(false)
+  let userNameToggle = $state(false)
+  let passwordToggle = $state(false)
 
-  const AC = APPLICATION_CONSTANTS;
+  const AC = APPLICATION_CONSTANTS
 
   const showNotification = (msg: string) => {
     notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
+      notification: { n_status: 'error', title: 'Error!', message: msg }
+    })
+  }
 
   const resetToggle = () => {
-    error = { error_state: false, message: "" };
-    userNameToggle = false;
-    passwordToggle = false;
-    oldPassword = "";
-    newPassword = "";
+    error = { error_state: false, message: '' }
+    userNameToggle = false
+    passwordToggle = false
+    oldPassword = ''
+    newPassword = ''
     // confirmPassword = ''
-    newUsername = userName ?? "";
-  };
+    newUsername = userName ?? ''
+  }
 
   const toggleUserName = () => {
-    error = { error_state: false, message: "" };
-    passwordToggle = false;
-    userNameToggle = !userNameToggle;
+    error = { error_state: false, message: '' }
+    passwordToggle = false
+    userNameToggle = !userNameToggle
     if (userNameToggle) {
-      newUsername = userName ?? "";
+      newUsername = userName ?? ''
     }
-  };
+  }
 
   const togglePassword = () => {
-    error = { error_state: false, message: "" };
-    userNameToggle = false;
-    passwordToggle = !passwordToggle;
-  };
+    error = { error_state: false, message: '' }
+    userNameToggle = false
+    passwordToggle = !passwordToggle
+  }
 
   const handleChangeUsername = async (e: Event) => {
-    e.preventDefault();
-    const token = get(authStore).token;
-    if (!token || !newUsername.trim()) return;
+    e.preventDefault()
+    const token = get(authStore).token
+    if (!token || !newUsername.trim()) return
     if (newUsername.length < AC.USERNAME_MIN) {
-      error = { error_state: true, message: AC.CHANGE_USER_TOO_FEW };
-      return;
+      error = { error_state: true, message: AC.CHANGE_USER_TOO_FEW }
+      return
     }
     if (newUsername.length > AC.USERNAME_MAX) {
-      error = { error_state: true, message: AC.CHANGE_USER_TOO_MANY };
-      return;
+      error = { error_state: true, message: AC.CHANGE_USER_TOO_MANY }
+      return
     }
     if (newUsername === userName) {
-      error = { error_state: true, message: AC.CHANGE_USER_UNIQUE };
-      return;
+      error = { error_state: true, message: AC.CHANGE_USER_UNIQUE }
+      return
     }
-    isSubmitting = true;
-    error = { error_state: false, message: "" };
-    const result = await changeUsername(token, {
-      newUsername: newUsername.trim(),
-    });
-    isSubmitting = false;
-    if (result && "error" in result) {
-      showNotification(result.error ?? AC.GENERAL_ERROR);
-    } else if (result && "success" in result && result.details) {
-      authStore.update((ctx) => ({ ...ctx, details: result.details }));
-      snackStore.ShowSnack({ n_status: true, message: "User name changed!" });
-      resetToggle();
+    isSubmitting = true
+    error = { error_state: false, message: '' }
+    const result = await changeUsername(token, { newUsername: newUsername.trim() })
+    isSubmitting = false
+    if (result && 'error' in result) {
+      showNotification(result.error ?? AC.GENERAL_ERROR)
+    } else if (result && 'success' in result && result.details) {
+      authStore.update((ctx) => ({ ...ctx, details: result.details }))
+      snackStore.ShowSnack({ n_status: true, message: 'User name changed!' })
+      resetToggle()
     }
-  };
+  }
 
   const handleChangePassword = async (e: Event) => {
-    e.preventDefault();
-    const token = get(authStore).token;
-    if (!token) return;
+    e.preventDefault()
+    const token = get(authStore).token
+    if (!token) return
     if (oldPassword === newPassword) {
-      error = { error_state: true, message: AC.CHANGE_PASS_UNIQUE };
-      return;
+      error = { error_state: true, message: AC.CHANGE_PASS_UNIQUE }
+      return
     }
     if (newPassword.length < AC.PASSWORD_MIN) {
-      error = { error_state: true, message: AC.CHANGE_PASS_TOO_FEW };
-      return;
+      error = { error_state: true, message: AC.CHANGE_PASS_TOO_FEW }
+      return
     }
     if (newPassword.length > AC.PASSWORD_MAX) {
-      error = { error_state: true, message: AC.CHANGE_PASS_TOO_MANY };
-      return;
+      error = { error_state: true, message: AC.CHANGE_PASS_TOO_MANY }
+      return
     }
-    isSubmitting = true;
-    error = { error_state: false, message: "" };
-    const result = await changePassword(token, { oldPassword, newPassword });
-    isSubmitting = false;
-    if (result && "error" in result) {
-      showNotification(result.error ?? AC.GENERAL_ERROR);
-    } else if (result && "success" in result) {
-      snackStore.ShowSnack({ n_status: true, message: "Password updated" });
-      resetToggle();
+    // if (newPassword !== confirmPassword) {
+    //   error = { error_state: true, message: AC.CHANGE_PASS_LENGTH }
+    //   return
+    // }
+    isSubmitting = true
+    error = { error_state: false, message: '' }
+    const result = await changePassword(token, { oldPassword, newPassword })
+    isSubmitting = false
+    if (result && 'error' in result) {
+      showNotification(result.error ?? AC.GENERAL_ERROR)
+    } else if (result && 'success' in result) {
+      snackStore.ShowSnack({ n_status: true, message: 'Password updated' })
+      resetToggle()
     }
-  };
+  }
 </script>
 
 <div class="change_buttons">
@@ -137,16 +138,9 @@
     <form onsubmit={handleChangeUsername} class="form">
       <div class="control">
         <label for="newUsername">User name</label>
-        <input
-          type="text"
-          id="newUsername"
-          bind:value={newUsername}
-          placeholder="New username"
-        />
+        <input type="text" id="newUsername" bind:value={newUsername} placeholder="New username" />
       </div>
-      <button type="submit" disabled={isSubmitting} class="btn-contained"
-        >Change User Name</button
-      >
+      <button type="submit" disabled={isSubmitting} class="btn-contained">Change User Name</button>
     </form>
   </div>
 {/if}
@@ -163,9 +157,7 @@
         <label for="newPassword">New Password</label>
         <input type="password" id="newPassword" bind:value={newPassword} />
       </div>
-      <button type="submit" disabled={isSubmitting} class="btn-contained"
-        >Update Password</button
-      >
+      <button type="submit" disabled={isSubmitting} class="btn-contained">Update Password</button>
     </form>
   </div>
 {/if}
@@ -178,11 +170,11 @@
   .form {
     margin: 1.5rem auto;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+     flex-direction: column;
+     align-items: center;
   }
 
-  .form button[type="submit"] {
+  .form button[type='submit'] {
     margin-top: 1.5rem;
   }
 

@@ -1,50 +1,47 @@
 <script lang="ts">
-  import { get } from "svelte/store";
-  import { authStore } from "@/stores/auth";
-  import { notificationStore } from "@/stores/notification";
-  import { addNotebook } from "@/lib/api";
-  import type { Notebook } from "@/lib/types";
-  import NotebookListItem from "./NotebookListItem.svelte";
-  import FooterView from "@/components/layout/FooterView.svelte";
-  import AddNotebookForm from "./AddNotebookForm.svelte";
+  import { get } from 'svelte/store'
+  import { authStore } from '@/stores/auth'
+  import { notificationStore } from '@/stores/notification'
+  import { addNotebook } from '@/lib/api'
+  import type { Notebook } from '@/lib/types'
+  import NotebookListItem from './NotebookListItem.svelte'
+  import FooterView from '@/components/layout/FooterView.svelte'
+  import AddNotebookForm from './AddNotebookForm.svelte'
 
   interface Props {
-    error?: string;
-    success?: boolean;
-    notebooks: Notebook[];
-    onNotebooksReload?: () => void | Promise<void>;
+    error?: string
+    success?: boolean
+    notebooks: Notebook[]
+    onNotebooksReload?: () => void | Promise<void>
   }
-  let { error, success, notebooks, onNotebooksReload }: Props = $props();
+  let { error, success, notebooks, onNotebooksReload }: Props = $props()
 
-  let enableAddNotebook = $state(false);
-  const localNotebooks = $derived(notebooks || []);
+  let enableAddNotebook = $state(false)
+  const localNotebooks = $derived(notebooks || [])
 
   const showNotification = (msg: string) => {
     notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
+      notification: { n_status: 'error', title: 'Error!', message: msg }
+    })
+  }
 
-  const addNotebookHandler = async (
-    notebook_name: string,
-    notebook_cover: string,
-  ) => {
-    const token = get(authStore).token;
-    if (!token) return;
-    const response = await addNotebook(token, notebook_name, notebook_cover);
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
-      return;
+  const addNotebookHandler = async (notebook_name: string, notebook_cover: string) => {
+    const token = get(authStore).token
+    if (!token) return
+    const response = await addNotebook(token, notebook_name, notebook_cover)
+    if (response && 'error' in response) {
+      showNotification(response.error ?? 'Unknown error')
+      return
     }
-    if (response && "success" in response && response.success) {
-      enableAddNotebook = false;
-      await onNotebooksReload?.();
+    if (response && 'success' in response && response.success) {
+      enableAddNotebook = false
+      await onNotebooksReload?.()
     }
-  };
+  }
 
   const cancelHandler = () => {
-    enableAddNotebook = false;
-  };
+    enableAddNotebook = false
+  }
 </script>
 
 {#if localNotebooks.length > 0 || enableAddNotebook}
@@ -54,11 +51,7 @@
     {/each}
   </ul>
   {#if enableAddNotebook}
-    <AddNotebookForm
-      method="create"
-      onAddNotebook={addNotebookHandler}
-      onCancel={cancelHandler}
-    />
+    <AddNotebookForm method="create" onAddNotebook={addNotebookHandler} onCancel={cancelHandler} />
   {/if}
 {/if}
 
@@ -71,9 +64,7 @@
       type="button"
     >
       <span class="icon_text">
-        <span class="material-symbols-outlined button_icon white">
-          add_circle
-        </span>
+        <span class="material-symbols-outlined button_icon white"> add_circle </span>
         Add Notebook
       </span>
     </button>
@@ -81,12 +72,6 @@
 </FooterView>
 
 <style>
-  .notebooks_list {
-    list-style: none;
-    color: white;
-    margin-block-start: 0em;
-    padding-inline-start: 0px;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
+  @import url('../../assets/styles/notebook-list-shared-css.scss');
+  @import url('../../assets/styles/breadcrumb_shared.scss');
 </style>

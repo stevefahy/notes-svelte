@@ -63,7 +63,9 @@
             <span class="breadcrumb_link_icon">
               <span class="breadcrumb_seperator">/</span>
             </span>
-            <span class="material-icons breadcrumb_icon">account_circle</span>
+            <span class="material-icons breadcrumb_icon"
+              >account_circle</span
+            >
             Profile
           </span>
         {/if}
