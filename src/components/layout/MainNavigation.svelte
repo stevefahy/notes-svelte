@@ -1,13 +1,18 @@
 <script lang="ts">
-  import BreadCrumb from './BreadCrumb.svelte'
-  import MenuDropdown from '../UI/MenuDropdown.svelte'
+  import BreadCrumb from "./BreadCrumb.svelte";
+  import MenuDropdown from "../UI/MenuDropdown.svelte";
 </script>
 
 <div class="header" id="header_height">
   <div class="header_container">
     <div class="logo_container">
       <div class="header_title_logo">
-        <img src="/assets/images/edit_white.png" alt="Notes logo" width="20" height="20" />
+        <img
+          src="/assets/images/edit_white.png"
+          alt="Notes logo"
+          width="20"
+          height="20"
+        />
       </div>
       <div class="header_title">NOTES</div>
     </div>

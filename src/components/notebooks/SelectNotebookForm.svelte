@@ -1,48 +1,56 @@
 <script lang="ts">
-  import type { Notebook } from '@/lib/types'
-  import { vCard, vCardText } from '@/lib/vuetify-classes'
+  import type { Notebook } from "@/lib/types";
+  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
-    notebooks: Notebook[]
-    currentNotebookId: string | null
-    onMoveNotes: (notebookId: string) => void | Promise<void>
-    onCancel: () => void
+    notebooks: Notebook[];
+    currentNotebookId: string | null;
+    onMoveNotes: (notebookId: string) => void | Promise<void>;
+    onCancel: () => void;
   }
-  let { notebooks, currentNotebookId, onMoveNotes, onCancel }: Props = $props()
+  let { notebooks, currentNotebookId, onMoveNotes, onCancel }: Props = $props();
 
-  let selectedNotebook = $state('')
-  let formIsValid = $derived(selectedNotebook !== '' && selectedNotebook !== 'default')
+  let selectedNotebook = $state("");
+  let formIsValid = $derived(
+    selectedNotebook !== "" && selectedNotebook !== "default",
+  );
 
   const notebooksSorted = $derived.by(() => {
-    const copy = [...notebooks]
+    const copy = [...notebooks];
     copy.sort((a, b) => {
-      const aDate = a.updatedAt === 'No date' || !a.updatedAt ? 'December 17, 1995' : a.updatedAt
-      const bDate = b.updatedAt === 'No date' || !b.updatedAt ? 'December 17, 1995' : b.updatedAt
-      return new Date(aDate) > new Date(bDate) ? -1 : 1
-    })
-    return copy
-  })
+      const aDate =
+        a.updatedAt === "No date" || !a.updatedAt
+          ? "December 17, 1995"
+          : a.updatedAt;
+      const bDate =
+        b.updatedAt === "No date" || !b.updatedAt
+          ? "December 17, 1995"
+          : b.updatedAt;
+      return new Date(aDate) > new Date(bDate) ? -1 : 1;
+    });
+    return copy;
+  });
 
   const notebooksFiltered = $derived(
-    notebooksSorted.filter((n) => n._id !== currentNotebookId)
-  )
+    notebooksSorted.filter((n) => n._id !== currentNotebookId),
+  );
 
   const cancelHandler = (e: Event) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onCancel()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    onCancel();
+  };
 
   const submitHandler = async (e: Event) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!selectedNotebook || !formIsValid) return
-    await onMoveNotes(selectedNotebook)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedNotebook || !formIsValid) return;
+    await onMoveNotes(selectedNotebook);
+  };
 
   function focusDialog(node: HTMLElement) {
-    node.focus()
-    return {}
+    node.focus();
+    return {};
   }
 </script>
 
@@ -54,20 +62,20 @@
     aria-label="Close dialog"
     onclick={(e) => cancelHandler(e)}
     onkeydown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        cancelHandler(e)
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        cancelHandler(e);
       }
     }}
   ></div>
   <div
-    class={vCard('card', 'modal-dialog', 'dialogue_container')}
+    class={vCard("card", "modal-dialog", "dialogue_container")}
     role="dialog"
     aria-modal="true"
     aria-labelledby="move-notebook-title"
     tabindex="-1"
     use:focusDialog
-    onkeydown={(e) => e.key === 'Escape' && cancelHandler(e)}
+    onkeydown={(e) => e.key === "Escape" && cancelHandler(e)}
   >
     <div class={vCardText()}>
       <h2 id="move-notebook-title" class="dialogue-title">Move to Notebook</h2>
@@ -107,7 +115,9 @@
               aria-label="Cancel button"
             >
               <span class="icon_text">
-                <span class="material-symbols-outlined button_icon white">cancel</span>
+                <span class="material-symbols-outlined button_icon white"
+                  >cancel</span
+                >
                 Cancel
               </span>
             </button>
@@ -180,20 +190,6 @@
     background: rgba(0, 0, 0, 0.5);
     cursor: pointer;
   }
-
-  /* .modal-dialog {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1001;
-    cursor: default;
-    background-color: white;
-  } */
-
-  /* .dialogue_container {
-    max-width: 300px;
-  } */
 
   .icon_text {
     display: flex;

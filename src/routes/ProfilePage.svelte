@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { authStore } from '@/stores/auth'
-  import UserProfile from '@/components/profile/UserProfile.svelte'
-  import ProfileForm from '@/components/profile/ProfileForm.svelte'
+  import { authStore } from "@/stores/auth";
+  import UserProfile from "@/components/profile/UserProfile.svelte";
+  import ProfileForm from "@/components/profile/ProfileForm.svelte";
 
-  const ctx = $derived($authStore)
+  const ctx = $derived($authStore);
 </script>
 
 <div class="profile">
@@ -18,4 +18,3 @@
     }}
   />
 </div>
-

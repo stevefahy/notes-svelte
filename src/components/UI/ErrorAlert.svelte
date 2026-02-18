@@ -1,21 +1,23 @@
 <script lang="ts">
   interface Props {
-    error_state?: boolean
-    error_severity?: '' | 'error' | 'warning' | 'info' | 'success'
-    message?: string
+    error_state?: boolean;
+    error_severity?: "" | "error" | "warning" | "info" | "success";
+    message?: string;
   }
 
-  let { error_state, error_severity = 'warning', message }: Props = $props()
+  let { error_state, error_severity = "warning", message }: Props = $props();
 
-  const errorCase = $derived(error_severity || 'warning')
+  const errorCase = $derived(error_severity || "warning");
 </script>
 
 {#if error_state && message}
   <div class="error_alert_position">
     <div class="error_alert {errorCase}">
       <div class="error_alert_message">
-        <span class="material-symbols-outlined error_alert_icon {errorCase}_icon">
-          {errorCase === 'success' ? 'check_circle' : 'error'}
+        <span
+          class="material-symbols-outlined error_alert_icon {errorCase}_icon"
+        >
+          {errorCase === "success" ? "check_circle" : "error"}
         </span>
         {message}
       </div>

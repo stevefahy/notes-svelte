@@ -4,5 +4,5 @@
 </span>
 
 <style>
-  @import url('../../assets/styles/breadcrumb_shared.scss');
+  @import url("../../assets/styles/breadcrumb_shared.scss");
 </style>

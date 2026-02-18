@@ -8,7 +8,7 @@ const APPLICATION_CONSTANTS = {
   SIGNUP_EMAIL_REGISTERED: `That email is already registered.`,
   SIGNUP_ERROR: `Failed to signup.`,
   REFRESH_TOKEN_ERROR: `Failed to retrieve a valid Refresh Token.`,
-  GENERAL_ERROR: 'Something went wrong! Please try again later.',
+  GENERAL_ERROR: "Something went wrong! Please try again later.",
   CREATE_NOTEBOOK_ERROR: `Failed to create Notebook.`,
   CREATE_NOTE_ERROR: `Failed to create Note.`,
   CREATE_USER_ERROR: `Failed to create User.`,
@@ -49,9 +49,9 @@ const APPLICATION_CONSTANTS = {
   SPLITSCREEN_MINIMUM_WIDTH: 500,
   VIEWNOTE_PADDING: 69,
   VIEWNOTE_PADDING_MOBILE: 52,
-  DEFAULT_PAGE: '/notebooks',
+  DEFAULT_PAGE: "/notebooks",
   LOGIN_PAGE: `/login`,
-  REFRESH_TOKEN_INTERVAL: 5 * 60 * 1000
-}
+  REFRESH_TOKEN_INTERVAL: 5 * 60 * 1000,
+};
 
-export default APPLICATION_CONSTANTS
+export default APPLICATION_CONSTANTS;

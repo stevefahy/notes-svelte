@@ -1,19 +1,19 @@
-import { writable } from 'svelte/store'
-import type { Snack } from '@/lib/types'
+import { writable } from "svelte/store";
+import type { Snack } from "@/lib/types";
 
 const initialState: Snack = {
   n_status: false,
-  message: null
-}
+  message: null,
+};
 
 function createSnackStore() {
-  const { subscribe, set } = writable(initialState)
+  const { subscribe, set } = writable(initialState);
 
   const ShowSnack = (param: Snack) => {
-    set(param)
-  }
+    set(param);
+  };
 
-  return { subscribe, ShowSnack }
+  return { subscribe, ShowSnack };
 }
 
-export const snackStore = createSnackStore()
+export const snackStore = createSnackStore();

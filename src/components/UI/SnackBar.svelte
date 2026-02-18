@@ -1,32 +1,34 @@
 <script lang="ts">
-  import { snackStore } from '@/stores/snack'
+  import { snackStore } from "@/stores/snack";
 
-  let message = $state('')
-  let status = $state(false)
-  const timeout = 2000
+  let message = $state("");
+  let status = $state(false);
+  const timeout = 2000;
 
   const unsubscribe = snackStore.subscribe((state) => {
     if (state.n_status && state.message) {
-      status = state.n_status
-      message = state.message
+      status = state.n_status;
+      message = state.message;
     }
-  })
+  });
 
   $effect(() => {
     if (status && message) {
       const t = setTimeout(() => {
-        status = false
-        message = ''
-      }, timeout)
-      return () => clearTimeout(t)
+        status = false;
+        message = "";
+      }, timeout);
+      return () => clearTimeout(t);
     }
-  })
+  });
 </script>
 
 {#if status && message}
   <div class="snackbar snack_outer" role="status">
     <span class="icon_text snack_text">
-      <span class="material-symbols-outlined button_icon snack_icon"> check_circle </span>
+      <span class="material-symbols-outlined button_icon snack_icon">
+        check_circle
+      </span>
       {message}
     </span>
   </div>

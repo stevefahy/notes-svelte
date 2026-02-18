@@ -119,11 +119,6 @@
     color: white !important;
   }
 
-  .icon span .material-icons,
-  .icon span :global(.material-symbols-outlined) {
-    color: white !important;
-  }
-
   .nav_menu {
     padding-right: 24px;
   }

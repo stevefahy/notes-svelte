@@ -1,195 +1,217 @@
-import MarkdownIt from 'markdown-it'
-import { full as markdownItEmoji } from 'markdown-it-emoji'
-import markdownItFootnote from 'markdown-it-footnote'
-import markdownItSub from 'markdown-it-sub'
-import markdownItSup from 'markdown-it-sup'
-import markdownItIns from 'markdown-it-ins'
-import markdownItMark from 'markdown-it-mark'
-import markdownItAbbr from 'markdown-it-abbr'
-import markdownItAttrs from 'markdown-it-attrs'
-import markdownItTaskCheckbox from 'markdown-it-task-checkbox'
-import markdownItContainer from 'markdown-it-container'
-import markdownItAnchor from 'markdown-it-anchor'
-import matter from 'gray-matter'
-import emojiDefs from '@/lib/emoji_definitions'
-import hljs from 'highlight.js/lib/core'
-import js from 'highlight.js/lib/languages/javascript'
-import css from 'highlight.js/lib/languages/css'
-import markdown from 'highlight.js/lib/languages/markdown'
+import MarkdownIt from "markdown-it";
+import { full as markdownItEmoji } from "markdown-it-emoji";
+import markdownItFootnote from "markdown-it-footnote";
+import markdownItSub from "markdown-it-sub";
+import markdownItSup from "markdown-it-sup";
+import markdownItIns from "markdown-it-ins";
+import markdownItMark from "markdown-it-mark";
+import markdownItAbbr from "markdown-it-abbr";
+import markdownItAttrs from "markdown-it-attrs";
+import markdownItTaskCheckbox from "markdown-it-task-checkbox";
+import markdownItContainer from "markdown-it-container";
+import markdownItAnchor from "markdown-it-anchor";
+import matter from "gray-matter";
+import emojiDefs from "@/lib/emoji_definitions";
+import hljs from "highlight.js/lib/core";
+import js from "highlight.js/lib/languages/javascript";
+import css from "highlight.js/lib/languages/css";
+import markdown from "highlight.js/lib/languages/markdown";
 
-hljs.registerLanguage('javascript', js)
-hljs.registerLanguage('css', css)
-hljs.registerLanguage('markdown', markdown)
-hljs.registerLanguage('md', markdown)
+hljs.registerLanguage("javascript", js);
+hljs.registerLanguage("css", css);
+hljs.registerLanguage("markdown", markdown);
+hljs.registerLanguage("md", markdown);
 
 const md: MarkdownIt = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  langPrefix: 'language-',
+  langPrefix: "language-",
   highlight: (str: string, lang?: string): string => {
     if (lang && hljs.getLanguage(lang)) {
       return (
         `<pre class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: false }).value}</code></pre>` +
         `<p>${md.utils.escapeHtml(lang)}</p>`
-      )
+      );
     }
     return (
       `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>` +
-      (lang ? `<p>${md.utils.escapeHtml(lang)}</p>` : '')
-    )
-  }
-})
+      (lang ? `<p>${md.utils.escapeHtml(lang)}</p>` : "")
+    );
+  },
+});
 
-md.use(markdownItEmoji, { defs: emojiDefs as Record<string, string> })
-md.use(markdownItFootnote)
-md.use(markdownItSub)
-md.use(markdownItSup)
-md.use(markdownItIns)
-md.use(markdownItMark)
-md.use(markdownItAbbr)
-md.use(markdownItAttrs, { leftDelimiter: 'xx', rightDelimiter: 'xx', allowedAttributes: [] })
+md.use(markdownItEmoji, { defs: emojiDefs as Record<string, string> });
+md.use(markdownItFootnote);
+md.use(markdownItSub);
+md.use(markdownItSup);
+md.use(markdownItIns);
+md.use(markdownItMark);
+md.use(markdownItAbbr);
+md.use(markdownItAttrs, {
+  leftDelimiter: "xx",
+  rightDelimiter: "xx",
+  allowedAttributes: [],
+});
 md.use(markdownItTaskCheckbox, {
   disabled: true,
   divWrap: true,
-  divClass: 'checkbox',
-  idPrefix: 'cbx_',
-  ulClass: 'task-list',
-  liClass: 'task-list-item'
-})
+  divClass: "checkbox",
+  idPrefix: "cbx_",
+  ulClass: "task-list",
+  liClass: "task-list-item",
+});
 md.use(markdownItAnchor, {
   level: 1,
   permalink: false,
-  permalinkClass: 'header-anchor',
-  permalinkSymbol: '¶',
-  permalinkBefore: false
-})
+  permalinkClass: "header-anchor",
+  permalinkSymbol: "¶",
+  permalinkBefore: false,
+});
 
 // Parse {{w:32,h:32}} from image alt text for dimensions
-function getSize(node: string): { width: string | number; height: string | number } {
-  const defaultW = 100
-  const defaultH = 100
-  const substrings = node.split('{{')
-  const regexW = /w:\d.*\b/
-  const regexH = /h:\d.*\b/
-  let resultW: RegExpMatchArray | null = null
-  let resultH: RegExpMatchArray | null = null
+function getSize(node: string): {
+  width: string | number;
+  height: string | number;
+} {
+  const defaultW = 100;
+  const defaultH = 100;
+  const substrings = node.split("{{");
+  const regexW = /w:\d.*\b/;
+  const regexH = /h:\d.*\b/;
+  let resultW: RegExpMatchArray | null = null;
+  let resultH: RegExpMatchArray | null = null;
   if (substrings[1]) {
-    resultW = substrings[1].match(regexW)
-    resultH = substrings[1].match(regexH)
+    resultW = substrings[1].match(regexW);
+    resultH = substrings[1].match(regexH);
   }
   if (
     substrings[1] &&
-    substrings[1].includes('}}') &&
+    substrings[1].includes("}}") &&
     resultW !== null &&
     resultH !== null
   ) {
-    const wMatch = substrings[1].match(/(?<=w:\s?)\d+/g)
-    const hMatch = substrings[1].match(/(?<=h:\s?)\d+/g)
+    const wMatch = substrings[1].match(/(?<=w:\s?)\d+/g);
+    const hMatch = substrings[1].match(/(?<=h:\s?)\d+/g);
     return {
       width: wMatch ? wMatch[0] : defaultW,
-      height: hMatch ? hMatch[0] : defaultH
-    }
+      height: hMatch ? hMatch[0] : defaultH,
+    };
   }
-  return { width: defaultW, height: defaultH }
+  return { width: defaultW, height: defaultH };
 }
 
 // Stack to track anchor links for link_close (supports nested links)
-let anchorLinkStack: boolean[] = []
+let anchorLinkStack: boolean[] = [];
 
 // Store default renderers
-const defaultLinkOpen = md.renderer.rules.link_open
+const defaultLinkOpen = md.renderer.rules.link_open;
 
 md.renderer.rules.link_open = function (tokens, idx, options, env, slf) {
-  const e = env as { disableLinks?: boolean }
+  const e = env as { disableLinks?: boolean };
   if (e?.disableLinks) {
-    anchorLinkStack.push(false)
-    return ''
+    anchorLinkStack.push(false);
+    return "";
   }
-  const aIndex = tokens[idx].attrIndex('target')
-  const hIndex = tokens[idx].attrIndex('href')
+  const aIndex = tokens[idx].attrIndex("target");
+  const hIndex = tokens[idx].attrIndex("href");
   if (aIndex < 0 && tokens[idx].attrs) {
-    tokens[idx].attrPush(['target', '_blank'])
+    tokens[idx].attrPush(["target", "_blank"]);
   } else if (aIndex >= 0 && tokens[idx].attrs) {
-    tokens[idx].attrs[aIndex][1] = '_blank'
+    tokens[idx].attrs[aIndex][1] = "_blank";
   }
   if (hIndex >= 0 && tokens[idx].attrs) {
-    let linkText = tokens[idx].attrs[hIndex][1]
-    if (linkText.charAt(0) === '#') {
-      anchorLinkStack.push(true)
-      if (tokens[idx].attrs) tokens[idx].attrs[hIndex][1] = 'javascript: void(0)'
-      if (linkText.includes('#user-content-')) {
-        linkText = '#' + linkText.substring(14)
+    let linkText = tokens[idx].attrs[hIndex][1];
+    if (linkText.charAt(0) === "#") {
+      anchorLinkStack.push(true);
+      if (tokens[idx].attrs)
+        tokens[idx].attrs[hIndex][1] = "javascript: void(0)";
+      if (linkText.includes("#user-content-")) {
+        linkText = "#" + linkText.substring(14);
       }
-      const anchorLink = "'" + linkText + "'"
+      const anchorLink = "'" + linkText + "'";
       return (
         '<span class="md_anchorlink" onclick="document.querySelector(' +
         anchorLink +
         ').scrollIntoView()">'
-      )
+      );
     }
   }
-  anchorLinkStack.push(false)
-  return defaultLinkOpen?.(tokens, idx, options, env, slf) ?? slf.renderToken(tokens, idx, options)
-}
+  anchorLinkStack.push(false);
+  return (
+    defaultLinkOpen?.(tokens, idx, options, env, slf) ??
+    slf.renderToken(tokens, idx, options)
+  );
+};
 
-const defaultLinkClose = md.renderer.rules.link_close
+const defaultLinkClose = md.renderer.rules.link_close;
 
 md.renderer.rules.link_close = function (tokens, idx, options, env, slf) {
-  const e = env as { disableLinks?: boolean }
+  const e = env as { disableLinks?: boolean };
   if (e?.disableLinks) {
-    anchorLinkStack.pop()
-    return ''
+    anchorLinkStack.pop();
+    return "";
   }
-  const wasAnchor = anchorLinkStack.pop()
+  const wasAnchor = anchorLinkStack.pop();
   if (wasAnchor) {
-    return '</span>'
+    return "</span>";
   }
-  return defaultLinkClose?.(tokens, idx, options, env, slf) ?? slf.renderToken(tokens, idx, options)
-}
+  return (
+    defaultLinkClose?.(tokens, idx, options, env, slf) ??
+    slf.renderToken(tokens, idx, options)
+  );
+};
 
 // Add class to table
-md.renderer.rules.table_open = () => '<table class="table table-striped">'
+md.renderer.rules.table_open = () => '<table class="table table-striped">';
 
 // Add width and height to images from {{w:N,h:N}} syntax
 md.renderer.rules.image = function (tokens, idx, options, env, slf) {
-  const token = tokens[idx]
+  const token = tokens[idx];
   if (token.attrs) {
-    const altIndex = token.attrIndex('alt')
+    const altIndex = token.attrIndex("alt");
     if (altIndex >= 0 && token.children) {
-      token.attrs[altIndex][1] = slf.renderInlineAsText(token.children, options, env) as string
+      token.attrs[altIndex][1] = slf.renderInlineAsText(
+        token.children,
+        options,
+        env,
+      ) as string;
     }
-    const size = getSize(token.attrs[token.attrIndex('alt')][1])
-    token.attrSet('width', size.width + 'px')
-    token.attrSet('height', size.height + 'px')
+    const size = getSize(token.attrs[token.attrIndex("alt")][1]);
+    token.attrSet("width", size.width + "px");
+    token.attrSet("height", size.height + "px");
   }
-  return '<span class="image">' + slf.renderToken(tokens, idx, options) + '</span>'
-}
+  return (
+    '<span class="image">' + slf.renderToken(tokens, idx, options) + "</span>"
+  );
+};
 
 // Footnotes: scrollIntoView instead of anchor navigation
 md.renderer.rules.footnote_anchor = function (tokens, idx, options, env, slf) {
   const id =
-    (slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf) ?? '') +
+    (slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf) ?? "") +
     (tokens[idx].meta?.subId && tokens[idx].meta.subId > 0
-      ? ':' + tokens[idx].meta.subId
-      : '')
+      ? ":" + tokens[idx].meta.subId
+      : "");
   return (
     '<span class="footnote-backref" onclick="document.querySelector(\'#fnref' +
     id +
     '\').scrollIntoView()" id="fnref' +
     id +
     '">\u21a9\uFE0E</span>'
-  )
-}
+  );
+};
 
 md.renderer.rules.footnote_ref = function (tokens, idx, options, env, slf) {
-  const id = slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf) ?? ''
-  const caption = slf.rules.footnote_caption?.(tokens, idx, options, env, slf) ?? ''
+  const id =
+    slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf) ?? "";
+  const caption =
+    slf.rules.footnote_caption?.(tokens, idx, options, env, slf) ?? "";
   const refid =
     id +
     (tokens[idx].meta?.subId && tokens[idx].meta.subId > 0
-      ? ':' + tokens[idx].meta.subId
-      : '')
+      ? ":" + tokens[idx].meta.subId
+      : "");
   return (
     '<sup class="footnote-ref"><span onclick="document.querySelector(\'#fn' +
     id +
@@ -197,102 +219,49 @@ md.renderer.rules.footnote_ref = function (tokens, idx, options, env, slf) {
     refid +
     '">' +
     caption +
-    '</span></sup>'
-  )
-}
+    "</span></sup>"
+  );
+};
 
 // Custom container with inline styles: ::: custom font-size: 55px; color: red;
-// md.use(markdownItContainer, 'custom', {
-//   validate: (params: string) => params.trim().startsWith('custom'),
-//   render: (
-//     tokens: {
-//       info: string
-//       nesting: number
-//       attrSet: (k: string, v: string) => void
-//       attrJoin: (k: string, v: string) => void
-//     }[],
-//     idx: number,
-//     _options: unknown,
-//     _env: unknown,
-//     slf: { renderToken: (...args: unknown[]) => string }
-//   ) => {
-//     if (tokens[idx].nesting === 1) {
-//       const params = tokens[idx].info.trim().replace(/^custom\s+/, '')
-//       if (params) {
-//         tokens[idx].attrSet('style', params)
-//       }
-//       tokens[idx].attrJoin('class', 'custom')
-//     }
-//     return slf.renderToken(tokens, idx, _options, _env, slf)
-//   }
-// })
-
-
-// Custom container with inline styles: ::: custom font-size: 55px; color: red;
-md.use(markdownItContainer, 'custom', {
+md.use(markdownItContainer, "custom", {
   validate: (params: string) => !!params.trim().match(/^custom\s+(.*)$/),
   render: (
     tokens: { info: string; nesting: number }[],
     idx: number,
     _options: unknown,
     _env: unknown,
-    slf: { renderToken: (...args: unknown[]) => string }
+    slf: { renderToken: (...args: unknown[]) => string },
   ) => {
-    const m = tokens[idx].info.trim().match(/^custom\s+(.*)$/)
+    const m = tokens[idx].info.trim().match(/^custom\s+(.*)$/);
     if (tokens[idx].nesting === 1) {
-      return '<span style="' + md.utils.escapeHtml(m![1]) + '">\n'
+      return '<span style="' + md.utils.escapeHtml(m![1]) + '">\n';
     } else {
-      return '</span>\n'
+      return "</span>\n";
     }
-  }
-})
+  },
+});
 
-// Custom container with CSS classes: ::: custom-css post-it
-// md.use(markdownItContainer, 'custom-css', {
-//   validate: (params: string) => params.trim().startsWith('custom-css'),
-//   render: (
-//     tokens: {
-//       info: string
-//       nesting: number
-//       attrJoin: (k: string, v: string) => void
-//     }[],
-//     idx: number,
-//     _options: unknown,
-//     _env: unknown,
-//     slf: { renderToken: (...args: unknown[]) => string }
-//   ) => {
-//     if (tokens[idx].nesting === 1) {
-//       const params = tokens[idx].info.trim().replace(/^custom-css\s+/, '')
-//       if (params) {
-//         tokens[idx].attrJoin('class', params)
-//       }
-//       tokens[idx].attrJoin('class', 'custom-css')
-//     }
-//     return slf.renderToken(tokens, idx, _options, _env, slf)
-//   }
-// })
-
-
-md.use(markdownItContainer, 'custom-css', {
+md.use(markdownItContainer, "custom-css", {
   validate: (params: string) => !!params.trim().match(/^custom-css\s+(.*)$/),
   render: (
     tokens: { info: string; nesting: number }[],
     idx: number,
     _options: unknown,
     _env: unknown,
-    slf: { renderToken: (...args: unknown[]) => string }
+    slf: { renderToken: (...args: unknown[]) => string },
   ) => {
     if (tokens[idx].nesting === 1) {
-      const m = tokens[idx].info.trim().match(/^custom-css\s+(.*)$/)
-      if (!m) return slf.renderToken(tokens, idx, _options, _env, slf)
-      return '<span class="' + md.utils.escapeHtml(m[1]) + '">\n'
+      const m = tokens[idx].info.trim().match(/^custom-css\s+(.*)$/);
+      if (!m) return slf.renderToken(tokens, idx, _options, _env, slf);
+      return '<span class="' + md.utils.escapeHtml(m[1]) + '">\n';
     }
-    return '</span>\n'
-  }
-})
+    return "</span>\n";
+  },
+});
 
 export function renderMarkdown(text: string, disableLinks = false): string {
-  if (!text) return ''
-  const { content } = matter(text)
-  return md.render(content, { disableLinks })
+  if (!text) return "";
+  const { content } = matter(text);
+  return md.render(content, { disableLinks });
 }

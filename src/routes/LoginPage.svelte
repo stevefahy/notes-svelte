@@ -185,10 +185,6 @@
     text-align: center;
   }
 
-  .auth h1 {
-    text-align: center;
-  }
-
   .control {
     margin-bottom: 0.5rem;
   }
