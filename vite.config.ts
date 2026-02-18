@@ -5,6 +5,9 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    chunkSizeWarningLimit: 500, // default is 500 (kB)
+  },
   plugins: [
     nodePolyfills({
       globals: { Buffer: true },
