@@ -1,0 +1,520 @@
+input {
+  font-size: 0.8rem !important;
+  border-style: inset !important;
+  background-color: field;
+  margin: 0em;
+  padding: 1px 2px;
+  border-width: 1px;
+  border-style: inset !important;
+  border-color: -internal-light-dark(
+    rgb(118, 118, 118),
+    rgb(133, 133, 133)
+  ) !important;
+}
+
+.v-card--variant-elevated {
+  box-shadow:
+    #0003 0 3px 3px -2px,
+    #00000024 0 3px 4px,
+    #0000001f 0 1px 8px !important;
+}
+
+.v-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 36px;
+  padding: 0 16px;
+  font-weight: 500;
+  text-transform: unset !important;
+  border-radius: 4px;
+  transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary) !important;
+}
+
+.rounded-xl {
+  border-radius: 12px;
+}
+
+.button_fab {
+  min-width: 36px;
+  padding: 10px 20px;
+}
+
+.v-btn.contained:hover {
+  text-decoration: none;
+  background-color: #7d0000 !important;
+}
+
+$color-primary: #4d0000;
+$color-secondary: #b30000;
+
+.basic {
+  color: $color-secondary !important;
+}
+
+// Large
+
+.large {
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  line-height: 1.75 !important;
+  letter-spacing: 0.02857em !important;
+}
+
+.v-btn--variant-elevated {
+  box-shadow:
+    #0003 0 3px 5px -1px,
+    #00000024 0 6px 10px,
+    #0000001f 0 1px 18px !important;
+}
+
+.v-list-item__prepend > .v-badge ~ .v-list-item__spacer,
+.v-list-item__prepend > .v-icon ~ .v-list-item__spacer,
+.v-list-item__prepend > .v-tooltip ~ .v-list-item__spacer {
+  width: 10px !important;
+}
+
+.v-theme--myCustomLightTheme {
+  color-scheme: normal;
+  --v-theme-background: 255, 255, 255;
+  --v-theme-background-overlay-multiplier: 1;
+  --v-theme-surface: 255, 255, 255;
+  --v-theme-surface-overlay-multiplier: 1;
+  --v-theme-surface-bright: 255, 255, 255;
+  --v-theme-surface-bright-overlay-multiplier: 1;
+  --v-theme-surface-light: 238, 238, 238;
+  --v-theme-surface-light-overlay-multiplier: 1;
+  --v-theme-surface-variant: 66, 66, 66;
+  --v-theme-surface-variant-overlay-multiplier: 2;
+  --v-theme-on-surface-variant: 238, 238, 238;
+  --v-theme-primary: 98, 0, 238;
+  --v-theme-primary-overlay-multiplier: 2;
+  --v-theme-primary-darken-1: 55, 0, 179;
+  --v-theme-primary-darken-1-overlay-multiplier: 2;
+  --v-theme-secondary: 179, 0, 0;
+  --v-theme-secondary-overlay-multiplier: 2;
+  --v-theme-secondary-darken-1: 1, 135, 134;
+  --v-theme-secondary-darken-1-overlay-multiplier: 1;
+  --v-theme-error: 176, 0, 32;
+  --v-theme-error-overlay-multiplier: 2;
+  --v-theme-info: 33, 150, 243;
+  --v-theme-info-overlay-multiplier: 1;
+  --v-theme-success: 76, 175, 80;
+  --v-theme-success-overlay-multiplier: 1;
+  --v-theme-warning: 251, 140, 0;
+  --v-theme-warning-overlay-multiplier: 1;
+  --v-theme-on-background: 0, 0, 0;
+  --v-theme-on-surface: 0, 0, 0;
+  --v-theme-on-surface-bright: 0, 0, 0;
+  --v-theme-on-surface-light: 0, 0, 0;
+  --v-theme-on-primary: 255, 255, 255;
+  --v-theme-on-primary-darken-1: 255, 255, 255;
+  --v-theme-on-secondary: 255, 255, 255;
+  --v-theme-on-secondary-darken-1: 255, 255, 255;
+  --v-theme-on-error: 255, 255, 255;
+  --v-theme-on-info: 255, 255, 255;
+  --v-theme-on-success: 255, 255, 255;
+  --v-theme-on-warning: 255, 255, 255;
+  --v-border-color: 0, 0, 0;
+  --v-border-opacity: 0.12;
+  --v-high-emphasis-opacity: 0.87;
+  --v-medium-emphasis-opacity: 0.6;
+  --v-disabled-opacity: 0.38;
+  --v-idle-opacity: 0.04;
+  --v-hover-opacity: 0.07 !important;
+  --v-focus-opacity: 0.12;
+  --v-selected-opacity: 0.08;
+  --v-activated-opacity: 0.12;
+}
+
+.material-icons {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 700,
+    "GRAD" 0,
+    "opsz" 48;
+  color: #0000008a;
+}
+
+.v-skeleton-loader__list-item {
+  margin: 2px !important;
+}
+
+.white {
+  color: #fff;
+}
+
+.button_icon {
+  margin-right: 6px;
+}
+
+.icon_text {
+  display: flex;
+  align-items: center;
+}
+
+.dialogue-title {
+  font-family: Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 1.25rem !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0.0075em !important;
+}
+
+notebooklistitem {
+  width: 100%;
+}
+
+input,
+select,
+textarea {
+  background-color: #f7f0fa !important;
+  border-style: inset !important;
+}
+
+input {
+  font-size: 1rem !important;
+}
+
+select {
+  -moz-appearance: auto !important;
+  -webkit-appearance: auto !important;
+}
+
+.v-overlay__scrim {
+  opacity: 0.5 !important;
+}
+
+.notebooks_list:last-child {
+  padding-bottom: 15px;
+}
+
+.v-overlay__content.v-snackbar__wrapper.v-theme--myCustomLightTheme.v-snackbar--variant-elevated {
+  bottom: 60px !important;
+}
+
+.v-snackbar__content {
+  background-color: var(--color-success) !important;
+}
+
+// .edit_icon_small .v-btn__content {
+//   font-size: 0.8rem;
+// }
+
+.v-btn--block {
+  display: flex;
+  flex: 0 0 auto !important;
+  min-width: unset !important;
+}
+
+.v-snackbar__wrapper {
+  width: 50%;
+  min-width: 150px !important;
+}
+
+.v-card--variant-elevated,
+.v-card--variant-flat {
+  color: inherit !important;
+}
+
+/* Svelte: .btn-contained replaces v-btn.contained */
+.btn-contained {
+  background-color: #b30000;
+  color: white;
+  border: none;
+  // padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.btn-contained:hover {
+  background-color: #7d0000;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: #b30000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Footer buttons: elevated look (from v-btn--variant-elevated) */
+.btn-footer {
+  background: #b30000;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  box-shadow:
+    #0003 0 3px 5px -1px,
+    #00000024 0 6px 10px,
+    #0000001f 0 1px 18px !important;
+}
+
+.btn-footer.btn-contained {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 24px;
+  padding: 6px 18px;
+  letter-spacing: 0.02857em;
+}
+
+/* vcard */
+
+.v-dialog > .v-overlay__content > .v-card,
+.v-dialog > .v-overlay__content > form > .v-card {
+  display: flex;
+  flex-direction: column;
+}
+.v-dialog > .v-overlay__content > .v-card,
+.v-dialog > .v-overlay__content > .v-sheet,
+.v-dialog > .v-overlay__content > form > .v-card,
+.v-dialog > .v-overlay__content > form > .v-sheet {
+  box-shadow:
+    0 11px 15px -7px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
+    0 24px 38px 3px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
+    0 9px 46px 8px var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
+}
+.v-dialog > .v-overlay__content > .v-card,
+.v-dialog > .v-overlay__content > .v-sheet,
+.v-dialog > .v-overlay__content > form > .v-card,
+.v-dialog > .v-overlay__content > form > .v-sheet {
+  --v-scrollbar-offset: 0px;
+  border-radius: 4px;
+  overflow-y: auto;
+  flex: 1 1 100%;
+}
+.v-card--variant-elevated {
+  box-shadow:
+    0 2px 1px -1px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)),
+    0 1px 1px 0 var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)),
+    0 1px 3px 0 var(--v-shadow-key-ambient-opacity, rgba(0, 0, 0, 0.12));
+}
+.v-card--variant-elevated,
+.v-card--variant-flat {
+  background: rgb(var(--v-theme-surface));
+  color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+}
+.v-card {
+  border-radius: 4px;
+}
+.v-card {
+  border-color: rgba(var(--v-border-color), var(--v-border-opacity));
+  border-style: solid;
+  border-width: 0;
+}
+.v-card {
+  display: block;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  position: relative;
+  // padding-top: 16px;
+  // padding-bottom: 16px;
+  padding-block-end: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
+  text-decoration: none;
+  transition-duration: 0.28s;
+  transition-property: box-shadow, opacity, background;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.v-card--variant-elevated,
+.v-card--variant-flat {
+  color: inherit !important;
+}
+.v-theme--myCustomLightTheme {
+  --v-hover-opacity: 0.07 !important;
+}
+.v-card--variant-elevated {
+  box-shadow:
+    #0003 0 3px 3px -2px,
+    #00000024 0 3px 4px,
+    #0000001f 0 1px 8px !important;
+}
+// * {
+//   padding: 0;
+//   margin: 0;
+// }
+*,
+:before,
+:after {
+  background-repeat: no-repeat;
+  box-sizing: inherit;
+}
+* {
+  box-sizing: border-box;
+}
+user agent stylesheet div {
+  display: block;
+  unicode-bidi: isolate;
+}
+.v-overlay__content {
+  outline: none;
+  position: absolute;
+  pointer-events: auto;
+  contain: layout;
+}
+
+.v-dialog > .v-overlay__content > .v-card > .v-card-text,
+.v-dialog > .v-overlay__content > form > .v-card > .v-card-text {
+  font-size: inherit;
+  letter-spacing: 0.03125em;
+  line-height: inherit;
+  // padding: 16px 24px 24px;
+}
+.v-card .v-card-text {
+  line-height: 1.425;
+}
+.v-card-text {
+  flex: 1 1 auto;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.0178571429em;
+  opacity: var(--v-card-text-opacity, 1);
+  padding: 16px;
+  text-transform: none;
+}
+
+.dialogue_container {
+  max-width: 300px;
+  padding: 10px;
+
+}
+
+// .v-dialog > .v-overlay__content > .v-card > .v-card-text,
+// .v-dialog > .v-overlay__content > form > .v-card > .v-card-text {
+//   font-size: inherit;
+//   letter-spacing: 0.03125em;
+//   line-height: inherit;
+//   // padding: 16px 24px 24px;
+// }
+
+.v-card-text {
+  flex: 1 1 auto;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.0178571429em;
+  opacity: var(--v-card-text-opacity, 1);
+  // padding: 1rem;
+  text-transform: none;
+}
+
+.v-btn__overlay,
+.v-btn__underlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.v-btn__overlay,
+.v-btn__underlay {
+  pointer-events: none;
+}
+.v-btn__overlay {
+  background-color: currentColor;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.menu_item {
+  color: #626262;
+  opacity: 0.54;
+}
+
+.more_vert {
+  position: relative;
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* 1. PERSISTENT STATE LAYER */
+.more_vert::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: scale(1); /* Keep size constant */
+
+  /* FORCE HIDDEN BY DEFAULT */
+  opacity: 0;
+  visibility: hidden; /* Added to ensure it's "off" */
+
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ONLY show when hovering OR menu is open */
+.more_vert:hover::before,
+.more_vert.is-active::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 2. THE RIPPLE ELEMENT */
+.ripple-burst {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  /* 0.8s allows the expansion to be clearly visible */
+  /* ease-out ensures it starts fast but spends most of its time slowing down */
+  animation: ripple-animation 1.1s ease-out forwards;
+}
+
+/* 3. THE HEAVY KEYFRAMES */
+@keyframes ripple-animation {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  /* The instant response: peak brightness at 5% (~40ms) */
+  5% {
+    opacity: 0.3;
+  }
+  /* The "Lazy" expansion: takes a long time to reach full size and fade */
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* Override veutify.min.css for ViewNote/EditNote cards */
+.note-card.v-card--variant-elevated {
+  box-shadow: #0003 0 3px 3px -2px, #00000024 0 3px 4px, #0000001f 0 1px 8px !important;
+}
