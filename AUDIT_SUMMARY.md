@@ -48,6 +48,14 @@
 - Added `prevClearNotesEdit` so the effect runs only when `onClearNotesEdit` transitions from false to true.
 - Avoids repeated calls to `onNotesSelected` and potential feedback loops on parent re-renders.
 
+### 7. ViewNoteThumb Block-Aware Truncation
+
+**Files:** `src/lib/truncateMarkdownPreview.ts` (new), `src/components/note/ViewNoteThumb.svelte`
+
+- Added `truncateMarkdownPreview()` — a zero-dependency utility that truncates markdown to the first N blocks (paragraphs, code blocks, headings, lists, blockquotes).
+- ViewNoteThumb now passes truncated content to ViewNoteMarkdown, reducing work per thumbnail while preserving visual consistency.
+- Portable to Vue, Angular, React, Next.js; see `TRUNCATE_PREVIEW_OTHER_APPS.md` for implementation guide.
+
 ---
 
 ## Recommendations Not Implemented
@@ -58,7 +66,6 @@ These were intentionally not implemented so the Svelte app stays aligned with Vu
 
 | Recommendation | Reason |
 |----------------|--------|
-| **ViewNoteThumb lightweight preview** | Vue uses full ViewNoteMarkdown for thumbnails. A lightweight preview would make Svelte thumbnails look different. Revisit when all 5 apps are updated together. |
 | **Replace confirm() with modal** | Vue has no delete confirmation; Svelte uses native `confirm()`. Adding a modal would introduce UI only in Svelte. Keeping native confirm preserves current behavior. |
 
 ### Explicitly Skipped
@@ -86,9 +93,11 @@ These were identified but not part of the Svelte-only plan or were lower priorit
 
 - `src/lib/markdown.ts`
 - `src/lib/router.ts`
+- `src/lib/truncateMarkdownPreview.ts` (created)
 - `src/components/layout/LayoutComponent.svelte`
 - `src/components/note/NoteList.svelte`
 - `src/components/note/ViewNoteMarkdown.svelte`
+- `src/components/note/ViewNoteThumb.svelte`
 - `src/assets/styles/main.css`
 - `src/assets/styles/svelte-shared.scss` (created)
 - `src/assets/styles/vue-specific.scss` (deleted)
