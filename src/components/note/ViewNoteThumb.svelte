@@ -1,15 +1,21 @@
 <script lang="ts">
+  import matter from "gray-matter";
   import ViewNoteMarkdown from "./ViewNoteMarkdown.svelte";
+  import { truncateMarkdownPreview } from "@/lib/truncateMarkdownPreview";
 
   interface Props {
     text: string;
   }
   let { text }: Props = $props();
+
+  const previewText = $derived(
+    truncateMarkdownPreview(matter(text).content ?? "")
+  );
 </script>
 
 <div class="box">
   <article class="viewnote_content viewnote_thumb">
-    <ViewNoteMarkdown viewText={text} disableLinks={true} />
+    <ViewNoteMarkdown viewText={previewText} disableLinks={true} />
   </article>
 </div>
 
