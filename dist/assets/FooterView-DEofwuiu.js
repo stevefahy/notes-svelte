@@ -1,0 +1,1 @@
+import{aw as d,ax as t,m as v,e,w as l}from"./index-D-V4zERQ.js";var n=l('<div class="page_footer svelte-rx3jdl"><div class="page_footer_container svelte-rx3jdl"><!></div></div>');function c(o,r){var a=n(),i=e(a),s=e(i);d(s,()=>r.children??t),v(o,a)}export{c as F};

@@ -1,0 +1,1 @@
+const e="v-card v-theme--myCustomLightTheme v-card--density-default v-card--variant-elevated",n="v-card-text",a="v-card-title";function r(...t){return[e,...t.filter(Boolean)].join(" ")}function o(...t){return[n,...t.filter(Boolean)].join(" ")}function i(...t){return[a,...t.filter(Boolean)].join(" ")}export{i as a,o as b,r as v};
