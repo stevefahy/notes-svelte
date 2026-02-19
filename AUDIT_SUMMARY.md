@@ -62,6 +62,7 @@
 
 - Added `unwrapResponse()` to centralize `{ error }` / `{ success }` checks for API responses.
 - Callers use `result.ok` and `result.data` / `result.error` instead of manual checks.
+- Auth store: cast `result.data` to success shape `{ success, token, details }` (not `AuthAuthenticate`) so `IAuthContext` receives `boolean | null` rather than `boolean | undefined`.
 
 ### 9. Duplicate showNotification — Shared Helper
 
