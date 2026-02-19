@@ -1,3 +1,4 @@
 @import "./global.scss";
-@import "./vue-specific.scss";
+@import "./svelte-shared.scss";
 @import url("./prism-atom-dark.scss");
+@import "highlight.js/styles/atom-one-dark.min.css";

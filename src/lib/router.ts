@@ -3,7 +3,6 @@ import { wrap } from "svelte-spa-router/wrap";
 import type { RoutePrecondition } from "svelte-spa-router";
 import { authStore } from "@/stores/auth";
 import APPLICATION_CONSTANTS from "@/lib/constants";
-import NotebookPage from "@/routes/NotebookPage.svelte";
 import type { ComponentType } from "svelte";
 
 const AC = APPLICATION_CONSTANTS;
@@ -47,7 +46,10 @@ export const routes = {
     conditions: [authGuard],
   }),
   "/notebook/:notebookId": wrap({
-    component: NotebookPage as unknown as ComponentType,
+    asyncComponent: () =>
+      import("@/routes/NotebookPage.svelte") as unknown as Promise<{
+        default: ComponentType;
+      }>,
     conditions: [authGuard],
   }),
   "/notebook/:notebookId/:noteId": wrap({

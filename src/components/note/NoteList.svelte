@@ -19,12 +19,15 @@
   }: Props = $props();
 
   let isChecked = $state<Record<string, boolean>>({});
+  let prevClearNotesEdit = false;
 
   $effect(() => {
-    if (onClearNotesEdit) {
+    const now = !!onClearNotesEdit;
+    if (now && !prevClearNotesEdit) {
       isChecked = {};
       onNotesSelected?.({ selected: [] });
     }
+    prevClearNotesEdit = now;
   });
 
   const updateCheckbox = (noteId: string, checked: boolean) => {

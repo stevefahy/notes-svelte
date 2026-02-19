@@ -198,10 +198,6 @@ select {
   background-color: var(--color-success) !important;
 }
 
-// .edit_icon_small .v-btn__content {
-//   font-size: 0.8rem;
-// }
-
 .v-btn--block {
   display: flex;
   flex: 0 0 auto !important;
@@ -223,7 +219,6 @@ select {
   background-color: #b30000;
   color: white;
   border: none;
-  // padding: 10px 20px;
   border-radius: 4px;
   font-size: 0.875rem;
   display: flex;
@@ -316,8 +311,6 @@ select {
   overflow: hidden;
   overflow-wrap: break-word;
   position: relative;
-  // padding-top: 16px;
-  // padding-bottom: 16px;
   padding-block-end: 0;
   padding-inline-start: 0;
   padding-inline-end: 0;
@@ -341,10 +334,6 @@ select {
     #00000024 0 3px 4px,
     #0000001f 0 1px 8px !important;
 }
-// * {
-//   padding: 0;
-//   margin: 0;
-// }
 *,
 :before,
 :after {
@@ -367,7 +356,6 @@ select {
   font-size: inherit;
   letter-spacing: 0.03125em;
   line-height: inherit;
-  // padding: 16px 24px 24px;
 }
 .v-card .v-card-text {
   line-height: 1.425;
@@ -387,21 +375,12 @@ select {
   padding: 10px;
 }
 
-// .v-dialog > .v-overlay__content > .v-card > .v-card-text,
-// .v-dialog > .v-overlay__content > form > .v-card > .v-card-text {
-//   font-size: inherit;
-//   letter-spacing: 0.03125em;
-//   line-height: inherit;
-//   // padding: 16px 24px 24px;
-// }
-
 .v-card-text {
   flex: 1 1 auto;
   font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.0178571429em;
   opacity: var(--v-card-text-opacity, 1);
-  // padding: 1rem;
   text-transform: none;
 }
 
@@ -454,11 +433,10 @@ select {
   height: 100%;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  transform: scale(1); /* Keep size constant */
+  transform: scale(1);
 
-  /* FORCE HIDDEN BY DEFAULT */
   opacity: 0;
-  visibility: hidden; /* Added to ensure it's "off" */
+  visibility: hidden;
 
   transition:
     opacity 0.2s ease,
@@ -467,7 +445,6 @@ select {
   pointer-events: none;
 }
 
-/* ONLY show when hovering OR menu is open */
 .more_vert:hover::before,
 .more_vert.is-active::before {
   opacity: 1;
@@ -485,22 +462,17 @@ select {
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
-  /* 0.8s allows the expansion to be clearly visible */
-  /* ease-out ensures it starts fast but spends most of its time slowing down */
   animation: ripple-animation 1.1s ease-out forwards;
 }
 
-/* 3. THE HEAVY KEYFRAMES */
 @keyframes ripple-animation {
   0% {
     transform: scale(0.5);
     opacity: 0;
   }
-  /* The instant response: peak brightness at 5% (~40ms) */
   5% {
     opacity: 0.3;
   }
-  /* The "Lazy" expansion: takes a long time to reach full size and fade */
   100% {
     transform: scale(3);
     opacity: 0;

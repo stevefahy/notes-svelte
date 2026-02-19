@@ -23,7 +23,7 @@ hljs.registerLanguage("markdown", markdown);
 hljs.registerLanguage("md", markdown);
 
 const md: MarkdownIt = new MarkdownIt({
-  html: true,
+  html: false,
   linkify: true,
   typographer: true,
   langPrefix: "language-",

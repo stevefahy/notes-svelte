@@ -14,13 +14,16 @@
   let notificationStatus = $state<"pending" | "success" | "error" | null>(null);
   let notificationData = $state<NotificationInterface | null>(null);
 
-  const unsubscribe = notificationStore.subscribe((state) => {
-    notificationStatus = state.notification.n_status;
-    if (notificationStatus) {
+  $effect(() => {
+    const state = $notificationStore;
+    const n_status = state.notification.n_status;
+    if (n_status) {
+      notificationStatus = n_status;
       notificationData = state.notification;
-      setTimeout(() => {
+      const id = setTimeout(() => {
         notificationStatus = null;
       }, 5000);
+      return () => clearTimeout(id);
     }
   });
 
@@ -54,7 +57,6 @@
 
   onDestroy(() => {
     window.removeEventListener("resize", resizeHandler);
-    unsubscribe();
   });
 </script>
 
