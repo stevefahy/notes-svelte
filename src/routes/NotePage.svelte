@@ -119,6 +119,9 @@
   };
 
   const loadExampleNote = async () => {
+    if (!isMobile) {
+      isSplitScreen = true;
+    }
     try {
       const res = await fetch("/markdown/welcome_markdown_angular.md");
       if (res.ok) viewText = await res.text();
