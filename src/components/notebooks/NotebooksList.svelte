@@ -1,8 +1,8 @@
 <script lang="ts">
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
-  import { notificationStore } from "@/stores/notification";
-  import { addNotebook } from "@/lib/api";
+  import { showErrorNotification } from "@/stores/notification";
+  import { addNotebook, unwrapResponse } from "@/lib/api";
   import type { Notebook } from "@/lib/types";
   import NotebookListItem from "./NotebookListItem.svelte";
   import FooterView from "@/components/layout/FooterView.svelte";
@@ -19,27 +19,21 @@
   let enableAddNotebook = $state(false);
   const localNotebooks = $derived(notebooks || []);
 
-  const showNotification = (msg: string) => {
-    notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
-
   const addNotebookHandler = async (
     notebook_name: string,
     notebook_cover: string,
   ) => {
     const token = get(authStore).token;
     if (!token) return;
-    const response = await addNotebook(token, notebook_name, notebook_cover);
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    const result = unwrapResponse(
+      await addNotebook(token, notebook_name, notebook_cover),
+    );
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
-    if (response && "success" in response && response.success) {
-      enableAddNotebook = false;
-      await onNotebooksReload?.();
-    }
+    enableAddNotebook = false;
+    await onNotebooksReload?.();
   };
 
   const cancelHandler = () => {

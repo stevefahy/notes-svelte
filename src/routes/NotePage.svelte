@@ -4,11 +4,17 @@
   import { push } from "svelte-spa-router";
   import { initScrollSync, removeScrollSync } from "@/lib/scroll_sync";
   import { authStore } from "@/stores/auth";
-  import { notificationStore } from "@/stores/notification";
   import { notebookEditStore } from "@/stores/notebookEdit";
   import { snackStore } from "@/stores/snack";
-  import { createNote, getNote, getNotebook, saveNote } from "@/lib/api";
+  import {
+    createNote,
+    getNote,
+    getNotebook,
+    saveNote,
+    unwrapResponse,
+  } from "@/lib/api";
   import APPLICATION_CONSTANTS from "@/lib/constants";
+  import { showErrorNotification } from "@/stores/notification";
   import type { Note, Notebook } from "@/lib/types";
   import FooterView from "@/components/layout/FooterView.svelte";
   import ViewNote from "@/components/note/ViewNote.svelte";
@@ -35,19 +41,15 @@
   const showEditPane = $derived(isViewMode || isSplitScreen);
   const showViewPane = $derived(!isViewMode || isSplitScreen);
 
-  const showNotification = (msg: string) => {
-    notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
-
   const loadNotebook = async () => {
     const token = get(authStore).token;
     if (!token || !notebookId) return;
-    const response = await getNotebook(token, notebookId);
-    if (response && "success" in response && response.success) {
-      notebook = response.notebook;
-      notebookEditStore.update((s) => ({ ...s, edited: response.notebook }));
+    const result = unwrapResponse<{ notebook: Notebook }>(
+      await getNotebook(token, notebookId),
+    );
+    if (result.ok && result.data.notebook) {
+      notebook = result.data.notebook;
+      notebookEditStore.update((s) => ({ ...s, edited: result.data.notebook }));
     }
   };
 
@@ -59,15 +61,17 @@
     }
     const token = get(authStore).token;
     if (!token || !notebookId || !noteId) return;
-    const response = await getNote(token, notebookId, noteId);
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    const result = unwrapResponse<{ note: Note }>(
+      await getNote(token, notebookId, noteId),
+    );
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
-    if (response && "success" in response && response.success) {
-      note = response.note;
-      viewText = response.note.note;
-      originalText = response.note.note;
+    if (result.data.note) {
+      note = result.data.note;
+      viewText = result.data.note.note;
+      originalText = result.data.note.note;
       noteLoaded = true;
     }
   };
@@ -77,22 +81,24 @@
   const handleCreateNote = async (noteContent: string) => {
     const token = get(authStore).token;
     if (!token || !notebookId) return;
-    const response = await createNote(token, { notebookId, note: noteContent });
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    const result = unwrapResponse(
+      await createNote(token, { notebookId, note: noteContent }),
+    );
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
-    if (response && "success" in response) {
-      push(`/notebook/${notebookId}`);
-    }
+    push(`/notebook/${notebookId}`);
   };
 
   const handleSaveNote = async (noteContent: string) => {
     const token = get(authStore).token;
     if (!token || !notebookId || !noteId || noteId === "create-note") return;
-    const response = await saveNote(token, notebookId, noteId, noteContent);
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    const result = unwrapResponse(
+      await saveNote(token, notebookId, noteId, noteContent),
+    );
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
     originalText = noteContent;

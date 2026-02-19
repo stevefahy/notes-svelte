@@ -2,20 +2,14 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
-  import { notificationStore } from "@/stores/notification";
-  import { getNotebooks } from "@/lib/api";
+  import { showErrorNotification } from "@/stores/notification";
+  import { getNotebooks, unwrapResponse } from "@/lib/api";
   import type { GetNotebooks, Notebook } from "@/lib/types";
   import LoadingScreen from "@/components/UI/LoadingScreen.svelte";
   import NotebooksList from "@/components/notebooks/NotebooksList.svelte";
 
   let notebooksLoaded = $state(false);
   let userNotebooks = $state<GetNotebooks>({ success: false, notebooks: [] });
-
-  const showNotification = (msg: string) => {
-    notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
 
   const filterNotebooks = (notebooks: Notebook[]) => {
     if (!notebooks || notebooks.length === 0) return notebooks;
@@ -37,25 +31,22 @@
     const token = ctx.token;
     if (!token) return;
     try {
-      const response = await getNotebooks(token);
-      if (response && "error" in response) {
-        showNotification(response.error ?? "Unknown error");
+      const result = unwrapResponse<{ notebooks: Notebook[] }>(
+        await getNotebooks(token),
+      );
+      if (!result.ok) {
+        showErrorNotification(result.error ?? "Unknown error");
         return;
       }
-      if (
-        response &&
-        "success" in response &&
-        response.success &&
-        response.notebooks
-      ) {
+      if (result.data.notebooks) {
         userNotebooks = {
           success: true,
-          notebooks: filterNotebooks(response.notebooks),
+          notebooks: filterNotebooks(result.data.notebooks),
         };
         notebooksLoaded = true;
       }
     } catch (err) {
-      showNotification(String(err));
+      showErrorNotification(String(err));
     }
   };
 

@@ -2,7 +2,7 @@
   import { get } from "svelte/store";
   import { params as paramsStore } from "svelte-spa-router";
   import { authStore } from "@/stores/auth";
-  import { notificationStore } from "@/stores/notification";
+  import { showErrorNotification } from "@/stores/notification";
   import { notebookEditStore } from "@/stores/notebookEdit";
   import {
     getNotebook,
@@ -10,10 +10,10 @@
     getNotes,
     deleteNotebook,
     deleteNotes,
-    editNotebookDate,
     moveNotes,
+    unwrapResponse,
   } from "@/lib/api";
-  import type { Note, Notebook } from "@/lib/types";
+  import type { Note, Notebook, SelectedNote } from "@/lib/types";
   import FooterView from "@/components/layout/FooterView.svelte";
   import AddNotebookForm from "@/components/notebooks/AddNotebookForm.svelte";
   import SelectNotebookForm from "@/components/notebooks/SelectNotebookForm.svelte";
@@ -51,10 +51,8 @@
   let showMoveDialog = $state(false);
   let loadError = $state<string | null>(null);
 
-  const showNotification = (msg: string) => {
-    notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
+  const handleNotesSelected = (selected: SelectedNote) => {
+    selectedNotes = selected.selected;
   };
 
   const sortNotes = (notesList: Note[]) => {
@@ -80,20 +78,25 @@
         push("/login");
         return;
       }
-      const response = await getNotebook(token, nid);
-      if (response && "error" in response) {
-        showNotification(response.error ?? "Unknown error");
-        loadError = response.error ?? null;
+      const result = unwrapResponse<{ notebook: Notebook }>(
+        await getNotebook(token, nid),
+      );
+      if (!result.ok) {
+        showErrorNotification(result.error ?? "Unknown error");
+        loadError = result.error ?? null;
         notebookLoaded = true;
         return;
       }
-      if (response && "success" in response && response.success) {
-        notebook = response.notebook;
-        notebookEditStore.update((s) => ({ ...s, edited: response.notebook }));
+      if (result.data.notebook) {
+        notebook = result.data.notebook;
+        notebookEditStore.update((s) => ({
+          ...s,
+          edited: result.data.notebook,
+        }));
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showNotification(loadError);
+      showErrorNotification(loadError);
     } finally {
       notebookLoaded = true;
     }
@@ -106,24 +109,23 @@
         notesLoaded = true;
         return;
       }
-      const response = await getNotes(token, nid);
-      if (response && "error" in response) {
-        showNotification(response.error ?? "Unknown error");
-        loadError = response.error ?? null;
-      } else if (
-        response &&
-        "success" in response &&
-        response.success &&
-        response.notes
-      ) {
-        const notesList = Array.isArray(response.notes) ? response.notes : [];
+      const result = unwrapResponse<{ notes: Note[] }>(
+        await getNotes(token, nid),
+      );
+      if (!result.ok) {
+        showErrorNotification(result.error ?? "Unknown error");
+        loadError = result.error ?? null;
+      } else if (result.data.notes) {
+        const notesList = Array.isArray(result.data.notes)
+          ? result.data.notes
+          : [];
         notes = sortNotes(notesList);
       } else {
         notes = [];
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showNotification(loadError);
+      showErrorNotification(loadError);
     } finally {
       notesLoaded = true;
     }
@@ -133,25 +135,22 @@
     try {
       const token = get(authStore).token;
       if (!token) return;
-      const response = await getNotebooks(token);
-      if (response && "error" in response) {
-        showNotification(response.error ?? "Unknown error");
+      const result = unwrapResponse<{ notebooks: Notebook[] }>(
+        await getNotebooks(token),
+      );
+      if (!result.ok) {
+        showErrorNotification(result.error ?? "Unknown error");
         return;
       }
-      if (
-        response &&
-        "success" in response &&
-        response.success &&
-        response.notebooks
-      ) {
-        userNotebooks = Array.isArray(response.notebooks)
-          ? response.notebooks
+      if (result.data.notebooks) {
+        userNotebooks = Array.isArray(result.data.notebooks)
+          ? result.data.notebooks
           : [];
       } else {
         userNotebooks = [];
       }
     } catch (err) {
-      showNotification(err instanceof Error ? err.message : String(err));
+      showErrorNotification(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -163,9 +162,9 @@
     if (!confirm("Delete this notebook?")) return;
     const token = get(authStore).token;
     if (!token || !notebookId) return;
-    const response = await deleteNotebook(token, notebookId);
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    const result = unwrapResponse(await deleteNotebook(token, notebookId));
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
     push("/notebooks");
@@ -192,9 +191,9 @@
     if (selectedNotes.length === 0) return;
     const token = get(authStore).token;
     if (!token) return;
-    const response = await deleteNotes(token, selectedNotes);
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    const result = unwrapResponse(await deleteNotes(token, selectedNotes));
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
     cancelEditNotesHandler();
@@ -214,22 +213,24 @@
     const token = get(authStore).token;
     if (!token || !notebook) return;
     const { editNotebook } = await import("@/lib/api");
-    const response = await editNotebook(
-      token,
-      notebook._id,
-      name,
-      cover,
-      new Date().toISOString(),
+    const result = unwrapResponse<{ notebook_edited: Notebook }>(
+      await editNotebook(
+        token,
+        notebook._id,
+        name,
+        cover,
+        new Date().toISOString(),
+      ),
     );
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
-    if (response && "success" in response && response.notebook_edited) {
-      notebook = response.notebook_edited;
+    if (result.data.notebook_edited) {
+      notebook = result.data.notebook_edited;
       notebookEditStore.update((s) => ({
         ...s,
-        edited: response.notebook_edited,
+        edited: result.data.notebook_edited,
         editing: false,
       }));
       editNotebookMode = false;
@@ -248,17 +249,19 @@
     const token = get(authStore).token;
     if (!token || !notebookId || selectedNotes.length === 0) return;
     const latestUpdatedDate = getLatestUpdated(selectedNotes);
-    const response = await moveNotes(
-      token,
-      targetNotebookId,
-      selectedNotes,
-      latestUpdatedDate,
+    const result = unwrapResponse(
+      await moveNotes(
+        token,
+        targetNotebookId,
+        selectedNotes,
+        latestUpdatedDate,
+      ),
     );
-    if (response && "error" in response) {
-      showNotification(response.error ?? "Unknown error");
+    if (!result.ok) {
+      showErrorNotification(result.error ?? "Unknown error");
       return;
     }
-    if (response && "success" in response && response.success) {
+    if (result.ok) {
       showMoveDialog = false;
       cancelEditNotesHandler();
       if (notebookId) await loadNotes(notebookId);
@@ -287,7 +290,7 @@
       } catch (err) {
         if (!cancelled) {
           loadError = err instanceof Error ? err.message : String(err);
-          showNotification(loadError);
+          showErrorNotification(loadError);
           notesLoaded = true;
           notebookLoaded = true;
         }
@@ -324,7 +327,7 @@
     {#if notebook && notes !== null}
       <NoteList
         notes={notes ?? []}
-        onNotesSelected={(s) => (selectedNotes = s.selected)}
+        onNotesSelected={handleNotesSelected}
         onNotesEdit={editNotesMode}
         onClearNotesEdit={!editNotesMode}
       />

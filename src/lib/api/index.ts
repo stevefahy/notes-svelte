@@ -16,3 +16,4 @@ export { deleteNotes } from "./deleteNotes";
 export { moveNotes } from "./moveNotes";
 export { changePassword } from "./changePassword";
 export { changeUsername } from "./changeUsername";
+export { unwrapResponse } from "./unwrapResponse";

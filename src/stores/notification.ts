@@ -20,3 +20,9 @@ function createNotificationStore() {
 }
 
 export const notificationStore = createNotificationStore();
+
+export function showErrorNotification(message: string): void {
+  notificationStore.ShowNotification({
+    notification: { n_status: "error", title: "Error!", message },
+  });
+}

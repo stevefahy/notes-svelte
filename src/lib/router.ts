@@ -7,6 +7,10 @@ import type { ComponentType } from "svelte";
 
 const AC = APPLICATION_CONSTANTS;
 
+function asyncRoute<T>(importFn: () => Promise<{ default: T }>) {
+  return importFn as () => Promise<{ default: ComponentType }>;
+}
+
 const authGuard: RoutePrecondition = (detail) => {
   if (!authStore.authGuardVerify()) {
     const redirect =
@@ -19,51 +23,30 @@ const authGuard: RoutePrecondition = (detail) => {
 
 export const routes = {
   "/": wrap({
-    asyncComponent: () =>
-      import("@/routes/Redirect.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/Redirect.svelte")),
     conditions: [authGuard],
   }),
   "/login": wrap({
-    asyncComponent: () =>
-      import("@/routes/LoginPage.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/LoginPage.svelte")),
   }),
   "/profile": wrap({
-    asyncComponent: () =>
-      import("@/routes/ProfilePage.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/ProfilePage.svelte")),
     conditions: [authGuard],
   }),
   "/notebooks": wrap({
-    asyncComponent: () =>
-      import("@/routes/NotebooksPage.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/NotebooksPage.svelte")),
     conditions: [authGuard],
   }),
   "/notebook/:notebookId": wrap({
-    asyncComponent: () =>
-      import("@/routes/NotebookPage.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/NotebookPage.svelte")),
     conditions: [authGuard],
   }),
   "/notebook/:notebookId/:noteId": wrap({
-    asyncComponent: () =>
-      import("@/routes/NotePage.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/NotePage.svelte")),
     conditions: [authGuard],
   }),
   "*": wrap({
-    asyncComponent: () =>
-      import("@/routes/NotFoundPage.svelte") as unknown as Promise<{
-        default: ComponentType;
-      }>,
+    asyncComponent: asyncRoute(() => import("@/routes/NotFoundPage.svelte")),
   }),
 };
 

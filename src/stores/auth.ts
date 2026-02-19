@@ -1,9 +1,14 @@
 import { writable, get } from "svelte/store";
 import { replace } from "svelte-spa-router";
-import type { IAuthContext, AuthAuthenticate, AuthSignup } from "@/lib/types";
-import { login, signup, logout, refreshtoken } from "@/lib/api";
+import type {
+  IAuthContext,
+  IAuthDetails,
+  AuthAuthenticate,
+  AuthSignup,
+} from "@/lib/types";
+import { login, signup, logout, refreshtoken, unwrapResponse } from "@/lib/api";
 import APPLICATION_CONSTANTS from "@/lib/constants";
-import { notificationStore } from "./notification";
+import { showErrorNotification } from "./notification";
 
 const AC = APPLICATION_CONSTANTS;
 
@@ -21,12 +26,6 @@ function createAuthStore() {
   });
 
   let interval: ReturnType<typeof setInterval>;
-
-  const showNotification = (msg: string) => {
-    notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
 
   const resetAuthContext = () => {
     update((ctx) => ({
@@ -95,17 +94,15 @@ function createAuthStore() {
   const logoutHandler = async (token: string) => {
     if (token) {
       try {
-        const response = await logout(token);
-        if (response && "error" in response) {
-          showNotification(response.error ?? AC.GENERAL_ERROR);
+        const result = unwrapResponse(await logout(token));
+        if (!result.ok) {
+          showErrorNotification(result.error ?? AC.GENERAL_ERROR);
           return;
         }
-        if (response && "success" in response && response.success) {
-          resetAuthContext();
-          replace(AC.LOGIN_PAGE);
-        }
+        resetAuthContext();
+        replace(AC.LOGIN_PAGE);
       } catch (err) {
-        showNotification(`${err}`);
+        showErrorNotification(`${err}`);
       }
     }
   };
@@ -132,24 +129,26 @@ function createAuthStore() {
   ): Promise<AuthAuthenticate> => {
     if (!email || !password) return undefined;
     try {
-      const response = await login(email, password);
-      if (!response) return undefined;
-      if (response && "error" in response) {
-        showNotification(response.error ?? AC.GENERAL_ERROR);
-        return response;
+      const result = unwrapResponse(await login(email, password));
+      if (!result.ok) {
+        showErrorNotification(result.error ?? AC.GENERAL_ERROR);
+        return { error: result.error };
       }
-      if (response && "success" in response && response.success) {
-        update((ctx) => ({
-          ...ctx,
-          success: response.success,
-          details: response.details,
-          token: response.token,
-          loading: false,
-        }));
-        return response;
-      }
+      const data = result.data as {
+        success: boolean;
+        token: string;
+        details: IAuthDetails;
+      };
+      update((ctx) => ({
+        ...ctx,
+        success: data.success,
+        details: data.details,
+        token: data.token,
+        loading: false,
+      }));
+      return data as AuthAuthenticate;
     } catch (err) {
-      showNotification(`${err}`);
+      showErrorNotification(`${err}`);
     }
     return undefined;
   };
@@ -162,25 +161,29 @@ function createAuthStore() {
   ): Promise<AuthSignup> => {
     if (!email || !password) return { error: AC.GENERAL_ERROR };
     try {
-      const response = await signup(username, email, password, framework);
-      if (!response) return { error: AC.GENERAL_ERROR };
-      if (response && "error" in response) {
-        const errMsg = response.error ?? AC.GENERAL_ERROR;
-        showNotification(errMsg);
+      const result = unwrapResponse(
+        await signup(username, email, password, framework),
+      );
+      if (!result.ok) {
+        const errMsg = result.error ?? AC.GENERAL_ERROR;
+        showErrorNotification(errMsg);
         return { error: errMsg };
       }
-      if (response && "success" in response && response.success) {
-        update((ctx) => ({
-          ...ctx,
-          success: response.success,
-          details: response.details,
-          token: response.token,
-          loading: false,
-        }));
-        return response as AuthSignup;
-      }
+      const data = result.data as {
+        success: boolean;
+        token: string;
+        details: IAuthDetails;
+      };
+      update((ctx) => ({
+        ...ctx,
+        success: data.success,
+        details: data.details,
+        token: data.token,
+        loading: false,
+      }));
+      return data as AuthSignup;
     } catch (err) {
-      showNotification(`${err}`);
+      showErrorNotification(`${err}`);
       return { error: `${err}` };
     }
     return { error: AC.GENERAL_ERROR };

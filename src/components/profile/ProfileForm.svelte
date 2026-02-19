@@ -1,12 +1,12 @@
 <script lang="ts">
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
-  import { changeUsername, changePassword } from "@/lib/api";
-  import { notificationStore } from "@/stores/notification";
+  import { changeUsername, changePassword, unwrapResponse } from "@/lib/api";
+  import { showErrorNotification } from "@/stores/notification";
   import { snackStore } from "@/stores/snack";
   import APPLICATION_CONSTANTS from "@/lib/constants";
   import ErrorAlert from "@/components/UI/ErrorAlert.svelte";
-  import type { ProfileFormProps } from "@/lib/types";
+  import type { ProfileFormProps, IAuthDetails } from "@/lib/types";
 
   let { userName, onChangePassword, onChangeUsername }: ProfileFormProps =
     $props();
@@ -21,12 +21,6 @@
   let passwordToggle = $state(false);
 
   const AC = APPLICATION_CONSTANTS;
-
-  const showNotification = (msg: string) => {
-    notificationStore.ShowNotification({
-      notification: { n_status: "error", title: "Error!", message: msg },
-    });
-  };
 
   const resetToggle = () => {
     error = { error_state: false, message: "" };
@@ -71,14 +65,14 @@
     }
     isSubmitting = true;
     error = { error_state: false, message: "" };
-    const result = await changeUsername(token, {
-      newUsername: newUsername.trim(),
-    });
+    const result = unwrapResponse<{ details: IAuthDetails }>(
+      await changeUsername(token, { newUsername: newUsername.trim() }),
+    );
     isSubmitting = false;
-    if (result && "error" in result) {
-      showNotification(result.error ?? AC.GENERAL_ERROR);
-    } else if (result && "success" in result && result.details) {
-      authStore.update((ctx) => ({ ...ctx, details: result.details }));
+    if (!result.ok) {
+      showErrorNotification(result.error ?? AC.GENERAL_ERROR);
+    } else if (result.data.details) {
+      authStore.update((ctx) => ({ ...ctx, details: result.data.details }));
       snackStore.ShowSnack({ n_status: true, message: "User name changed!" });
       resetToggle();
     }
@@ -106,11 +100,13 @@
     // }
     isSubmitting = true;
     error = { error_state: false, message: "" };
-    const result = await changePassword(token, { oldPassword, newPassword });
+    const result = unwrapResponse(
+      await changePassword(token, { oldPassword, newPassword }),
+    );
     isSubmitting = false;
-    if (result && "error" in result) {
-      showNotification(result.error ?? AC.GENERAL_ERROR);
-    } else if (result && "success" in result) {
+    if (!result.ok) {
+      showErrorNotification(result.error ?? AC.GENERAL_ERROR);
+    } else {
       snackStore.ShowSnack({ n_status: true, message: "Password updated" });
       resetToggle();
     }

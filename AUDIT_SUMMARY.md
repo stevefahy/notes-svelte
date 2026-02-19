@@ -56,6 +56,39 @@
 - ViewNoteThumb now passes truncated content to ViewNoteMarkdown, reducing work per thumbnail while preserving visual consistency.
 - Portable to Vue, Angular, React, Next.js; see `TRUNCATE_PREVIEW_OTHER_APPS.md` for implementation guide.
 
+### 8. API Error Handling — unwrapResponse
+
+**Files:** `src/lib/api/unwrapResponse.ts` (new), `src/lib/api/index.ts`, auth store, NotePage, NotebookPage, NotebooksPage, ProfileForm, NotebooksList
+
+- Added `unwrapResponse()` to centralize `{ error }` / `{ success }` checks for API responses.
+- Callers use `result.ok` and `result.data` / `result.error` instead of manual checks.
+
+### 9. Duplicate showNotification — Shared Helper
+
+**Files:** `src/stores/notification.ts`, auth store, NotePage, NotebookPage, NotebooksPage, ProfileForm, NotebooksList
+
+- Exported `showErrorNotification(message)` from notification store.
+- Replaced local `showNotification` wrappers in 6 components.
+
+### 10. Router Type Casting — asyncRoute Helper
+
+**File:** `src/lib/router.ts`
+
+- Added `asyncRoute()` helper to remove repeated `as unknown as Promise<{ default: ComponentType }>` on async routes.
+- All 8 routes now use `asyncRoute(() => import(...))`.
+
+### 11. NotebookPage Inline Callback — Memoization
+
+**File:** `src/routes/NotebookPage.svelte`
+
+- Replaced inline `onNotesSelected={(s) => ...}` with stable `handleNotesSelected` handler.
+
+### 12. External Resources — Font Display
+
+**File:** `index.html`
+
+- Changed Material Icons and Material Symbols from `display=block` to `display=swap` for faster first paint.
+
 ---
 
 ## Recommendations Not Implemented
@@ -81,11 +114,6 @@ These were identified but not part of the Svelte-only plan or were lower priorit
 | Item | Description |
 |------|-------------|
 | **Auth store auto-refresh** | `autoRefreshToken()` starts on module load. Could start the interval only after successful login/refresh. |
-| **API error handling** | Consider a small `unwrapResponse` wrapper to centralize `{ error }` / `{ success }` checks. |
-| **Duplicate showNotification** | `showNotification` is duplicated in multiple components; could derive from store or use a shared helper. |
-| **Router type casting** | `as unknown as ComponentType` repeated for async routes; a typed helper could simplify this. |
-| **Inline callback in NotebookPage** | `onNotesSelected={(s) => ...}` creates new function each render; minor optimization. |
-| **External resources** | Google Fonts, Material Icons in `index.html`; could use `font-display: swap` or self-hosting. |
 
 ---
 
@@ -93,11 +121,21 @@ These were identified but not part of the Svelte-only plan or were lower priorit
 
 - `src/lib/markdown.ts`
 - `src/lib/router.ts`
+- `src/lib/api/unwrapResponse.ts` (created)
+- `src/lib/api/index.ts`
 - `src/lib/truncateMarkdownPreview.ts` (created)
+- `src/stores/auth.ts`
+- `src/stores/notification.ts`
 - `src/components/layout/LayoutComponent.svelte`
 - `src/components/note/NoteList.svelte`
 - `src/components/note/ViewNoteMarkdown.svelte`
 - `src/components/note/ViewNoteThumb.svelte`
+- `src/components/profile/ProfileForm.svelte`
+- `src/components/notebooks/NotebooksList.svelte`
+- `src/routes/NotePage.svelte`
+- `src/routes/NotebookPage.svelte`
+- `src/routes/NotebooksPage.svelte`
 - `src/assets/styles/main.css`
 - `src/assets/styles/svelte-shared.scss` (created)
 - `src/assets/styles/vue-specific.scss` (deleted)
+- `index.html`
