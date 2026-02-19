@@ -1,20 +1,20 @@
 # Unused CSS Audit Report
 
-Generated: 2026-02-18T21:29:58.872Z
+Generated: 2026-02-19T13:03:04.951Z
 
 ## Summary
 
-- **CSS files processed:** 4
-- **Unused selectors found:** 69
+- **CSS files processed:** 8
+- **Unused selectors found:** 70
 
 ### Per-file breakdown
 
-- `index-BoQJCs_2.css`: 63 unused selector(s)
+- `index-fi9NzBlx.css`: 64 unused selector(s)
 - `NotebooksPage-Di8YjF_h.css`: 6 unused selector(s)
 
 ## Unused selectors by file
 
-### index-BoQJCs_2.css
+### index-fi9NzBlx.css
 
 - `.basic`
 - `.delete_md`
@@ -23,6 +23,7 @@ Generated: 2026-02-18T21:29:58.872Z
 - `.footnotes ol li`
 - `.footnotes-list`
 - `.highlightRoot`
+- `.hljs-title.class_`
 - `.icon_no_margin`
 - `.icon_rotate_90`
 - `.inlineCode`
@@ -100,6 +101,7 @@ These patterns are used at runtime and should be safelisted if reported as unuse
 | `hljs`, `hljs-*` | markdown.ts | highlight.js output |
 | `language-*` | Possible markdown code blocks | If Prism/lang classes are used |
 | Vuetify-style classes | bits-ui, components | .v-btn, .v-theme--*, etc. |
+| `svelte-*` | Svelte components | Scoped class hashes (safelisted via greedy) |
 
 If any of the above appear in the unused list, add them to `safelist` in purgecss.config.js and re-run.
 
