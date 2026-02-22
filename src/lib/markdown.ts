@@ -27,6 +27,7 @@ const md: MarkdownIt = new MarkdownIt({
   linkify: true,
   typographer: true,
   langPrefix: "language-",
+  breaks: false,
   highlight: (str: string, lang?: string): string => {
     if (lang && hljs.getLanguage(lang)) {
       return (
@@ -39,6 +40,25 @@ const md: MarkdownIt = new MarkdownIt({
       (lang ? `<p>${md.utils.escapeHtml(lang)}</p>` : "")
     );
   },
+});
+
+// Add a ruler to recognize <br> as a hardbreak
+md.inline.ruler.push("html_br", (state, silent) => {
+  if (state.src.slice(state.pos, state.pos + 4) === "<br>") {
+    if (!silent) {
+      state.push("hardbreak", "br", 0);
+    }
+    state.pos += 4;
+    return true;
+  }
+  if (state.src.slice(state.pos, state.pos + 5) === "<br/>") {
+    if (!silent) {
+      state.push("hardbreak", "br", 0);
+    }
+    state.pos += 5;
+    return true;
+  }
+  return false;
 });
 
 md.use(markdownItEmoji, { defs: emojiDefs as Record<string, string> });
