@@ -26,7 +26,7 @@
 >
   <div class="note-card {vCard()}">
     <div class={vCardText("cardcontent viewnote_content")}>
-      <ViewNoteMarkdown {viewText} />
+      <ViewNoteMarkdown {viewText} onViewTextUpdate={onEdit} />
     </div>
   </div>
 </div>

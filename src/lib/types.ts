@@ -24,7 +24,8 @@ export interface ViewNoteMarkdownProps {
   scrollView?: number;
   splitScreen?: boolean;
   updatedViewText?: (updatedEdit: string) => void;
-  disableLinks: boolean;
+  onViewTextUpdate?: (text: string) => void;
+  disableLinks?: boolean;
 }
 
 export interface Note {

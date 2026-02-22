@@ -293,6 +293,11 @@ span.token {
   accent-color: var(--color-primary);
 }
 
+.md-readonly .task-list input[type="checkbox"] {
+  pointer-events: none;
+  cursor: default;
+}
+
 .viewnote_content .image {
   margin: var(--size-4) auto;
   width: 100%;

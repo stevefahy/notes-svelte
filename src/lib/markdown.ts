@@ -74,7 +74,7 @@ md.use(markdownItAttrs, {
   allowedAttributes: [],
 });
 md.use(markdownItTaskCheckbox, {
-  disabled: true,
+  disabled: false,
   divWrap: true,
   divClass: "checkbox",
   idPrefix: "cbx_",
