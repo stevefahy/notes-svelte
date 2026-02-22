@@ -10,17 +10,34 @@ import markdownItAttrs from "markdown-it-attrs";
 import markdownItTaskCheckbox from "markdown-it-task-checkbox";
 import markdownItContainer from "markdown-it-container";
 import markdownItAnchor from "markdown-it-anchor";
-import matter from "gray-matter";
-import emojiDefs from "@/lib/emoji_definitions";
-import hljs from "highlight.js/lib/core";
-import js from "highlight.js/lib/languages/javascript";
-import css from "highlight.js/lib/languages/css";
-import markdown from "highlight.js/lib/languages/markdown";
+import fm from "front-matter";
+import yaml from "js-yaml";
 
-hljs.registerLanguage("javascript", js);
-hljs.registerLanguage("css", css);
-hljs.registerLanguage("markdown", markdown);
-hljs.registerLanguage("md", markdown);
+// Gray-matter–compatible API using front-matter (no eval)
+function matter(
+  input: string,
+): { content: string; data: Record<string, unknown> } {
+  const parsed = fm(input);
+  return { content: parsed.body, data: parsed.attributes as Record<string, unknown> };
+}
+
+matter.stringify = function stringify(
+  content: string,
+  data?: Record<string, unknown>,
+): string {
+  if (!data || Object.keys(data).length === 0) return content;
+  return `---\n${yaml.dump(data, { lineWidth: -1 }).trim()}\n---\n${content}`;
+};
+
+export { matter };
+import emojiDefs from "@/lib/emoji_definitions";
+import Prism from "prismjs";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-markdown";
+
+// Map "md" to markdown language
+const langAliases: Record<string, string> = { md: "markdown" };
 
 const md: MarkdownIt = new MarkdownIt({
   html: false,
@@ -29,14 +46,17 @@ const md: MarkdownIt = new MarkdownIt({
   langPrefix: "language-",
   breaks: false,
   highlight: (str: string, lang?: string): string => {
-    if (lang && hljs.getLanguage(lang)) {
+    const prismLang = lang ? (langAliases[lang] ?? lang) : undefined;
+    if (prismLang && prismLang in Prism.languages) {
+      const gram = Prism.languages[prismLang as keyof typeof Prism.languages];
+      const highlighted = Prism.highlight(str, gram, prismLang);
       return (
-        `<pre class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: false }).value}</code></pre>` +
-        `<p>${md.utils.escapeHtml(lang)}</p>`
+        `<pre class="language-${prismLang}"><code class="language-${prismLang}">${highlighted}</code></pre>` +
+        `<p>${md.utils.escapeHtml(lang ?? "")}</p>`
       );
     }
     return (
-      `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>` +
+      `<pre><code>${md.utils.escapeHtml(str)}</code></pre>` +
       (lang ? `<p>${md.utils.escapeHtml(lang)}</p>` : "")
     );
   },

@@ -88,8 +88,7 @@ function buildReport(results) {
   lines.push('| ------- | ------ | ------ |');
   lines.push('| `table`, `table-striped` | markdown.ts | md.renderer.rules.table_open |');
   lines.push('| `image` | markdown.ts | Image wrapper span |');
-  lines.push('| `hljs`, `hljs-*` | markdown.ts | highlight.js output |');
-  lines.push('| `language-*` | Possible markdown code blocks | If Prism/lang classes are used |');
+  lines.push('| `token`, `token.*`, `language-*` | markdown.ts | Prism.js code block output |');
   lines.push('| Vuetify-style classes | bits-ui, components | .v-btn, .v-theme--*, etc. |');
   lines.push('| `svelte-*` | Svelte components | Scoped class hashes (safelisted via greedy) |');
   lines.push('');

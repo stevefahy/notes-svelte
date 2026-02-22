@@ -1,7 +1,4 @@
 <script lang="ts">
-  import matter from "gray-matter";
-  import { renderMarkdown } from "@/lib/markdown";
-
   const TASK_LINE_RE = /^\s*[-*+]\s+\[[xX \u00a0]\s*\]/;
 
   interface Props {
@@ -11,12 +8,30 @@
   }
   let { viewText, disableLinks = false, onViewTextUpdate }: Props = $props();
 
-  const html = $derived(renderMarkdown(viewText, disableLinks));
+  let renderMarkdown = $state<((text: string, disableLinks?: boolean) => string) | null>(
+    null,
+  );
+  let matterFn = $state<{
+    (input: string): { content: string; data: Record<string, unknown> };
+    stringify(content: string, data?: Record<string, unknown>): string;
+  } | null>(null);
+
+  $effect(() => {
+    if (renderMarkdown && matterFn) return;
+    import("@/lib/markdown").then((mod) => {
+      renderMarkdown = mod.renderMarkdown;
+      matterFn = mod.matter;
+    });
+  });
+
+  const html = $derived(
+    renderMarkdown ? renderMarkdown(viewText, disableLinks) : "",
+  );
 
   const isReadOnly = $derived(!onViewTextUpdate);
 
   function handleCheckboxClick(event: MouseEvent) {
-    if (!onViewTextUpdate) return;
+    if (!onViewTextUpdate || !matterFn) return;
     const target = event.target as HTMLInputElement;
     if (target.tagName !== "INPUT" || target.type !== "checkbox") return;
     const id = target.id;
@@ -26,7 +41,7 @@
 
     const checked = target.checked;
 
-    const parsed = matter(viewText);
+    const parsed = matterFn(viewText);
     const content = parsed.content;
     const lines = content.split("\n");
     let nth = 0;
@@ -40,7 +55,7 @@
           const newContent = lines.join("\n");
           const updatedFull =
             Object.keys(parsed.data).length > 0
-              ? matter.stringify(newContent, parsed.data)
+              ? matterFn.stringify(newContent, parsed.data)
               : newContent;
           onViewTextUpdate(updatedFull);
           return;
@@ -52,7 +67,7 @@
 </script>
 
 <span
-  class="viewnote_content {isReadOnly ? 'md-readonly' : ''}"
+  class="viewnote_content {isReadOnly ? "md-readonly" : ""}"
   data-viewnote-markdown
   onclick={onViewTextUpdate ? handleCheckboxClick : undefined}
   role={onViewTextUpdate ? "presentation" : undefined}

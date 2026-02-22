@@ -752,8 +752,8 @@ main {
   height: auto;
 }
 
-p .hljs code,
-li .hljs code {
+p pre[class*="language-"] code,
+li pre[class*="language-"] code {
   background-color: inherit;
   display: inline-block;
 }

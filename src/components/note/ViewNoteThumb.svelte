@@ -1,5 +1,5 @@
 <script lang="ts">
-  import matter from "gray-matter";
+  import fm from "front-matter";
   import ViewNoteMarkdown from "./ViewNoteMarkdown.svelte";
   import { truncateMarkdownPreview } from "@/lib/truncateMarkdownPreview";
 
@@ -9,7 +9,7 @@
   let { text }: Props = $props();
 
   const previewText = $derived(
-    truncateMarkdownPreview(matter(text).content ?? "")
+    truncateMarkdownPreview(fm(text).body ?? ""),
   );
 </script>
 
