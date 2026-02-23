@@ -1,0 +1,1 @@
+import{az as d,aA as t,n as v,e,x as n}from"./index-CV3uTZ8I.js";var l=n('<div class="page_footer svelte-rx3jdl"><div class="page_footer_container svelte-rx3jdl"><!></div></div>');function c(o,r){var a=l(),i=e(a),s=e(i);d(s,()=>r.children??t),v(o,a)}export{c as F};
