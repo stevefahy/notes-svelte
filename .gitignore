@@ -24,6 +24,4 @@ dist-ssr
 *.sw?
 
 # MD Files
-AUDIT_SUMMARY.md
-TRUNCATE_PREVIEW_OTHER_APPS.md
-UNUSED_CSS_REPORT.md
+/docs
