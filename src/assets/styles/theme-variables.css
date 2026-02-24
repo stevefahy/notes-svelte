@@ -1,0 +1,35 @@
+:root {
+  /* Primary palette */
+  --theme-lime: #8BE04A;
+  --theme-lime-light: #B8EF80;
+  --theme-lime-bg: #EEF8E2;
+  --theme-green: #1B3D29;
+  --theme-green-mid: #3D9966;
+  --theme-green-accent: #2E7D52;
+
+  /* Surfaces */
+  --theme-surface: #FFFFFF;
+  --theme-bg: #F4F9F1;
+  --theme-input-bg: #F4F9F1;
+  --theme-border: rgba(0,0,0,0.07);
+  --theme-border-input: #D0E8D8;
+
+  /* Text */
+  --theme-text: #111C16;
+  --theme-text-secondary: #3D5A47;
+  --theme-text-muted: #7DA08A;
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --theme-shadow-lg: 0 24px 64px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.07);
+  --theme-shadow-card: 0 -4px 30px rgba(0,0,0,0.1);
+  --theme-shadow-btn: 0 4px 14px rgba(46,125,82,0.35);
+
+  /* Typography */
+  --theme-font-sans: 'DM Sans', sans-serif;
+  --theme-font-serif: 'Lora', serif;
+
+  /* Spacing / radii */
+  --theme-radius-sm: 10px;
+  --theme-radius-card: 24px;
+}

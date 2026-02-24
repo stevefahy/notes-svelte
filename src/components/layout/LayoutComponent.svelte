@@ -1,5 +1,6 @@
 <script lang="ts">
   let { children } = $props();
+  import { location } from "svelte-spa-router";
   import MainNavigation from "./MainNavigation.svelte";
   import NotificationView from "../UI/NotificationView.svelte";
   import SnackBar from "../UI/SnackBar.svelte";
@@ -10,6 +11,7 @@
   import type { NotificationInterface } from "@/lib/types";
 
   const AC = APPLICATION_CONSTANTS;
+  const isLoginPage = $derived($location === "/login");
 
   let notificationStatus = $state<"pending" | "success" | "error" | null>(null);
   let notificationData = $state<NotificationInterface | null>(null);
@@ -60,8 +62,10 @@
   });
 </script>
 
-<MainNavigation />
-<main>
+{#if !isLoginPage}
+  <MainNavigation />
+{/if}
+<main class:login-page={isLoginPage}>
   {@render children?.()}
 </main>
 {#if notificationStatus}
@@ -74,3 +78,11 @@
   </div>
 {/if}
 <SnackBar />
+
+<style>
+  main.login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+</style>

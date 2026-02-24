@@ -5,7 +5,6 @@
   import APPLICATION_CONSTANTS from '@/lib/constants'
   import ErrorAlert from '@/components/UI/ErrorAlert.svelte'
   import { querystring } from 'svelte-spa-router'
-  import { vCard, vCardText, vCardTitle } from '@/lib/vuetify-classes'
 
   const AC = APPLICATION_CONSTANTS
 
@@ -113,129 +112,252 @@
   }
 </script>
 
-<section class="auth">
-  <div class={vCard('card')}>
-    <h2 class={vCardTitle('header')}>{isLogin ? 'Login' : 'Sign Up'}</h2>
-    <div class={vCardText('card-content')}>
-      <form novalidate onsubmit={submitHandler}>
-        {#if !isLogin}
-          <div class="control">
-            <label for="username">Your Name</label>
-            <input
-              type="text"
-              id="username"
-              required
-              placeholder="Username"
-              autocomplete="username"
-              bind:value={username}
-              oninput={resetError}
-            />
-          </div>
-        {/if}
-        <div class="control">
-          <label for="email">Your Email</label>
-          <input
-            type="email"
-            id="email"
-            required
-            placeholder="Email"
-            autocomplete="email"
-            bind:value={email}
-            onchange={resetError}
-            oninput={resetError}
-          />
-        </div>
-        <div class="control">
-          <label for="password">Your Password</label>
-          <input
-            type="password"
-            id="password"
-            required
-            placeholder={isLogin ? 'Password' : 'Password (7-10 characters)'}
-            autocomplete={isLogin ? 'current-password' : 'new-password'}
-            bind:value={password}
-            onchange={resetError}
-            oninput={resetError}
-          />
-        </div>
-        <div class="actions">
-          <button class="btn-contained v-btn v-btn--elevated v-theme--myCustomLightTheme bg-secondary v-btn--density-default v-btn--size-default v-btn--variant-elevated contained medium" type="submit" disabled={isSubmitting}>
-            {isLogin ? 'Login' : 'Create Account'}
-          </button>
-          <button class="btn-text" type="button" onclick={switchAuthModeHandler}>
-            {isLogin ? 'Create new account' : 'Login with existing account'}
-          </button>
-        </div>
-      </form>
-
-      {#if error.error_state}
-        <ErrorAlert error_state={error.error_state} message={error.message} error_severity={error.error_severity} />
-      {/if}
+<div class="splash-login">
+  <div class="splash-top">
+    <div class="splash-logo-row">
+      <div class="splash-logo-mark">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1.5" y="1.5" width="17" height="17" rx="3.5" stroke="white" stroke-width="1.6"></rect>
+          <path d="M6.5 13.5l1.2-3.6 6.3-6.3a1 1 0 011.4 1.4l-6.3 6.3-2.6.2z" fill="white" opacity="0.9"></path>
+          <path d="M12 4.5l1.5 1.5" stroke="rgba(31,92,58,0.6)" stroke-width="1.1" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <span class="splash-logo-text">Notes</span>
     </div>
+    <div class="splash-headline">Your notes,<br>beautifully<br>organised.</div>
+    <div class="splash-sub">Write freely, stay focused. Everything in one calm, clutter-free space.</div>
   </div>
-</section>
+
+  <div class="login-card">
+    <h2 class="login-card-title">{isLogin ? 'Sign in' : 'Create account'}</h2>
+    <form novalidate onsubmit={submitHandler}>
+      {#if !isLogin}
+        <label class="form-label" for="username">Your Name</label>
+        <input
+          class="form-input"
+          type="text"
+          id="username"
+          required
+          placeholder="Username"
+          autocomplete="username"
+          bind:value={username}
+          oninput={resetError}
+        />
+      {/if}
+      <label class="form-label" for="email">Email address</label>
+      <input
+        class="form-input"
+        type="email"
+        id="email"
+        required
+        placeholder="Email"
+        autocomplete="email"
+        bind:value={email}
+        onchange={resetError}
+        oninput={resetError}
+      />
+      <label class="form-label" for="password">Password</label>
+      <input
+        class="form-input"
+        type="password"
+        id="password"
+        required
+        placeholder={isLogin ? 'Password' : 'Password (7-10 characters)'}
+        autocomplete={isLogin ? 'current-password' : 'new-password'}
+        bind:value={password}
+        onchange={resetError}
+        oninput={resetError}
+      />
+      <button class="btn-login" type="submit" disabled={isSubmitting}>
+        {isLogin ? 'Sign in' : 'Create Account'}
+      </button>
+      <div class="login-alt">
+        {isLogin ? 'No account? ' : ''}
+        <button type="button" class="login-alt-link" onclick={switchAuthModeHandler}>
+          {isLogin ? 'Create one' : 'Login with existing account'}
+        </button>
+      </div>
+    </form>
+
+    {#if error.error_state}
+      <ErrorAlert error_state={error.error_state} message={error.message} error_severity={error.error_severity} />
+    {/if}
+  </div>
+</div>
 
 <style>
-  .auth {
-    margin: 3rem auto;
-    width: 95%;
-    max-width: 25rem;
-    border-radius: 6px;
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .control {
-    margin-bottom: 0.5rem;
-  }
-
-  .control label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-
-  .actions {
-    margin-top: 1.5rem;
+  .splash-login {
+    background: var(--theme-lime);
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .splash-top {
+    padding: 32px 26px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .splash-logo-row {
+    display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
+    margin-bottom: 48px;
   }
 
-  .actions button {
-    cursor: pointer;
+  .splash-logo-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--theme-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
 
-  .header {
-    margin: 0px;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    font-size: 1.5rem;
-    line-height: 1.334;
-    letter-spacing: 0em;
+  .splash-logo-text {
+    font-family: var(--theme-font-serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--theme-green);
+    letter-spacing: -0.02em;
+  }
+
+  .splash-headline {
+    font-family: var(--theme-font-serif);
+    font-size: 34px;
+    font-weight: 600;
+    color: var(--theme-green);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .splash-sub {
+    font-size: 13px;
+    color: rgba(31, 92, 58, 0.65);
+    line-height: 1.6;
+  }
+
+  .login-card {
+    background: var(--theme-surface);
+    border-radius: var(--theme-radius-card) var(--theme-radius-card) 0 0;
+    padding: 28px 24px 32px;
+    margin-top: auto;
+    flex: 1;
+    box-shadow: var(--theme-shadow-card);
+  }
+
+  @media (min-width: 768px) {
+    .splash-login {
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 2rem;
+    }
+
+    .splash-top {
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .login-card {
+      margin-top: 2rem;
+      flex: 0 0 auto;
+      border-radius: var(--theme-radius-card);
+      max-width: 420px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  .login-card-title {
+    font-family: var(--theme-font-serif);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--theme-text);
+    margin-bottom: 20px;
+  }
+
+  .form-label {
     display: block;
-    padding: 16px;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--theme-text-secondary);
+    margin-bottom: 5px;
   }
 
-  .auth .card {
-    border-radius: 6px;
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.15);
-    background: #fff;
-    overflow: hidden;
+  .form-input {
+    width: 100%;
+    background: var(--theme-input-bg);
+    border: 1.5px solid var(--theme-border-input);
+    border-radius: var(--theme-radius-sm);
+    padding: 11px 14px;
+    font-family: var(--theme-font-sans);
+    font-size: 14px;
+    color: var(--theme-text);
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
   }
 
-  .auth .card-content {
-    padding: 0 16px 16px;
+  .form-input:focus {
+    border-color: var(--theme-green);
+    box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.12);
   }
 
-  .error-enter-active,
-  .error-leave-active {
-    transition: opacity 0.5s ease;
+  .form-input:-webkit-autofill,
+  .form-input:-webkit-autofill:hover,
+  .form-input:-webkit-autofill:focus,
+  .form-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--theme-input-bg) inset !important;
+    box-shadow: 0 0 0 30px var(--theme-input-bg) inset !important;
+    -webkit-text-fill-color: var(--theme-text) !important;
+    transition: background-color 5000s ease-in-out 0s;
   }
 
-  .error-enter-from,
-  .error-leave-to {
-    opacity: 0;
+  .btn-login {
+    width: 100%;
+    background: var(--theme-green);
+    color: white;
+    border: none;
+    border-radius: var(--theme-radius-sm);
+    padding: 13px;
+    font-family: var(--theme-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    margin-bottom: 16px;
+    box-shadow: var(--theme-shadow-btn);
+  }
+
+  .btn-login:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .login-alt {
+    text-align: center;
+    font-size: 13px;
+    color: var(--theme-text-secondary);
+  }
+
+  .login-alt-link {
+    background: none;
+    border: none;
+    color: var(--theme-green);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    font-family: inherit;
+  }
+
+  .login-alt-link:hover {
+    text-decoration: underline;
   }
 </style>

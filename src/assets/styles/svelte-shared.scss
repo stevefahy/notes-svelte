@@ -168,8 +168,19 @@ $color-secondary: #b30000;
 input,
 select,
 textarea {
-  background-color: #f7f0fa !important;
+  background-color: var(--theme-input-bg, #F4F9F1) !important;
   border-style: inset !important;
+}
+
+/* Override browser autofill blue background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--theme-input-bg, #F4F9F1) inset !important;
+  box-shadow: 0 0 0 30px var(--theme-input-bg, #F4F9F1) inset !important;
+  -webkit-text-fill-color: var(--theme-text, #111C16) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 input {
