@@ -12,10 +12,10 @@
   display: flex;
   align-items: center;
   margin: 0px;
-  font-family: Roboto, Helvetica, Arial, sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
+  font-family: var(--theme-font-serif);
+  font-weight: 600;
+  font-size: 1.1rem;
   line-height: 1.5;
   letter-spacing: 0.00938em;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--theme-text-secondary);
 }

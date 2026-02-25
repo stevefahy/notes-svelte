@@ -2,6 +2,7 @@
   import APPLICATION_CONSTANTS from "@/lib/constants";
   import { FolderOptions } from "@/lib/folderOptions";
   import ErrorAlert from "@/components/UI/ErrorAlert.svelte";
+  import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { NotebookCoverType } from "@/lib/types";
   import { vCard, vCardText } from "@/lib/vuetify-classes";
 
@@ -20,12 +21,12 @@
 
   const AC = APPLICATION_CONSTANTS;
 
-  let selectedCover = $state<NotebookCoverType>("default");
+  let selectedCover = $state<NotebookCoverType>("forest");
   let selectedName = $state("");
 
   $effect(() => {
     if (method === "edit" && notebook) {
-      selectedCover = notebook.notebook_cover;
+      selectedCover = getDisplayCover(notebook.notebook_cover) as NotebookCoverType;
       selectedName = notebook.notebook_name;
     }
   });
@@ -36,7 +37,7 @@
   const originalCover = $derived(
     method === "edit" && notebook
       ? notebook.notebook_cover
-      : ("default" as NotebookCoverType),
+      : ("forest" as NotebookCoverType),
   );
 
   const formChanged = $derived.by(() => {
@@ -80,7 +81,7 @@
       error = { error_state: true, message: AC.NOTEBOOK_NAME_MAX_ERROR };
       return;
     }
-    const cover = selectedCover || "default";
+    const cover = selectedCover || "forest";
     await onAddNotebook?.(selectedName, cover);
   };
 
@@ -207,10 +208,10 @@
     font: inherit;
     max-width: 100%;
     width: 100%;
-    border-radius: 4px;
-    border: 1px solid #38015c;
+    border-radius: var(--theme-radius-sm);
+    border: 1.5px solid var(--theme-border-input);
     padding: 0.25rem;
-    background-color: #f7f0fa;
+    background-color: var(--theme-input-bg);
   }
 
   .modal-container {
@@ -234,10 +235,10 @@
     width: 100%;
     display: block;
     font: inherit;
-    border-radius: 4px;
-    border: 1px solid #38015c;
+    border-radius: var(--theme-radius-sm);
+    border: 1.5px solid var(--theme-border-input);
     padding: 0.25rem;
-    background-color: #f7f0fa;
+    background-color: var(--theme-input-bg);
   }
 
   .action {
@@ -247,6 +248,16 @@
 
   .button_icon.white {
     color: white;
+  }
+
+  .btn-contained {
+    background: var(--theme-green);
+    color: white;
+    box-shadow: var(--theme-shadow-btn);
+  }
+
+  .btn-contained:hover:not(:disabled) {
+    background: var(--theme-green-accent);
   }
 
   .btn-contained:disabled {

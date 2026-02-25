@@ -1,6 +1,6 @@
 export const FolderOptions = [
-  { value: "default", viewValue: "Default" },
-  { value: "red", viewValue: "Red" },
-  { value: "green", viewValue: "Green" },
-  { value: "blue", viewValue: "Blue" },
+  { value: "forest", viewValue: "Forest" },
+  { value: "emerald", viewValue: "Emerald" },
+  { value: "lime", viewValue: "Lime" },
+  { value: "sage", viewValue: "Sage" },
 ];

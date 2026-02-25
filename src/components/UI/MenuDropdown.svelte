@@ -104,19 +104,21 @@
 
 <style>
   .icon {
-    color: white !important;
+    color: var(--theme-text-muted) !important;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .icon .material-icons {
-    color: white;
-  }
-
-  .icon :global(i.material-icons) {
-    color: white;
-  }
-
-  .icon :global(.v-btn__content .material-icons) {
-    color: white !important;
+  .icon .material-icons,
+  .icon :global(i.material-icons),
+  .icon :global(.v-btn__content .material-icons),
+  .icon :global(.material-symbols-outlined) {
+    color: var(--theme-text-muted) !important;
   }
 
   .nav_menu {

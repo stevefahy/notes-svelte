@@ -5,6 +5,7 @@
   padding-inline-start: 0px;
   padding-left: 10px;
   padding-right: 10px;
+  background-color: #f4f9f1;
 }
 
 :global(.notebooks_list li) {
@@ -13,7 +14,7 @@
 }
 
 :global(.notebooks_list li div:hover) {
-  background-color: #f7f7f7;
+  background-color: var(--theme-bg);
 }
 
 :global(.notebooks_list li:first-child) {
@@ -25,28 +26,84 @@
 }
 
 :global(.notebooks_list_left) {
-  width: 20px;
-  border-bottom-left-radius: 6px;
-  border-top-left-radius: 6px;
-  border-radius: 6px;
+  width: 27px;
+  min-width: 27px;
+  height: 40px;
+  border-radius: 5px;
   overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Notebook spine (vertical bar on left edge, per design reference) */
+:global(.nb-spine-forest) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #00920c;
+}
+
+:global(.nb-spine-emerald) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #5db830;
+}
+
+:global(.nb-spine-lime) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #7d9886;
+}
+
+:global(.nb-spine-sage) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #1b3d29;
+}
+
+:global(.nb-spine-loading) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--theme-text-muted);
 }
 
 :global(.notebooks_list_right) {
   display: flex;
   width: 100%;
-  padding-left: 10px;
+  padding-left: 12px;
   align-self: center;
-  font-size: var(--size-4a);
-  color: var(--color-grey-600);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--theme-text);
   flex-direction: column;
   justify-content: center;
 }
 
+:global(.notebooks_list_right .date_format) {
+  font-size: 11px;
+  color: var(--theme-text-muted);
+  font-weight: 400;
+}
+
 :global(.notebooks_list_outer) {
   width: 100%;
-  height: 50px;
+  min-height: 50px;
   display: flex;
+  align-items: center;
 }
 
 :global(.notebooks_list li:first-child) {
@@ -58,29 +115,29 @@
   padding-top: 10px;
 }
 
-:global(.notebook_default) {
-  color: var(--notebook-color-default);
-  background: var(--notebook-color-bg-default);
+:global(.tab_forest) {
+  background: var(--notebook-forest);
 }
 
-:global(.tab_default) {
-  background: var(--notebook-color-tab-default);
+:global(.tab_emerald) {
+  background: var(--notebook-emerald);
 }
 
-:global(.tab_red) {
-  background: var(--notebook-color-tab-red);
+:global(.tab_lime) {
+  background: var(--notebook-lime);
 }
-:global(.tab_blue) {
-  background: var(--notebook-color-tab-blue);
-}
-:global(.tab_green) {
-  background: var(--notebook-color-tab-green);
+
+:global(.tab_sage) {
+  background: var(--notebook-sage);
 }
 
 :global(.tab_loading) {
-  background: var(--notebook-color-tab-loading);
+  background: var(--theme-text-muted);
 }
 
 :global(li.notebooks_list_bg .v-card) {
   width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-sm);
 }

@@ -42,43 +42,6 @@ body {
   --color-error-100: #f1acc9;
   --color-error-500: #a10c4a;
 
-  --notebook-color-tab-default: repeating-linear-gradient(
-    45deg,
-    #4b4b4b,
-    #888484 3px,
-    #545454 3px,
-    #606060 8px
-  );
-
-  --notebook-color-tab-red: repeating-linear-gradient(
-    45deg,
-    #360000,
-    #8b0000 3px,
-    var(--notebook-color-bg-red) 3px,
-    #cc0000 8px
-  );
-
-  --notebook-color-tab-blue: repeating-linear-gradient(
-    45deg,
-    #040036,
-    #000b8b 3px,
-    var(--notebook-color-bg-blue) 3px,
-    #0006cc 8px
-  );
-
-  --notebook-color-tab-green: repeating-linear-gradient(
-    45deg,
-    #00360f,
-    #008b15 3px,
-    var(--notebook-color-bg-green) 3px,
-    #00cc12 8px
-  );
-
-  --notebook-color-tab-loading: grey;
-  --notebook-color-bg-default: grey;
-  --notebook-color-bg-red: #b85757;
-  --notebook-color-bg-green: #6ea864;
-  --notebook-color-bg-blue: #7777dd;
 
   --main-navigation-bg-color: #424242;
 
@@ -100,7 +63,7 @@ body {
 
   --header-height: calc(var(--jsheader-height));
   --footer-height: 55;
-  --breadcrumb-height: 50;
+  --breadcrumb-height: 40;
 
   --viewnotethumb-box-min-height: 56;
 
@@ -163,20 +126,20 @@ p {
   margin: 0 0 10px;
 }
 
-.notebook_cover_default {
-  color: var(--notebook-color-bg-default) !important;
+.notebook_cover_forest {
+  color: var(--notebook-forest-color) !important;
 }
 
-.notebook_cover_red {
-  color: var(--notebook-color-bg-red) !important;
+.notebook_cover_emerald {
+  color: var(--notebook-emerald-color) !important;
 }
 
-.notebook_cover_blue {
-  color: var(--notebook-color-bg-blue) !important;
+.notebook_cover_lime {
+  color: var(--notebook-lime-color) !important;
 }
 
-.notebook_cover_green {
-  color: var(--notebook-color-bg-green) !important;
+.notebook_cover_sage {
+  color: var(--notebook-sage-color) !important;
 }
 
 a {
@@ -210,7 +173,7 @@ select {
   overflow-y: scroll;
   height: calc(
     var(--jsvh) -
-      (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) *
+      (var(--header-height) + var(--breadcrumb-height)) *
       1px
   );
 }

@@ -10,7 +10,6 @@
 
 <style>
   .page_footer {
-    z-index: 1;
     width: 100%;
     position: fixed;
     height: calc(var(--footer-height) * 1px);
@@ -19,11 +18,11 @@
     flex-direction: column;
     justify-content: center;
     bottom: 0px;
-    box-shadow:
-      rgb(50 50 93 / 25%) 0px -2px 12px -2px,
-      rgb(0 0 0 / 30%) 0px -1px 7px -3px;
-    background-color: white;
+    background-color: #F4F9F1;
     z-index: 6;
+    background-color: rgba(244, 249, 241, 0.5);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .page_footer_container {

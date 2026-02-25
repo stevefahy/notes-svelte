@@ -2,6 +2,8 @@
 
 Use this document as a prompt/spec when updating the Next.js, React, Angular, and Vue versions of the Notes app to match the green theme design.
 
+**See also:** `.cursor/THEME-UPDATE-OVERVIEW.md` — broader goal, context, and continuity prompt for new sessions.
+
 **Design reference:** `file:///C:/0930_ai_screenshots/notes-app/generated/notes-green-theme-v2_updated/notes-green-v2.html`
 
 ---
@@ -45,6 +47,16 @@ Add these theme variables to `:root` (in a central CSS/SCSS file or global style
   /* Spacing / radii */
   --theme-radius-sm: 10px;
   --theme-radius-card: 24px;
+
+  /* Notebook cover gradients (forest, emerald, lime, sage) */
+  --notebook-forest: linear-gradient(145deg, #1B3D29, #06100a);
+  --notebook-emerald: linear-gradient(145deg, #1B3D29, #00920c);
+  --notebook-lime: linear-gradient(145deg, #8BE04A, #5DB830);
+  --notebook-sage: linear-gradient(145deg, #82c098, #7d9886);
+  --notebook-forest-color: #1B3D29;
+  --notebook-emerald-color: #2E7D52;
+  --notebook-lime-color: #5DB830;
+  --notebook-sage-color: #7d9886;
 }
 ```
 
@@ -67,6 +79,8 @@ Update `theme-color` meta tag to `#1B3D29`.
 **Hide header/navigation on login route.** When the current route is `/login` (or equivalent), do not render the main navigation header or breadcrumb. The login page should be full-screen without the app chrome.
 
 Ensure the main content area has `min-height: 100vh` when on the login page so the splash fills the viewport.
+
+**Page scrollable area:** `.page_scrollable_header_breadcrumb_footer_list` should extend to the bottom of the page. The breadcrumb area matches the light green background (`var(--theme-bg)`) and is transparent.
 
 ---
 
@@ -153,7 +167,39 @@ For the splash logo mark, wrap in a container:
 
 ---
 
-## 8. Implementation Checklist
+## 8. Notebooks Page
+
+### Cover options (replacing old red/blue/green/default)
+- **Forest** — dark forest gradient (#1B3D29 → #06100a)
+- **Emerald** — forest to bright green (#1B3D29 → #00920c)
+- **Lime** — lime to green (#8BE04A → #5DB830)
+- **Sage** — muted sage (#82c098 → #7d9886)
+
+### Legacy mapping (for existing data from API)
+Map old cover values to new for display: `default`→sage, `red`→forest, `green`→lime, `blue`→emerald.
+
+### Notebook list styling
+- **Breadcrumb as section header:** On notebooks page, breadcrumb uses light green background (`var(--theme-bg)`), no border; `.breadcrumb_group` styled with Lora, 1.1rem, font-weight 600, `var(--theme-text-secondary)`
+- Notebook cards: `border-radius: 14px`, `border: 1px solid var(--theme-border)`, `box-shadow: var(--theme-shadow-sm)`
+- Cover bar: 27×40px, gradient background from `--notebook-{forest|emerald|lime|sage}`, `position: relative`, `overflow: hidden`
+- **Notebook spine** (vertical bar on left edge of cover, 4px wide): `.nb-spine-{forest|emerald|lime|sage|loading}` — `position: absolute`, `left: 0`, `top: 0`, `bottom: 0`, `width: 4px`, background colors for contrast:
+  - `.nb-spine-forest`: `#00920c`
+  - `.nb-spine-emerald`: `#5db830`
+  - `.nb-spine-lime`: `#7d9886`
+  - `.nb-spine-sage`: `#1b3d29`
+  - `.nb-spine-loading`: `var(--theme-text-muted)`
+- **New Notebook FAB** (`.fab`): Text "New Notebook", plus icon (SVG). `background: var(--theme-green)`, `color: white`, `border: none`, `border-radius: 99px` (pill), `padding: 12px 22px`, `font-family: var(--theme-font-sans)`, `font-size: 13px`, `font-weight: 600`, `display: flex`, `align-items: center`, `gap: 7px`, `box-shadow: 0 4px 18px rgba(46,125,82,0.38)`
+
+### Header area
+- **Main header** (`.header`): `z-index: 2`, `display: flex`, `align-items: center`, `justify-content: space-between`, `padding: 10px 18px 10px`, `background: var(--theme-surface)`, `border-bottom: 1px solid var(--theme-border)`
+- **Logo**: Green square (30×30px, `var(--theme-green)`) with pencil-in-square SVG in white; "Notes" text in Lora, 17px, `var(--theme-text)`
+- **Menu icon**: Muted color (`var(--theme-text-muted)`), circular background `rgba(0,0,0,0.05)`, 32×32px
+- **Breadcrumb** (`.breadcrumb_container`): `background: var(--theme-bg)` (light green), no border-bottom; breadcrumb area transparent, matches page background
+- **Breadcrumb group** (`.breadcrumb_group`): `display: flex`, `align-items: center`, `margin: 0`, `font-family: var(--theme-font-serif)`, `font-weight: 600`, `font-size: 1.1rem`, `line-height: 1.5`, `letter-spacing: 0.00938em`, `color: var(--theme-text-secondary)`
+
+---
+
+## 9. Implementation Checklist
 
 - [ ] Add theme CSS variables to `:root`
 - [ ] Add Lora and DM Sans fonts
@@ -165,3 +211,7 @@ For the splash logo mark, wrap in a container:
 - [ ] Style form inputs and button with theme variables
 - [ ] Add focus states for inputs
 - [ ] Ensure ErrorAlert is theme-aware or styled consistently
+- [ ] Notebooks: Replace cover options (forest, emerald, lime, sage) with gradients
+- [ ] Notebooks: Add legacy cover mapping for API backward compatibility
+- [ ] Notebooks: Add spine bar (4px vertical bar on left of cover) with contrast colors per cover type
+- [ ] Notebooks: Update header to theme green

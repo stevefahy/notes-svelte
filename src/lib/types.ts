@@ -39,7 +39,7 @@ export interface Note {
 export interface Notebook {
   _id: string;
   notebook_name: string;
-  notebook_cover: NotebookCoverType;
+  notebook_cover: NotebookCoverType | string;
   createdAt?: TDateISO | "No date";
   updatedAt?: TDateISO | "No date";
 }
@@ -112,7 +112,7 @@ export interface SelectedNote {
   selected: string[];
 }
 
-export type NotebookCoverType = "default" | "red" | "green" | "blue";
+export type NotebookCoverType = "forest" | "emerald" | "lime" | "sage";
 
 export type PageType = "notebooks" | "notebook" | "note" | "profile" | "other";
 

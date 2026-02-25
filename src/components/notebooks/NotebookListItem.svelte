@@ -1,6 +1,7 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
   import DateFormat from "@/lib/dateFormat";
+  import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { Notebook } from "@/lib/types";
   import { vCard, vCardText } from "@/lib/vuetify-classes";
 
@@ -8,6 +9,7 @@
     notebook_item: Notebook;
   }
   let { notebook_item }: Props = $props();
+  const displayCover = $derived(getDisplayCover(notebook_item.notebook_cover));
 </script>
 
 <a href="/notebook/{notebook_item._id}" use:link class="notebook-link">
@@ -15,9 +17,9 @@
     <div class={vCard()}>
       <div class={vCardText("cardcontent")}>
         <div class="notebooks_list_outer">
-          <div
-            class="notebooks_list_left tab_{notebook_item.notebook_cover}"
-          ></div>
+          <div class="notebooks_list_left tab_{displayCover}">
+            <div class="nb-spine-{displayCover}"></div>
+          </div>
           <div class="notebooks_list_right">
             <div>{notebook_item.notebook_name}</div>
             <div class="date_format">

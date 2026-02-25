@@ -32,4 +32,15 @@
   /* Spacing / radii */
   --theme-radius-sm: 10px;
   --theme-radius-card: 24px;
+
+  /* Notebook cover gradients (design reference cov-1 to cov-4) */
+  --notebook-forest: linear-gradient(145deg, #1B3D29, #06100a);
+  --notebook-emerald: linear-gradient(145deg, #1B3D29, #00920c);
+  --notebook-lime: linear-gradient(145deg, #8BE04A, #5DB830);
+  --notebook-sage: linear-gradient(145deg, #82c098, #7d9886);
+  /* Icon colors for breadcrumb (solid) */
+  --notebook-forest-color: #1B3D29;
+  --notebook-emerald-color: #2E7D52;
+  --notebook-lime-color: #5DB830;
+  --notebook-sage-color: #7d9886;
 }

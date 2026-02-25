@@ -2,12 +2,13 @@
   import { link } from "svelte-spa-router";
   import { location } from "svelte-spa-router";
   import { notebookEditStore } from "@/stores/notebookEdit";
+  import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { PageType, NotebookType, NotebookCoverType } from "@/lib/types";
   import NotebooksLink from "./NotebooksLink.svelte";
   import NotebooksNolink from "./NotebooksNolink.svelte";
 
   let pageLayout = $state<PageType>("other");
-  let notebook = $state<NotebookType>({ name: "", cover: "default", id: "" });
+  let notebook = $state<NotebookType>({ name: "", cover: "sage", id: "" });
 
   const currentLocation = $derived($location);
 
@@ -44,7 +45,7 @@
 
   $effect(() => {
     if (pageLayout === "notebooks") {
-      notebook = { name: "", cover: "default", id: "" };
+      notebook = { name: "", cover: "sage", id: "" };
     }
   });
 
@@ -55,7 +56,7 @@
 
 {#if pageLayout !== "other"}
   <div>
-    <div role="presentation" class="breadcrumb_container">
+    <div role="presentation" class="breadcrumb_container" class:breadcrumb--notebooks={pageLayout === "notebooks"} class:breadcrumb--section={pageLayout === "notebooks" || pageLayout === "profile"}>
       <div class="breadcrumbs_inner">
         {#if pageLayout === "profile"}
           <NotebooksLink />
@@ -80,7 +81,7 @@
                 <span class="breadcrumb_seperator">/</span>
               </span>
               <span
-                class="material-icons-outlined icon_notebook breadcrumb_icon notebook_cover_{notebook.cover}"
+                class="material-icons-outlined icon_notebook breadcrumb_icon notebook_cover_{getDisplayCover(notebook.cover)}"
               >
                 description
               </span>
@@ -109,7 +110,7 @@
                 <span class="breadcrumb_seperator">/</span>
               </span>
               <span
-                class="material-icons-outlined icon_notebook breadcrumb_icon notebook_cover_{notebook.cover}"
+                class="material-icons-outlined icon_notebook breadcrumb_icon notebook_cover_{getDisplayCover(notebook.cover)}"
               >
                 description
               </span>
