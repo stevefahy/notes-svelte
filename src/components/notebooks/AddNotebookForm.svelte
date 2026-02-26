@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { fly } from "svelte/transition";
+  import { cubicOut, cubicIn } from "svelte/easing";
   import APPLICATION_CONSTANTS from "@/lib/constants";
-  import { FolderOptions } from "@/lib/folderOptions";
   import ErrorAlert from "@/components/UI/ErrorAlert.svelte";
   import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { NotebookCoverType } from "@/lib/types";
-  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
     method?: "create" | "edit";
@@ -20,6 +20,13 @@
   }: Props = $props();
 
   const AC = APPLICATION_CONSTANTS;
+
+  const covers: { value: NotebookCoverType; label: string }[] = [
+    { value: "forest",  label: "Forest"  },
+    { value: "emerald", label: "Emerald" },
+    { value: "lime",    label: "Lime"    },
+    { value: "sage",    label: "Sage"    },
+  ];
 
   let selectedCover = $state<NotebookCoverType>("forest");
   let selectedName = $state("");
@@ -47,7 +54,6 @@
         selectedName.length <= AC.NOTEBOOK_NAME_MAX
       );
     }
-    // Edit mode: changed from original AND name is valid
     const hasChange =
       selectedName !== originalName || selectedCover !== originalCover;
     const nameValid =
@@ -85,194 +91,253 @@
     await onAddNotebook?.(selectedName, cover);
   };
 
-  function focusDialog(node: HTMLElement) {
-    node.focus();
+  function focusNameInput(node: HTMLElement) {
+    const input = node.querySelector<HTMLInputElement>("#new-notebook");
+    if (input) input.focus();
     return {};
   }
 </script>
 
-<div class="modal-container">
+<div
+  class="sheet-overlay"
+  role="button"
+  tabindex="0"
+  aria-label="Close dialog"
+  onclick={(e) => cancelHandler(e)}
+  onkeydown={(e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      cancelHandler(e);
+    }
+  }}
+>
   <div
-    class="modal-overlay"
-    role="button"
-    tabindex="0"
-    aria-label="Close dialog"
-    onclick={(e) => cancelHandler(e)}
-    onkeydown={(e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        cancelHandler(e);
-      }
-    }}
-  ></div>
-  <div
-    class={vCard("card", "modal-dialog", "dialogue_container")}
+    class="bottom-sheet"
     role="dialog"
     aria-modal="true"
     aria-labelledby="add-notebook-title"
     tabindex="-1"
-    use:focusDialog
+    use:focusNameInput
+    in:fly={{ y: 400, duration: 380, easing: cubicOut }}
+    out:fly={{ y: 400, duration: 300, easing: cubicIn }}
+    onclick={(e) => e.stopPropagation()}
     onkeydown={(e) => e.key === "Escape" && cancelHandler(e)}
   >
-    <div class={vCardText()}>
-      <h2 id="add-notebook-title" class="dialogue-title">
-        {method === "edit" ? "Edit Notebook" : "Add Notebook"}
-      </h2>
-      <form onsubmit={submitHandler} class="form">
-        <div class="control">
-          <label for="new-notebook">Name</label>
-          <input type="text" id="new-notebook" bind:value={selectedName} />
-        </div>
-        <div class="control">
-          <label for="new-notebook-cover">Cover</label>
-          <select
-            id="new-notebook-cover"
-            class="select_dialogue"
-            bind:value={selectedCover}
-          >
-            {#each FolderOptions as folder}
-              <option value={folder.value}>{folder.viewValue}</option>
-            {/each}
-          </select>
-        </div>
-      </form>
-      <div class="button_row">
-        <div class="action">
-          <button
-            type="button"
-            class="btn-contained v-btn--size-default"
-            disabled={isConfirmDisabled}
-            onclick={(e) => submitHandler(e)}
-            aria-label={method === "edit"
-              ? "Edit notebook button"
-              : "Add notebook button"}
-          >
-            {method === "edit" ? "Confirm" : "Add"}
-          </button>
-        </div>
-        <div>
-          <button
-            type="button"
-            class="btn-contained v-btn--size-default"
-            onclick={cancelHandler}
-            aria-label="Cancel button"
-          >
-            <span class="icon_text">
-              <span class="material-symbols-outlined button_icon white"
-                >cancel</span
-              >
-              Cancel
-            </span>
-          </button>
-        </div>
+    <div class="sheet-handle"></div>
+
+    <h2 id="add-notebook-title" class="sheet-title">
+      {method === "edit" ? "Edit Notebook" : "New Notebook"}
+    </h2>
+
+    <form onsubmit={submitHandler}>
+      <div class="sheet-field">
+        <label class="form-label" for="new-notebook">Name</label>
+        <input
+          class="form-input"
+          type="text"
+          id="new-notebook"
+          placeholder="e.g. Personal, Work…"
+          bind:value={selectedName}
+        />
       </div>
-      {#if error.error_state}
+
+      <fieldset class="sheet-field sheet-fieldset">
+        <legend class="form-label">Cover colour</legend>
+        <div class="swatch-row">
+          {#each covers as cover}
+            <button
+              type="button"
+              class="swatch swatch-{cover.value}"
+              class:selected={selectedCover === cover.value}
+              onclick={() => (selectedCover = cover.value)}
+              aria-label="{cover.label} cover"
+              aria-pressed={selectedCover === cover.value}
+            ></button>
+          {/each}
+        </div>
+      </fieldset>
+    </form>
+
+    {#if error.error_state}
+      <div class="sheet-field">
         <ErrorAlert error_state={error.error_state} message={error.message} />
-      {/if}
+      </div>
+    {/if}
+
+    <div class="sheet-actions">
+      <button
+        type="button"
+        class="btn-cancel"
+        onclick={cancelHandler}
+        aria-label="Cancel button"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn-create"
+        disabled={isConfirmDisabled}
+        onclick={(e) => submitHandler(e)}
+        aria-label={method === "edit" ? "Confirm edit button" : "Create notebook button"}
+      >
+        {method === "edit" ? "Confirm" : "Create"}
+      </button>
     </div>
   </div>
 </div>
 
 <style>
-  .button_row {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .form {
-    width: 100%;
-    margin: 1rem auto;
-  }
-
-  .control {
-    display: flex;
-    margin-bottom: 0.5rem;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 5px;
-    flex-wrap: nowrap;
-    width: 100%;
-    justify-content: space-evenly;
-  }
-
-  .control label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #353336;
-    display: block;
-  }
-
-  .control input {
-    display: block;
-    font: inherit;
-    max-width: 100%;
-    width: 100%;
-    border-radius: var(--theme-radius-sm);
-    border: 1.5px solid var(--theme-border-input);
-    padding: 0.25rem;
-    background-color: var(--theme-input-bg);
-  }
-
-  .modal-container {
+  .sheet-overlay {
     position: fixed;
     inset: 0;
     z-index: 1000;
+    background: rgba(8, 18, 12, 0.45);
+    backdrop-filter: blur(4px);
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
   }
 
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.5);
+  .bottom-sheet {
+    background: var(--theme-surface);
+    border-radius: 22px 22px 0 0;
+    padding: 8px 0 32px;
+    width: 100%;
+    outline: none;
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (min-width: 768px) {
+    .bottom-sheet {
+      max-width: 420px;
+      border-radius: 22px 22px 0 0;
+    }
+  }
+
+  .sheet-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--theme-border-input);
+    border-radius: 2px;
+    margin: 8px auto 20px;
+  }
+
+  .sheet-title {
+    font-family: var(--theme-font-serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--theme-text);
+    padding: 0 20px;
+    margin: 0 0 18px;
+  }
+
+  .sheet-field {
+    padding: 0 20px;
+    margin-bottom: 14px;
+  }
+
+  .sheet-fieldset {
+    border: none;
+    margin: 0;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--theme-text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--theme-input-bg);
+    border: 1.5px solid var(--theme-border-input);
+    border-radius: var(--theme-radius-sm);
+    padding: 11px 14px;
+    font-family: var(--theme-font-sans);
+    font-size: 14px;
+    color: var(--theme-text);
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    border-color: var(--theme-green);
+    box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.12);
+  }
+
+  .swatch-row {
+    display: flex;
+    gap: 10px;
+    padding: 4px 0;
+  }
+
+  .swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .swatch-forest  { background: var(--notebook-forest); }
+  .swatch-emerald { background: var(--notebook-emerald); }
+  .swatch-lime    { background: var(--notebook-lime); }
+  .swatch-sage    { background: var(--notebook-sage); }
+
+  .swatch.selected {
+    box-shadow: 0 0 0 2.5px white, 0 0 0 4.5px var(--theme-green);
+  }
+
+  .sheet-actions {
+    display: flex;
+    gap: 10px;
+    padding: 6px 20px 0;
+    margin-top: 4px;
+  }
+
+  .btn-cancel {
+    flex: 1;
+    background: var(--theme-bg);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border-input);
+    border-radius: var(--theme-radius-sm);
+    padding: 13px;
+    font-family: var(--theme-font-sans);
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
   }
 
-  .select_dialogue {
-    width: 100%;
-    display: block;
-    font: inherit;
-    border-radius: var(--theme-radius-sm);
-    border: 1.5px solid var(--theme-border-input);
-    padding: 0.25rem;
-    background-color: var(--theme-input-bg);
+  .btn-cancel:hover {
+    background: #e8f4ec;
   }
 
-  .action {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .button_icon.white {
-    color: white;
-  }
-
-  .btn-contained {
+  .btn-create {
+    flex: 1;
     background: var(--theme-green);
     color: white;
+    border: none;
+    border-radius: var(--theme-radius-sm);
+    padding: 13px;
+    font-family: var(--theme-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
     box-shadow: var(--theme-shadow-btn);
   }
 
-  .btn-contained:hover:not(:disabled) {
+  .btn-create:hover:not(:disabled) {
     background: var(--theme-green-accent);
   }
 
-  .btn-contained:disabled {
+  .btn-create:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: none;
-  }
-
-  @media only screen and (max-width: 380px) {
-    .control {
-      gap: 5px;
-    }
-
-    .control input {
-      font-size: 0.7rem !important;
-    }
   }
 </style>

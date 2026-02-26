@@ -4,6 +4,7 @@
   import { push } from "svelte-spa-router";
   import { initScrollSync, removeScrollSync } from "@/lib/scroll_sync";
   import { authStore } from "@/stores/auth";
+  import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import { notebookEditStore } from "@/stores/notebookEdit";
   import { snackStore } from "@/stores/snack";
   import {
@@ -48,8 +49,12 @@
       await getNotebook(token, notebookId),
     );
     if (result.ok && result.data.notebook) {
-      notebook = result.data.notebook;
-      notebookEditStore.update((s) => ({ ...s, edited: result.data.notebook }));
+      const nb = result.data.notebook;
+      notebook = nb;
+      notebookEditStore.update((s) => ({
+        ...s,
+        edited: { ...nb, notebook_cover: getDisplayCover(nb.notebook_cover) },
+      }));
     }
   };
 
@@ -182,79 +187,152 @@
     </div>
   </div>
   <FooterView>
-    {#if isCreate && viewText.length === 0}
-      <button
-        class="btn-footer btn-contained"
-        type="button"
-        onclick={loadExampleNote}
-      >
-        <span class="material-symbols-outlined button_icon white">egg</span>
-        Example
-      </button>
-    {/if}
-    {#if isCreate && viewText.length > 0}
-      <button
-        class="btn-footer btn-contained"
-        onclick={() => handleCreateNote(viewText)}
-        type="button"
-      >
-        <span class="material-symbols-outlined button_icon white"
-          >add_circle</span
+    <div class="nb-footer-row">
+      {#if isCreate && viewText.length === 0}
+        <button
+          class="btn-action-ghost"
+          type="button"
+          onclick={loadExampleNote}
         >
-        Create Note
-      </button>
-    {/if}
-    {#if !isCreate && isChanged}
-      <button
-        class="btn-footer btn-contained v-btn v-btn--elevated v-theme--myCustomLightTheme bg-secondary v-btn--density-default v-btn--size-default v-btn--variant-elevated contained medium"
-        onclick={() => handleSaveNote(viewText)}
-        type="button"
-      >
-        <span class="material-symbols-outlined button_icon white"
-          >add_circle</span
+          <span class="material-symbols-outlined" aria-hidden="true">egg</span>
+          Example
+        </button>
+      {/if}
+      {#if isCreate && viewText.length > 0}
+        <button
+          class="btn-action-primary"
+          onclick={() => handleCreateNote(viewText)}
+          type="button"
         >
-        Save Note
-      </button>
-    {/if}
-    {#if !isSplitScreen}
-      <button
-        class="btn-footer btn-contained v-btn v-btn--elevated v-theme--myCustomLightTheme bg-secondary v-btn--density-default v-btn--size-default v-btn--variant-elevated contained medium"
-        onclick={toggleViewEdit}
-        type="button"
-        aria-label={isViewMode ? "Switch to View" : "Switch to Edit"}
-      >
-        {#if isViewMode}
-          <span class="material-symbols-outlined white">visibility</span>
-          View
-        {:else}
-          <span class="material-symbols-outlined white">edit</span>
-          Edit
-        {/if}
-      </button>
-    {/if}
-    {#if !isMobile}
-      <button
-        class="btn-footer btn-contained split_screen_btn"
-        onclick={toggleSplitScreen}
-        type="button"
-        aria-label="Toggle split screen"
-      >
-        {#if isSplitScreen}
-          <img
-            src="/assets/images/split_screen_icon_single.png"
-            alt="single"
-            width="24"
-            height="24"
-          />
-        {:else}
-          <img
-            src="/assets/images/split_screen_icon_double.png"
-            alt="double"
-            width="24"
-            height="24"
-          />
-        {/if}
-      </button>
-    {/if}
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 1v10M1 6h10"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Create Note
+        </button>
+      {/if}
+      {#if !isCreate && isChanged}
+        <button
+          class="btn-action-primary"
+          onclick={() => handleSaveNote(viewText)}
+          type="button"
+        >
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+            />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          Save Note
+        </button>
+      {/if}
+      {#if !isSplitScreen}
+        <button
+          class="btn-action-ghost"
+          onclick={toggleViewEdit}
+          type="button"
+          aria-label={isViewMode ? "Switch to View" : "Switch to Edit"}
+        >
+          {#if isViewMode}
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            View
+          {:else}
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            Edit
+          {/if}
+        </button>
+      {/if}
+      {#if !isMobile}
+        <button
+          class="btn-action-ghost"
+          onclick={toggleSplitScreen}
+          type="button"
+          aria-label="Toggle split screen"
+        >
+          {#if isSplitScreen}
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="6" y="2" width="12" height="20" rx="2" />
+            </svg>
+          {:else}
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2" y="2" width="8" height="20" rx="2" />
+              <rect x="14" y="2" width="8" height="20" rx="2" />
+            </svg>
+          {/if}
+          Split Screen
+        </button>
+      {/if}
+    </div>
   </FooterView>
 {/if}

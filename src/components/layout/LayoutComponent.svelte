@@ -62,22 +62,24 @@
   });
 </script>
 
-{#if !isLoginPage}
-  <MainNavigation />
-{/if}
-<main class:login-page={isLoginPage}>
-  {@render children?.()}
-</main>
-{#if notificationStatus}
-  <div class="notification-wrapper">
-    <NotificationView
-      n_status={notificationStatus}
-      title={notificationData?.title ?? ""}
-      message={notificationData?.message ?? ""}
-    />
-  </div>
-{/if}
-<SnackBar />
+<div class="app-shell">
+  {#if !isLoginPage}
+    <MainNavigation />
+  {/if}
+  <main class:login-page={isLoginPage}>
+    {@render children?.()}
+  </main>
+  {#if notificationStatus}
+    <div class="notification-wrapper">
+      <NotificationView
+        n_status={notificationStatus}
+        title={notificationData?.title ?? ""}
+        message={notificationData?.message ?? ""}
+      />
+    </div>
+  {/if}
+  <SnackBar />
+</div>
 
 <style>
   main.login-page {

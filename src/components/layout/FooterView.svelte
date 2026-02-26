@@ -18,11 +18,8 @@
     flex-direction: column;
     justify-content: center;
     bottom: 0px;
-    background-color: #F4F9F1;
     z-index: 6;
-    background-color: rgba(244, 249, 241, 0.5);
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(8px);
+    background-color:var(--theme-surface);
   }
 
   .page_footer_container {

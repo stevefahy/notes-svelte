@@ -8,9 +8,7 @@
   }
   let { text }: Props = $props();
 
-  const previewText = $derived(
-    truncateMarkdownPreview(fm(text).body ?? ""),
-  );
+  const previewText = $derived(truncateMarkdownPreview(fm(text).body ?? ""));
 </script>
 
 <div class="box">

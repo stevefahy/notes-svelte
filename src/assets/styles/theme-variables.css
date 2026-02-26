@@ -28,6 +28,10 @@
   /* Typography */
   --theme-font-sans: 'DM Sans', sans-serif;
   --theme-font-serif: 'Lora', serif;
+  --theme-font-lato: 'Lato', sans-serif;
+
+  /* App shell — max width of the centered app column on desktop */
+  --app-shell-width: 800px;
 
   /* Spacing / radii */
   --theme-radius-sm: 10px;

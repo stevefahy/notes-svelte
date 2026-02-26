@@ -66,6 +66,28 @@ Open this HTML file in a browser to see the target design (green theme v2). It i
 
 ---
 
+## Completed Views (Svelte reference)
+
+| View / Feature | Status |
+|----------------|--------|
+| Login / Signup | ✅ Done |
+| Notebooks list | ✅ Done |
+| New Notebook bottom sheet | ✅ Done |
+| Notebook View (note list) | ✅ Done |
+| Desktop app-shell (centred column, dark green wings) | ✅ Done |
+| Move to Notebook dialog | ✅ Done |
+| Edit mode selection pill | ✅ Done |
+| Button shape consistency (square everywhere) | ✅ Done |
+| NotePage footer (icons, outline Split Screen) | ✅ Done |
+| Footer layout (--footer-height: 70, theme-surface bg) | ✅ Done |
+
+## Remaining (Svelte)
+
+- **NotePage** — ✅ Done (footer buttons with SVG icons, outline style for Split Screen)
+- **ProfileForm** — `btn-contained` buttons need theme migration
+
+---
+
 ## Prompt to Paste When Starting Fresh
 
 ```
@@ -77,5 +99,6 @@ Context:
 - Full implementation spec: .cursor/THEME-UPDATE-PROMPT.md
 - Overview/continuity: .cursor/THEME-UPDATE-OVERVIEW.md
 
+Completed in Svelte: Login, Notebooks list, New Notebook sheet, Notebook View (note list), desktop app-shell (centred 480px column, dark green wings), Move to Notebook dialog, edit mode selection pill, button shape consistency (square), NotePage footer buttons. Remaining: ProfileForm buttons.
 Use CSS variables for centralised theming. Please read THEME-UPDATE-PROMPT.md and continue from where we left off.
 ```

@@ -1,3 +1,35 @@
+/* Desktop wings background — visible outside the app shell column */
+body {
+  background: var(--theme-green);
+}
+
+/* Centered app column — constrains the full app to mobile width on desktop */
+.app-shell {
+  max-width: var(--app-shell-width);
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  background: var(--theme-bg);
+  overflow-x: hidden;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -2px 40px rgba(0, 0, 0, 0.25);
+}
+
+/*
+  Keep the fixed footer inside the shell column on desktop.
+  The threshold matches --app-shell-width (800px). Update both together
+  if you change --app-shell-width in theme-variables.css.
+*/
+@media (min-width: 801px) {
+  .page_footer {
+    max-width: var(--app-shell-width);
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+}
+
 html,
 body {
   position: relative;
@@ -42,7 +74,6 @@ body {
   --color-error-100: #f1acc9;
   --color-error-500: #a10c4a;
 
-
   --main-navigation-bg-color: #424242;
 
   --size-0: 0rem;
@@ -62,7 +93,7 @@ body {
   --size-40: 10rem;
 
   --header-height: calc(var(--jsheader-height));
-  --footer-height: 55;
+  --footer-height: 70;
   --breadcrumb-height: 40;
 
   --viewnotethumb-box-min-height: 56;
@@ -170,10 +201,11 @@ select {
 }
 
 .page_scrollable_header_breadcrumb_footer_list {
+  background: var(--theme-bg);
   overflow-y: scroll;
   height: calc(
     var(--jsvh) -
-      (var(--header-height) + var(--breadcrumb-height)) *
+      (var(--header-height) + var(--footer-height) + var(--breadcrumb-height)) *
       1px
   );
 }
@@ -278,6 +310,7 @@ span.token {
     "GRAD" 0,
     "opsz" 48;
   color: rgba(0, 0, 0, 0.54);
+  font-size: 17px;
 }
 
 .v-btn {
@@ -291,10 +324,6 @@ span.token {
 
   .button_row .v-btn.v-btn--density-default {
     height: calc(var(--v-btn-height) + 4px);
-  }
-
-  .material-symbols-outlined {
-    font-size: 20px;
   }
 
   .icon_text {
@@ -980,4 +1009,61 @@ li code {
   overflow-y: visible;
   flex-direction: column;
   align-items: center;
+}
+
+/* Action bar row — wraps Notebook View footer buttons */
+.nb-footer-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px, 5vw, 40px);
+}
+
+/* Action bar buttons — Notebook View footer */
+.btn-action-primary {
+  background: var(--theme-green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 28px;
+  font-family: var(--theme-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 3px 10px rgba(46, 125, 82, 0.28);
+  cursor: pointer;
+}
+
+.btn-action-ghost {
+  color: var(--theme-text);
+  border-radius: 10px;
+  padding: 11px 28px;
+  font-family: var(--theme-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  border: 1px solid var(--theme-border-input);
+}
+
+.btn-action-danger {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 11px 28px;
+  font-family: var(--theme-font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
 }

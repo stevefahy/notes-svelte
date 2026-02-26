@@ -28,7 +28,7 @@
     min-width: 48px;
     height: 48px;
     padding: 0 16px;
-    border-radius: 24px; /* Makes it "Extended FAB" like MUI */
+    border-radius: var(--theme-radius-sm);
     border: none;
     cursor: pointer;
 

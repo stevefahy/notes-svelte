@@ -4,6 +4,7 @@
   import { authStore } from "@/stores/auth";
   import { showErrorNotification } from "@/stores/notification";
   import { notebookEditStore } from "@/stores/notebookEdit";
+  import { editNotesStore } from "@/stores/editNotes";
   import {
     getNotebook,
     getNotebooks,
@@ -13,11 +14,13 @@
     moveNotes,
     unwrapResponse,
   } from "@/lib/api";
+  import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { Note, Notebook, SelectedNote } from "@/lib/types";
   import FooterView from "@/components/layout/FooterView.svelte";
   import AddNotebookForm from "@/components/notebooks/AddNotebookForm.svelte";
   import SelectNotebookForm from "@/components/notebooks/SelectNotebookForm.svelte";
   import NoteList from "@/components/note/NoteList.svelte";
+  import { onDestroy } from "svelte";
   import { push, link, location } from "svelte-spa-router";
 
   interface Props {
@@ -53,6 +56,10 @@
 
   const handleNotesSelected = (selected: SelectedNote) => {
     selectedNotes = selected.selected;
+    editNotesStore.update((s) => ({
+      ...s,
+      selectedCount: selected.selected.length,
+    }));
   };
 
   const sortNotes = (notesList: Note[]) => {
@@ -88,10 +95,11 @@
         return;
       }
       if (result.data.notebook) {
-        notebook = result.data.notebook;
+        const nb = result.data.notebook;
+        notebook = nb;
         notebookEditStore.update((s) => ({
           ...s,
-          edited: result.data.notebook,
+          edited: { ...nb, notebook_cover: getDisplayCover(nb.notebook_cover) },
         }));
       }
     } catch (err) {
@@ -172,11 +180,13 @@
 
   const editNotesHandler = () => {
     editNotesMode = true;
+    editNotesStore.set({ active: true, selectedCount: selectedNotes.length });
   };
 
   const cancelEditNotesHandler = () => {
     editNotesMode = false;
     selectedNotes = [];
+    editNotesStore.set({ active: false, selectedCount: 0 });
   };
 
   const moveNoteFormHandler = () => {
@@ -227,10 +237,11 @@
       return;
     }
     if (result.data.notebook_edited) {
-      notebook = result.data.notebook_edited;
+      const nb = result.data.notebook_edited;
+      notebook = nb;
       notebookEditStore.update((s) => ({
         ...s,
-        edited: result.data.notebook_edited,
+        edited: { ...nb, notebook_cover: getDisplayCover(nb.notebook_cover) },
         editing: false,
       }));
       editNotebookMode = false;
@@ -267,6 +278,10 @@
       if (notebookId) await loadNotes(notebookId);
     }
   };
+
+  onDestroy(() => {
+    editNotesStore.set({ active: false, selectedCount: 0 });
+  });
 
   $effect(() => {
     if ($notebookEditStore?.editing) {
@@ -313,13 +328,8 @@
     </div>
   </div>
   <FooterView>
-    <button class="btn-footer btn-contained" onclick={() => push("/notebooks")}>
-      <span class="icon_text">
-        <span class="material-symbols-outlined button_icon white"
-          >arrow_back</span
-        >
-        Back to Notebooks
-      </span>
+    <button class="btn-action-ghost" onclick={() => push("/notebooks")}>
+      Back to Notebooks
     </button>
   </FooterView>
 {:else}
@@ -343,7 +353,10 @@
     {#if editNotebookMode && notebook}
       <AddNotebookForm
         method="edit"
-        {notebook}
+        notebook={{
+          notebook_name: notebook.notebook_name,
+          notebook_cover: getDisplayCover(notebook.notebook_cover),
+        }}
         onAddNotebook={async (name, cover) =>
           await saveEditNotebook(name, cover)}
         onCancel={cancelEditNotebook}
@@ -351,60 +364,67 @@
     {/if}
   </div>
   <FooterView>
-    {#if !editNotesMode}
-      <button class="btn-footer btn-contained" onclick={addNoteHandler}>
-        <span class="icon_text">
-          <span class="material-symbols-outlined button_icon white"
-            >note_add</span
+    <div class="nb-footer-row">
+      {#if !editNotesMode && (notes ?? []).length > 0}
+        <button class="btn-action-ghost" onclick={editNotesHandler}>
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
           >
-          Add Note
-        </span>
-      </button>
-    {/if}
-    {#if !editNotesMode && (notes ?? []).length > 0}
-      <button class="btn-footer btn-contained" onclick={editNotesHandler}>
-        <span class="icon_text">
-          <span class="material-symbols-outlined button_icon white">edit</span>
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
           Edit Notes
-        </span>
-      </button>
-    {/if}
-    {#if (notes ?? []).length < 1}
-      <button class="btn-footer btn-contained" onclick={deleteNotebookHandler}>
-        <span class="icon_text">
-          <span class="material-symbols-outlined button_icon white">delete</span
+        </button>
+      {/if}
+      {#if !editNotesMode}
+        <button class="btn-action-primary" onclick={addNoteHandler}>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            aria-hidden="true"
           >
+            <path
+              d="M6 1v10M1 6h10"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Add Note
+        </button>
+      {/if}
+      {#if (notes ?? []).length < 1}
+        <button class="btn-action-danger" onclick={deleteNotebookHandler}>
           Delete Notebook
-        </span>
-      </button>
-    {/if}
-    {#if editNotesMode && selectedNotes.length > 0}
-      <button class="btn-footer btn-contained" onclick={deleteNotesHandler}>
-        <span class="icon_text">
-          <span class="material-symbols-outlined button_icon white">delete</span
-          >
+        </button>
+      {/if}
+      {#if editNotesMode && selectedNotes.length > 0}
+        <button class="btn-action-danger" onclick={deleteNotesHandler}>
           Delete
-        </span>
-      </button>
-    {/if}
-    {#if editNotesMode && selectedNotes.length > 0 && userNotebooks && userNotebooks.length > 1}
-      <button class="btn-footer btn-contained" onclick={moveNoteFormHandler}>
-        <span class="icon_text">
-          <span class="material-symbols-outlined button_icon white symbol_size"
-            >flip_to_front</span
-          >
-          Move
-        </span>
-      </button>
-    {/if}
-    {#if editNotesMode}
-      <button class="btn-footer btn-contained" onclick={cancelEditNotesHandler}>
-        <span class="icon_text">
-          <span class="material-symbols-outlined button_icon white">cancel</span
-          >
+        </button>
+      {/if}
+      {#if editNotesMode && selectedNotes.length > 0 && userNotebooks && userNotebooks.length > 1}
+        <button class="btn-action-ghost" onclick={moveNoteFormHandler}>
+          Move to…
+        </button>
+      {/if}
+      {#if editNotesMode}
+        <button class="btn-action-ghost" onclick={cancelEditNotesHandler}>
           Cancel
-        </span>
-      </button>
-    {/if}
+        </button>
+      {/if}
+    </div>
   </FooterView>
 {/if}

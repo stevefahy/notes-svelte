@@ -1,6 +1,7 @@
 <script lang="ts">
   import BreadCrumb from "./BreadCrumb.svelte";
   import MenuDropdown from "../UI/MenuDropdown.svelte";
+  import { editNotesStore } from "@/stores/editNotes";
 </script>
 
 <div class="header" id="header_height">
@@ -15,6 +16,11 @@
       <span class="logo_text">Notes</span>
     </div>
     <div class="header_toolbar">
+      {#if $editNotesStore.active && $editNotesStore.selectedCount > 0}
+        <span class="edit-notes-pill" aria-live="polite">
+          {$editNotesStore.selectedCount} selected
+        </span>
+      {/if}
       <MenuDropdown />
     </div>
   </div>
@@ -67,5 +73,20 @@
 
   .header_toolbar {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .edit-notes-pill {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--theme-border-input);
+    background: var(--theme-lime-bg);
+    color: var(--theme-green-accent);
+    font-family: var(--theme-font-sans);
   }
 </style>
