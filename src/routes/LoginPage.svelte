@@ -1,187 +1,293 @@
 <script lang="ts">
-  import { push } from 'svelte-spa-router'
-  import { get } from 'svelte/store'
-  import { authStore } from '@/stores/auth'
-  import APPLICATION_CONSTANTS from '@/lib/constants'
-  import ErrorAlert from '@/components/UI/ErrorAlert.svelte'
-  import { querystring } from 'svelte-spa-router'
+  import { push } from "svelte-spa-router";
+  import { get } from "svelte/store";
+  import { authStore } from "@/stores/auth";
+  import APPLICATION_CONSTANTS from "@/lib/constants";
+  import { querystring } from "svelte-spa-router";
 
-  const AC = APPLICATION_CONSTANTS
+  const AC = APPLICATION_CONSTANTS;
 
-  let isLogin = $state(true)
-  let isSubmitting = $state(false)
-  let username = $state('')
-  let email = $state('')
-  let password = $state('')
-  let error = $state({ error_state: false, error_severity: '' as '' | 'error' | 'warning' | 'info' | 'success', message: '' })
+  let isLogin = $state(true);
+  let isSubmitting = $state(false);
+  let username = $state("");
+  let email = $state("");
+  let password = $state("");
+  let fieldErrors = $state({ username: "", email: "", password: "" });
+  let formError = $state("");
 
   const getRedirectPath = () => {
-    const qs = $querystring || ''
-    const params = new URLSearchParams(qs)
-    return params.get('redirect') || AC.DEFAULT_PAGE
-  }
+    const qs = $querystring || "";
+    const params = new URLSearchParams(qs);
+    return params.get("redirect") || AC.DEFAULT_PAGE;
+  };
 
   const switchAuthModeHandler = () => {
-    resetError()
-    isLogin = !isLogin
-    username = ''
-    email = ''
-    password = ''
-  }
-
-  const resetError = () => {
-    error = { error_state: false, error_severity: '', message: '' }
-  }
+    fieldErrors = { username: "", email: "", password: "" };
+    formError = "";
+    isLogin = !isLogin;
+    username = "";
+    email = "";
+    password = "";
+  };
 
   const validateForm = (validate: string[]) => {
-    if (validate.includes('username')) {
+    fieldErrors = { username: "", email: "", password: "" };
+    formError = "";
+    let valid = true;
+
+    if (validate.includes("username")) {
       if (username && username.length < 2) {
-        error = { error_state: true, error_severity: 'error', message: AC.SIGNUP_INVALID_USERNAME }
-        return false
+        fieldErrors.username = AC.SIGNUP_INVALID_USERNAME;
+        valid = false;
       }
     }
-    if (validate.includes('email')) {
-      if (!email || !email.includes('@') || !email.includes('.')) {
-        error = { error_state: true, error_severity: 'error', message: AC.SIGNUP_INVALID_EMAIL }
-        return false
+    if (validate.includes("email")) {
+      if (!email || !email.includes("@") || !email.includes(".")) {
+        fieldErrors.email = AC.SIGNUP_INVALID_EMAIL;
+        valid = false;
       }
     }
-    if (validate.includes('password')) {
-      const len = password.trim().length
+    if (validate.includes("password")) {
+      const len = password.trim().length;
       if (!password || len < AC.PASSWORD_MIN) {
-        error = { error_state: true, error_severity: 'error', message: AC.SIGNUP_INVALID_PASSWORD }
-        return false
-      }
-      if (len > AC.PASSWORD_MAX) {
-        error = { error_state: true, error_severity: 'error', message: AC.CHANGE_PASS_TOO_MANY }
-        return false
+        fieldErrors.password = AC.SIGNUP_INVALID_PASSWORD;
+        valid = false;
+      } else if (len > AC.PASSWORD_MAX) {
+        fieldErrors.password = AC.CHANGE_PASS_TOO_MANY;
+        valid = false;
       }
     }
-    return true
-  }
+    return valid;
+  };
 
   const submitHandler = async (e: Event) => {
-    e.preventDefault()
-    isSubmitting = true
-    error = { error_state: false, error_severity: '', message: '' }
+    e.preventDefault();
+    isSubmitting = true;
 
-    const ctx = get(authStore)
-    const onLogin = ctx?.onLogin
-    const onRegister = ctx?.onRegister
+    const ctx = get(authStore);
+    const onLogin = ctx?.onLogin;
+    const onRegister = ctx?.onRegister;
 
     if (isLogin) {
-      if (!validateForm(['email', 'password'])) {
-        isSubmitting = false
-        return
+      if (!validateForm(["email", "password"])) {
+        isSubmitting = false;
+        return;
       }
       try {
-        const result = await onLogin?.(email, password)
-        isSubmitting = false
-        if (result && !('error' in result)) {
-          push(getRedirectPath())
-        } else if (result && 'error' in result) {
-          error = { error_state: true, error_severity: 'error', message: result.error ?? 'An error occurred' }
+        const result = await onLogin?.(email, password);
+        isSubmitting = false;
+        if (result && !("error" in result)) {
+          push(getRedirectPath());
+        } else if (result && "error" in result) {
+          formError = result.error ?? AC.GENERAL_ERROR;
         }
-      } catch (err: unknown) {
-        isSubmitting = false
-        error = { error_state: true, error_severity: 'error', message: String(err) }
+      } catch {
+        isSubmitting = false;
+        formError = AC.GENERAL_ERROR;
       }
     } else {
-      if (!validateForm(['username', 'email', 'password'])) {
-        isSubmitting = false
-        return
+      if (!validateForm(["username", "email", "password"])) {
+        isSubmitting = false;
+        return;
       }
       try {
-        const result = await onRegister?.(username, email, password, 'svelte')
-        isSubmitting = false
-        if (!result) return
-        if ('error' in result) {
-          error = { error_state: true, error_severity: 'error', message: result.error ?? 'An error occurred' }
-          return
+        const result = await onRegister?.(username, email, password, "svelte");
+        isSubmitting = false;
+        if (!result) return;
+        if ("error" in result) {
+          formError = result.error ?? AC.GENERAL_ERROR;
+          return;
         }
-        if ('success' in result && result.success && result.notebookID && result.noteID) {
-          push(`/notebook/${result.notebookID}/${result.noteID}`)
+        if (
+          "success" in result &&
+          result.success &&
+          result.notebookID &&
+          result.noteID
+        ) {
+          push(`/notebook/${result.notebookID}/${result.noteID}`);
         } else {
-          push(getRedirectPath())
+          push(getRedirectPath());
         }
-      } catch (err: unknown) {
-        isSubmitting = false
-        error = { error_state: true, error_severity: 'error', message: String(err) }
+      } catch {
+        isSubmitting = false;
+        formError = AC.GENERAL_ERROR;
       }
     }
-  }
+  };
 </script>
 
 <div class="splash-login">
   <div class="splash-top">
     <div class="splash-logo-row">
       <div class="splash-logo-mark">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1.5" y="1.5" width="17" height="17" rx="3.5" stroke="white" stroke-width="1.6"></rect>
-          <path d="M6.5 13.5l1.2-3.6 6.3-6.3a1 1 0 011.4 1.4l-6.3 6.3-2.6.2z" fill="white" opacity="0.9"></path>
-          <path d="M12 4.5l1.5 1.5" stroke="rgba(31,92,58,0.6)" stroke-width="1.1" stroke-linecap="round"></path>
-        </svg>
+        <img
+          alt="logo"
+          src="/assets/images/edit_white.png"
+          width="20"
+          height="20"
+        />
       </div>
       <span class="splash-logo-text">Notes</span>
     </div>
-    <div class="splash-headline">Your notes,<br>beautifully<br>organised.</div>
-    <div class="splash-sub">Write freely, stay focused. Everything in one calm, clutter-free space.</div>
+    <div class="splash-headline">
+      Your notes,<br />beautifully<br />organised.
+    </div>
+    <div class="splash-sub">
+      Write freely, stay focused. Everything in one calm, clutter-free space.
+    </div>
   </div>
 
   <div class="login-card">
-    <h2 class="login-card-title">{isLogin ? 'Sign in' : 'Create account'}</h2>
+    <h2 class="login-card-title">{isLogin ? "Sign in" : "Create account"}</h2>
     <form novalidate onsubmit={submitHandler}>
       {#if !isLogin}
         <label class="form-label" for="username">Your Name</label>
         <input
           class="form-input"
+          class:input-error={!!fieldErrors.username}
           type="text"
           id="username"
           required
           placeholder="Username"
           autocomplete="username"
           bind:value={username}
-          oninput={resetError}
+          oninput={() => {
+            fieldErrors.username = "";
+            formError = "";
+          }}
         />
+        <div class="field-feedback">
+          <div class="inline-error" class:visible={!!fieldErrors.username}>
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 12 12"
+              fill="none"
+              class="inline-error-icon"
+            >
+              <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
+              <path
+                d="M6 3.5v3M6 8v.5"
+                stroke="white"
+                stroke-width="1.2"
+                stroke-linecap="round"
+              />
+            </svg>
+            {fieldErrors.username}
+          </div>
+        </div>
       {/if}
       <label class="form-label" for="email">Email address</label>
       <input
         class="form-input"
+        class:input-error={!!fieldErrors.email}
         type="email"
         id="email"
         required
         placeholder="Email"
         autocomplete="email"
         bind:value={email}
-        onchange={resetError}
-        oninput={resetError}
+        onchange={() => {
+          fieldErrors.email = "";
+          formError = "";
+        }}
+        oninput={() => {
+          fieldErrors.email = "";
+          formError = "";
+        }}
       />
+      <div class="field-feedback">
+        <div class="inline-error" class:visible={!!fieldErrors.email}>
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 12 12"
+            fill="none"
+            class="inline-error-icon"
+          >
+            <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
+            <path
+              d="M6 3.5v3M6 8v.5"
+              stroke="white"
+              stroke-width="1.2"
+              stroke-linecap="round"
+            />
+          </svg>
+          {fieldErrors.email}
+        </div>
+      </div>
       <label class="form-label" for="password">Password</label>
       <input
         class="form-input"
+        class:input-error={!!fieldErrors.password}
         type="password"
         id="password"
         required
-        placeholder={isLogin ? 'Password' : 'Password (7-10 characters)'}
-        autocomplete={isLogin ? 'current-password' : 'new-password'}
+        placeholder={isLogin ? "Password" : "Password (7-10 characters)"}
+        autocomplete={isLogin ? "current-password" : "new-password"}
         bind:value={password}
-        onchange={resetError}
-        oninput={resetError}
+        onchange={() => {
+          fieldErrors.password = "";
+          formError = "";
+        }}
+        oninput={() => {
+          fieldErrors.password = "";
+          formError = "";
+        }}
       />
+      <div class="field-feedback">
+        <div class="inline-error" class:visible={!!fieldErrors.password}>
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 12 12"
+            fill="none"
+            class="inline-error-icon"
+          >
+            <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
+            <path
+              d="M6 3.5v3M6 8v.5"
+              stroke="white"
+              stroke-width="1.2"
+              stroke-linecap="round"
+            />
+          </svg>
+          {fieldErrors.password}
+        </div>
+      </div>
       <button class="btn-login" type="submit" disabled={isSubmitting}>
-        {isLogin ? 'Sign in' : 'Create Account'}
+        {isLogin ? "Sign in" : "Create Account"}
       </button>
       <div class="login-alt">
-        {isLogin ? 'No account? ' : ''}
-        <button type="button" class="login-alt-link" onclick={switchAuthModeHandler}>
-          {isLogin ? 'Create one' : 'Login with existing account'}
+        {isLogin ? "No account? " : ""}
+        <button
+          type="button"
+          class="login-alt-link"
+          onclick={switchAuthModeHandler}
+        >
+          {isLogin ? "Create one" : "Login with existing account"}
         </button>
       </div>
+      <div class="form-error" class:visible={!!formError}>
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 12 12"
+          fill="none"
+          style="flex-shrink:0"
+          class="form-error-icon"
+        >
+          <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
+          <path
+            d="M6 3.5v3M6 8v.5"
+            stroke="white"
+            stroke-width="1.2"
+            stroke-linecap="round"
+          />
+        </svg>
+        {formError}
+      </div>
     </form>
-
-    {#if error.error_state}
-      <ErrorAlert error_state={error.error_state} message={error.message} error_severity={error.error_severity} />
-    {/if}
   </div>
 </div>
 
@@ -190,7 +296,12 @@
     background: var(--theme-lime);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 2rem;
+    min-height: 100dvh;
+    max-height: 100dvh; /* Constrain */
+    overflow-y: auto; /* Scroll when content exceeds viewport */
   }
 
   .splash-top {
@@ -208,8 +319,8 @@
   }
 
   .splash-logo-mark {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
     border-radius: 9px;
     background: var(--theme-green);
     display: flex;
@@ -220,7 +331,7 @@
 
   .splash-logo-text {
     font-family: var(--theme-font-serif);
-    font-size: 20px;
+    font-size: 25px;
     font-weight: 600;
     color: var(--theme-green);
     letter-spacing: -0.02em;
@@ -243,34 +354,15 @@
 
   .login-card {
     background: var(--theme-surface);
-    border-radius: var(--theme-radius-card) var(--theme-radius-card) 0 0;
+    border-radius: var(--theme-radius-card);
     padding: 28px 24px 32px;
-    margin-top: auto;
-    flex: 1;
+    margin-top: 2rem;
+    flex: 0 0 auto;
     box-shadow: var(--theme-shadow-card);
-  }
-
-  @media (min-width: 768px) {
-    .splash-login {
-      justify-content: flex-start;
-      align-items: center;
-      padding-top: 2rem;
-    }
-
-    .splash-top {
-      max-width: 420px;
-      width: 100%;
-    }
-
-    .login-card {
-      margin-top: 2rem;
-      flex: 0 0 auto;
-      border-radius: var(--theme-radius-card);
-      max-width: 420px;
-      width: 100%;
-      margin-left: auto;
-      margin-right: auto;
-    }
+    max-width: 430px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .login-card-title {
@@ -300,7 +392,6 @@
     font-size: 14px;
     color: var(--theme-text);
     outline: none;
-    margin-bottom: 14px;
     transition: border-color 0.15s;
   }
 
@@ -317,6 +408,41 @@
     box-shadow: 0 0 0 30px var(--theme-input-bg) inset !important;
     -webkit-text-fill-color: var(--theme-text) !important;
     transition: background-color 5000s ease-in-out 0s;
+  }
+
+  .form-input.input-error {
+    border-color: var(--theme-danger-dark);
+    background: var(--theme-danger-light);
+  }
+  .form-input.input-error:focus {
+    border-color: var(--theme-danger-dark);
+  }
+
+  .field-feedback {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding: 0 1px;
+  }
+
+  .inline-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--theme-danger-dark);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .inline-error-icon {
+    margin-top: 1px;
+  }
+
+  .inline-error.visible {
+    opacity: 1;
   }
 
   .btn-login {
@@ -359,5 +485,87 @@
 
   .login-alt-link:hover {
     text-decoration: underline;
+  }
+
+  .form-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--theme-danger-bg);
+    border: 1px solid rgba(185, 28, 28, 0.25);
+    border-radius: var(--theme-radius-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--theme-danger-dark);
+    line-height: 1.4;
+    margin-top: 4px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition:
+      opacity 0.2s,
+      max-height 0.2s;
+  }
+
+  .form-error-icon {
+    margin-top: -2px;
+  }
+
+  .form-error.visible {
+    opacity: 1;
+    max-height: 80px;
+  }
+
+  @media (max-width: 359px) {
+    .splash-login {
+      padding-top: 20px;
+    }
+    .splash-top {
+      padding: 0px 16px 20px; /* Reduce from 32px 26px 28px */
+    }
+    .splash-headline {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .splash-logo-row {
+      margin-bottom: 10px;
+    }
+    .login-card {
+      padding: 0px 16px 20px; /* Down from 28px 24px 32px */
+    }
+    .login-card-title {
+      margin-bottom: 5px;
+      margin-top: 25px;
+      font-size: 15px;
+    }
+    .btn-login {
+      margin-bottom: 8px;
+      padding: 10px;
+    }
+  }
+
+  @media (max-width: 431px) {
+    .login-card {
+      flex: 1;
+      margin-top: 2rem;
+      border-radius: var(--theme-radius-card) var(--theme-radius-card) 0 0;
+      display: block; /* or remove display: flex - let it flow normally */
+      /* Do NOT use min-height: 0 - the card must grow with content */
+    }
+  }
+
+  @media (max-height: 739px) {
+    .login-card {
+      margin-top: 0;
+    }
+    .splash-logo-row {
+      margin-bottom: 10px;
+    }
+    .splash-headline {
+      margin-bottom: 5px;
+    }
+    .splash-top {
+      padding: 0px 26px 15px;
+    }
   }
 </style>

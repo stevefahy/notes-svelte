@@ -7,7 +7,7 @@ body {
 .app-shell {
   max-width: var(--app-shell-width);
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   background: var(--theme-bg);
   overflow-x: hidden;
@@ -18,10 +18,10 @@ body {
 
 /*
   Keep the fixed footer inside the shell column on desktop.
-  The threshold matches --app-shell-width (800px). Update both together
+  The threshold matches --app-shell-width (1200px). Update both together
   if you change --app-shell-width in theme-variables.css.
 */
-@media (min-width: 801px) {
+@media (min-width: 1201px) {
   .page_footer {
     max-width: var(--app-shell-width);
     left: 50%;
@@ -34,73 +34,10 @@ html,
 body {
   position: relative;
   overflow-y: hidden !important;
-
   overflow-x: hidden !important;
   height: 100%;
-  margin: 0;
-
   padding: 0;
   margin: 0;
-
-  --color-white-000: hsl(0, 0%, 100%);
-  --color-grey-50: hsl(265, 55%, 96%);
-  --color-grey-100: hsl(265, 19%, 88%);
-  --color-grey-200: hsl(265, 7%, 70%);
-  --color-grey-300: hsl(265, 6%, 66%);
-  --color-grey-400: hsl(265, 4%, 57%);
-  --color-grey-500: hsl(265, 3%, 53%);
-  --color-grey-600: hsl(265, 4%, 42%);
-  --color-grey-700: hsl(265, 4%, 31%);
-  --color-grey-800: hsl(276, 5%, 20%);
-  --color-grey-900: hsl(280, 5%, 13%);
-
-  --color-primary: #4d0000;
-  --color-secondary: #b30000;
-  --color-special: #eaef96;
-  --color-success: #ecf7ed;
-
-  --color-primary-50: #c8b3ce;
-  --color-primary-100: #a07aaa;
-  --color-primary-200: #884c97;
-  --color-primary-300: #843897;
-  --color-primary-400: #732392;
-  --color-primary-500: #5a097a;
-  --color-primary-600: #480264;
-  --color-primary-700: #3d0264;
-
-  --color-success-100: #a2f0bc;
-  --color-success-500: #12bd4b;
-
-  --color-error-100: #f1acc9;
-  --color-error-500: #a10c4a;
-
-  --main-navigation-bg-color: #424242;
-
-  --size-0: 0rem;
-  --size-1: 0.25rem;
-  --size-2: 0.5rem;
-  --size-3: 0.75rem;
-  --size-3a: 0.9rem;
-  --size-3b: 0.95rem;
-  --size-4: 1rem;
-  --size-4a: 1.1rem;
-  --size-5: 1.25rem;
-  --size-6: 1.5rem;
-  --size-7: 1.7rem;
-  --size-8: 2rem;
-  --size-16: 4rem;
-  --size-20: 5rem;
-  --size-40: 10rem;
-
-  --header-height: calc(var(--jsheader-height));
-  --footer-height: 70;
-  --breadcrumb-height: 40;
-
-  --viewnotethumb-box-min-height: 56;
-
-  margin: 0;
-  color: rgb(98, 98, 98);
-  font-family: "Helvetica", "Arial", sans-serif;
 }
 
 input[type="checkbox"]:focus {
@@ -174,7 +111,6 @@ p {
 }
 
 a {
-  color: inherit !important;
   text-decoration: none !important;
 }
 
@@ -218,7 +154,7 @@ select {
 }
 
 .viewnote_content {
-  font-size: var(--size-3b);
+  font-size: var(--size-095);
   line-height: 1.25rem;
   border-radius: 6px;
   outline: 0px solid transparent;
@@ -229,10 +165,10 @@ select {
 }
 
 .thumb_image .viewnote_content {
-  margin-left: var(--size-4) auto;
+  margin-left: var(--size-1) auto;
 }
 
-.thumb_outer .v-card {
+.thumb_outer .vcard {
   padding-top: 16px;
   padding-bottom: 16px;
 }
@@ -273,19 +209,14 @@ span.token {
   margin-left: -15px;
   align-items: flex-start;
   vertical-align: top;
-  margin-bottom: 2px;
-}
-
-.viewnote_content ul li.task-list-item {
-  margin-bottom: 0px !important;
-  margin-top: 0px !important;
+  margin-bottom: 4px;
 }
 
 .viewnote_content ul li input {
   position: relative;
   margin-right: 5px !important;
   margin-top: 3px !important;
-  accent-color: var(--color-primary);
+  accent-color: var(--theme-green);
 }
 
 .md-readonly .task-list input[type="checkbox"] {
@@ -294,7 +225,7 @@ span.token {
 }
 
 .viewnote_content .image {
-  margin: var(--size-4) auto;
+  margin: var(--size-1) auto;
   width: 100%;
   max-width: 600px;
 }
@@ -309,23 +240,16 @@ span.token {
     "wght" 700,
     "GRAD" 0,
     "opsz" 48;
-  color: rgba(0, 0, 0, 0.54);
   font-size: 17px;
 }
-
-.v-btn {
-  letter-spacing: 0.02857em;
+@media only screen and (max-width: 480px) {
+  .icon_text {
+    font-size: 12px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
 }
-
 @media only screen and (max-width: 380px) {
-  .page_footer_container .v-btn.v-btn--density-default {
-    height: calc(var(--v-btn-height) + 4px);
-  }
-
-  .button_row .v-btn.v-btn--density-default {
-    height: calc(var(--v-btn-height) + 4px);
-  }
-
   .icon_text {
     font-size: 12px;
     padding-top: 2px;
@@ -365,7 +289,6 @@ span.token {
   transform: scale(0.7);
   transform-origin: 0px 0px;
   width: 140%;
-  max-width: 100%;
 }
 
 .viewnote_thumb pre pre code {
@@ -431,7 +354,7 @@ table {
 
 .table-striped > tbody > tr:nth-child(odd) > td,
 .table-striped > tbody > tr:nth-child(odd) > th {
-  background-color: #f9f9f9;
+  background-color: var(--theme-border-green);
 }
 
 .table > thead > tr > th,
@@ -473,7 +396,7 @@ blockquote {
   padding-left: 20px;
   padding-right: 20px;
   margin: 0px 0 0px;
-  font-size: var(--size-4a);
+  font-size: var(--size-1_1);
   border-left: 1px solid #ababab;
   -webkit-margin-start: 0px;
   margin-inline-start: 0px;
@@ -496,7 +419,6 @@ blockquote::before {
   top: -5px;
   content: " ";
   height: 26px;
-  background-color: #fff;
   background-repeat: no-repeat;
   background-size: 20px 16px;
 }
@@ -658,7 +580,7 @@ ul p {
   list-style: none;
 }
 
-.task-list-item .checkbox {
+.task-list-item .custom-checkbox {
   display: flex;
   align-items: flex-start;
 }
@@ -681,7 +603,7 @@ ul p {
 }
 
 .back-link {
-  color: #b30000;
+  color: var(---theme-text-secondary);
   text-decoration: underline;
 }
 
@@ -700,14 +622,30 @@ main {
   position: relative;
 }
 
+.edit {
+  background-color: var(--theme-edit-bg);
+  color: var(--theme-edit-text);
+  font-family: monospace;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.view {
+  background-color: var(--theme-bg);
+  color: var(--theme-text-secondary);
+  font-family: var(--theme-font-sans);
+}
+
 .editnote_box {
   display: flex;
   flex-flow: column;
   height: 100%;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 
 .editting {
@@ -750,8 +688,8 @@ li pre[class*="language-"] code {
   display: inline-block;
 }
 
-p code,
-li code {
+p code:not(pre code),
+li code:not(pre code) {
   background-color: #4b4b59;
   border-radius: 5px;
   box-shadow: 1.95px 1.95px 2.6px rgba(0, 0, 0, 0.4);
@@ -861,35 +799,28 @@ li code {
   outline: none;
 }
 
-/* Svelte: note-card replaces v-card for ViewNote/EditNote */
-.note-card {
-  display: block;
-  position: relative;
-  border-radius: 4px;
-  box-shadow:
-    rgb(0 0 0 / 0.2) 0 3px 3px -2px,
-    rgb(0 0 0 / 0.14) 0 3px 4px,
-    rgb(0 0 0 / 0.12) 0 1px 8px;
-  background: #fff;
-}
-
 /* Svelte: dropdown replaces v-menu */
 .dropdown {
   position: relative;
+}
+
+.dropdown .icon:hover {
+  background-color: var(--theme-green-light);
 }
 
 .dropdown-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 4px;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+  margin-top: 6px;
+  background: var(--theme-surface);
+  border-radius: 14px;
   min-width: 160px;
   z-index: 100;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-lg);
 }
 
 .dropdown-item {
@@ -906,10 +837,28 @@ li code {
   color: rgba(0, 0, 0, 0.87);
   font-size: 16px;
   font-weight: 400;
+  font-family: var(--theme-font-sans);
 }
 
 .dropdown-item:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--theme-ghost-hover);
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.dropdown-menu .dropdown-item:not(:first-child) {
+  border-top: 2px solid var(--theme-border);
+}
+
+.dropdown-item:last-child {
+  /* Manually rounding the corner so the hover background/shadow matches the menu */
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+.dropdown-item:first-child {
+  /* Manually rounding the corner so the hover background/shadow matches the menu */
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
 }
 
 .notification-wrapper {
@@ -920,90 +869,11 @@ li code {
   z-index: 1000;
 }
 
-/* Vuetify-style class names for Svelte (matches Vue/Vuetify structure) */
-
-/* src/app.css */
-:root {
-  /* Use RGB values (no 'rgb()' wrapper yet) */
-  --v-theme-surface: 255, 255, 255;
-  --v-theme-on-surface: 0, 0, 0;
-  --v-theme-secondary: 179, 0, 0;
-  --v-theme-on-secondary: 255, 255, 255;
-
-  /* Opacity defaults from your Vue logs */
-  --v-high-emphasis-opacity: 0.87;
-  --v-shadow-key-umbra-opacity: rgba(0, 0, 0, 0.2);
-  --v-btn-height: 36px;
-}
-
-/* 1. The Core Button (v-btn) */
-.v-btn {
-  align-items: center;
-  display: inline-grid;
-  grid-template-areas: "prepend content append";
-  grid-template-columns: max-content auto max-content;
-  font-weight: 500;
-  justify-content: center;
-  letter-spacing: 0.0892857143em;
-  line-height: normal;
-  position: relative;
-  text-transform: uppercase;
-  transition:
-    box-shadow 0.28s,
-    background 0.28s;
-  user-select: none;
-  vertical-align: middle;
-  border-radius: 4px; /* default */
-}
-
-/* 2. Sizing Logic */
-.v-btn--size-default {
-  --v-btn-size: 0.875rem;
-  --v-btn-height: 36px;
-  font-size: var(--v-btn-size);
-  min-width: 64px;
-  padding: 0 16px;
-  /* This height calculation was in your Vue logs */
-  height: calc(var(--v-btn-height) + 0px);
-}
-
-/* 3. The Secondary & Elevated Look */
-.bg-secondary {
-  background-color: rgb(var(--v-theme-secondary)) !important;
-  color: rgb(var(--v-theme-on-secondary)) !important;
-}
-
-.v-btn--variant-elevated {
-  box-shadow:
-    0 3px 1px -2px var(--v-shadow-key-umbra-opacity),
-    0 2px 2px 0 rgba(0, 0, 0, 0.14),
-    0 1px 5px 0 rgba(0, 0, 0, 0.12);
-}
-
-/* 4. Hover State (From your Vue logs) */
-.v-btn.contained:hover {
-  background-color: #7d0000 !important; /* The darkened red */
-  text-decoration: none;
-}
-
-.modal-dialog {
-  position: fixed !important;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1001 !important;
-  cursor: default;
-  background-color: white;
-  min-width: 280px;
-  max-width: 300px;
-}
-
 .form button.btn-contained {
   padding: 10px 20px;
 }
 
 .profile {
-  margin: 3rem auto;
   text-align: center;
   display: flex;
   overflow-y: visible;
@@ -1037,6 +907,22 @@ li code {
   cursor: pointer;
 }
 
+.btn-action-primary:hover {
+  background: var(--theme-green-accent);
+}
+
+@media only screen and (max-width: 430px) {
+  .btn-action-primary {
+    padding: 8px 16px;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .btn-action-primary {
+    padding: 8px 10px;
+  }
+}
+
 .btn-action-ghost {
   color: var(--theme-text);
   border-radius: 10px;
@@ -1052,9 +938,25 @@ li code {
   border: 1px solid var(--theme-border-input);
 }
 
+button.btn-action-ghost:hover {
+  background-color: var(--theme-ghost-hover);
+}
+
+@media only screen and (max-width: 430px) {
+  .btn-action-ghost {
+    padding: 8px 16px;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .btn-action-ghost {
+    padding: 8px 10px;
+  }
+}
+
 .btn-action-danger {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--theme-danger-bg);
+  color: var(--theme-danger-dark);
   border: 1px solid #fecaca;
   border-radius: 10px;
   padding: 11px 28px;
@@ -1066,4 +968,105 @@ li code {
   justify-content: center;
   gap: 6px;
   cursor: pointer;
+}
+
+.btn-action-danger:hover {
+  background-color: var(--theme-danger-light);
+}
+
+@media only screen and (max-width: 430px) {
+  .btn-action-danger {
+    padding: 8px 16px;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .btn-action-danger {
+    padding: 8px 10px;
+  }
+}
+
+/* Hide the default checkbox visually */
+.custom-checkbox input[type="checkbox"] {
+  /* Hide visually, but keep accessible */
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  /* Prevents interaction with the hidden input */
+  pointer-events: none;
+}
+
+/* Style the custom checkbox indicator using the label */
+.custom-checkbox label {
+  position: relative;
+  display: inline-block;
+  padding-left: 25px;
+  cursor: pointer;
+}
+
+/* Create the custom checkbox square */
+.custom-checkbox label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--theme-text-muted);
+  border-radius: 4px;
+  background-color: #fff;
+  box-sizing: border-box;
+  box-shadow: var(--theme-shadow-lg);
+}
+
+/* Style the custom checkbox when checked */
+.custom-checkbox input[type="checkbox"]:checked + label::before {
+  background-color: var(--theme-green);
+  border: 1px solid var(--theme-text-muted);
+}
+
+/* (Optional) Add a checkmark inside the custom box when checked */
+.custom-checkbox input[type="checkbox"]:checked + label::after {
+  content: "✓";
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + label {
+  text-decoration: line-through;
+  color: var(--theme-text-muted);
+}
+
+/* 1. Hide the icons by default (Mobile/Small screens) */
+.media_query_size {
+  display: none !important;
+}
+
+/* 2. Show the icons only on Large screens */
+@media (min-width: 360px) {
+  .media_query_size {
+    display: inline-block !important;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+}
+
+// @media (max-width: 430px) {
+@media (max-width: 359px) {
+  /* "If the row has exactly 3 children, find the child with this class and hide it" */
+  .nb-footer-row:has(> :nth-child(3):last-child) .media_query_size {
+    display: none !important;
+  }
+}
+
+/* Code block background color */
+pre:has(> code:first-child),
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: var(--theme-green-dark) !important;
 }

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
     loadedText: string;
@@ -48,8 +47,8 @@
     : ''}"
 >
   <div class="edit-note">
-    <div class="note-card {vCard()}">
-      <article class={vCardText("viewnote_content editor")}>
+    <div class="note-card">
+      <article class="v-card-text viewnote_content editor">
         <div
           bind:this={editRef}
           contenteditable={showPane ? "true" : "false"}

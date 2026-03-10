@@ -3,9 +3,10 @@
   color: white;
   margin-block-start: 0em;
   padding-inline-start: 0px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
   background-color: #f4f9f1;
+  padding-top: 5px;
 }
 
 :global(.notebooks_list li) {
@@ -13,16 +14,12 @@
   margin-bottom: 2px;
 }
 
-:global(.notebooks_list li div:hover) {
-  background-color: var(--theme-bg);
-}
-
-:global(.notebooks_list li:first-child) {
-  padding-top: 10px;
+:global(.notebooks_list li .vcard:hover) {
+  box-shadow: var(--theme-shadow-mid);
 }
 
 :global(ul.notebooks_list .notebooks_list_bg) {
-  padding-top: 10px;
+  padding-top: 8px;
 }
 
 :global(.notebooks_list_left) {
@@ -35,7 +32,7 @@
   position: relative;
 }
 
-/* Notebook spine (vertical bar on left edge, per design reference) */
+/* Notebook spine (vertical bar on left edge) */
 :global(.nb-spine-forest) {
   position: absolute;
   left: 0;
@@ -81,16 +78,25 @@
   background: var(--theme-text-muted);
 }
 
+// First notebook recieves additional padding at the top of the list
+:global(.notebooks_list .notebook-link:first-of-type .notebooks_list_bg) {
+  padding-top: 10px;
+}
+
 :global(.notebooks_list_right) {
   display: flex;
   width: 100%;
-  padding-left: 12px;
   align-self: center;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 300;
   color: var(--theme-text);
   flex-direction: column;
   justify-content: center;
+}
+
+:global(.notebooks_list_arrow) {
+  color: var(--theme-text-muted);
+  font-size: 15px;
 }
 
 :global(.notebooks_list_right .date_format) {
@@ -104,10 +110,16 @@
   min-height: 50px;
   display: flex;
   align-items: center;
+  background-color: var(--theme-surface);
+  border-radius: 14px;
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-:global(.notebooks_list li:first-child) {
-  padding-top: 10px;
+:global(.notebooks_list .notebooks_list_outer:hover) {
+  background-color: var(--theme-ghost-hover);
 }
 
 :global(.notebooks_list_bg) {
@@ -133,11 +145,4 @@
 
 :global(.tab_loading) {
   background: var(--theme-text-muted);
-}
-
-:global(li.notebooks_list_bg .v-card) {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid var(--theme-border);
-  box-shadow: var(--theme-shadow-sm);
 }

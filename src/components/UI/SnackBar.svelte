@@ -5,11 +5,14 @@
   let status = $state(false);
   const timeout = 2000;
 
-  const unsubscribe = snackStore.subscribe((state) => {
-    if (state.n_status && state.message) {
-      status = state.n_status;
-      message = state.message;
-    }
+  $effect(() => {
+    const unsubscribe = snackStore.subscribe((state) => {
+      if (state.n_status && state.message) {
+        status = state.n_status;
+        message = state.message;
+      }
+    });
+    return unsubscribe;
   });
 
   $effect(() => {
@@ -23,46 +26,65 @@
   });
 </script>
 
-{#if status && message}
-  <div class="snackbar snack_outer" role="status">
-    <span class="icon_text snack_text">
-      <span class="material-symbols-outlined button_icon snack_icon">
-        check_circle
-      </span>
-      {message}
-    </span>
-  </div>
-{/if}
+<div class="snackbar" id="snackbar" class:show={status}>
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle
+      cx="8"
+      cy="8"
+      r="7.5"
+      fill="rgba(255,255,255,0.2)"
+      stroke="rgba(255,255,255,0.5)"
+      stroke-width="1"
+    ></circle>
+    <path
+      d="M4.5 8l2.5 2.5 4.5-4.5"
+      stroke="white"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    ></path>
+  </svg>
+  <span id="snackbar-msg">{message}</span>
+</div>
 
 <style>
-  .snackbar.snack_outer {
-    z-index: 100;
-    position: fixed;
-    bottom: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgb(236, 247, 237);
-    color: #116600;
-    padding: 12px 24px;
-    border-radius: 15px;
-    min-width: 150px;
-    max-width: 50%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  .snackbar.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 
-  .snack_outer {
+  .snackbar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--theme-green-snackbar);
+    color: white;
     display: flex;
     align-items: center;
-    gap: 10px;
-  }
-
-  .snack_icon {
-    color: #116600;
-  }
-
-  .snack_text {
-    color: #116600;
-    font-size: 1rem;
+    gap: 9px;
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-size: 0.8rem;
     font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transition:
+      transform 0.3s cubic-bezier(0.32, 1.2, 0.5, 1),
+      opacity 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .snackbar {
+      bottom: auto;
+      top: 24px;
+      transform: translateX(-50%) translateY(-80px);
+    }
+    .snackbar.show {
+      transform: translateX(-50%) translateY(0);
+    }
   }
 </style>

@@ -22,10 +22,10 @@
   const AC = APPLICATION_CONSTANTS;
 
   const covers: { value: NotebookCoverType; label: string }[] = [
-    { value: "forest",  label: "Forest"  },
+    { value: "forest", label: "Forest" },
     { value: "emerald", label: "Emerald" },
-    { value: "lime",    label: "Lime"    },
-    { value: "sage",    label: "Sage"    },
+    { value: "lime", label: "Lime" },
+    { value: "sage", label: "Sage" },
   ];
 
   let selectedCover = $state<NotebookCoverType>("forest");
@@ -33,7 +33,9 @@
 
   $effect(() => {
     if (method === "edit" && notebook) {
-      selectedCover = getDisplayCover(notebook.notebook_cover) as NotebookCoverType;
+      selectedCover = getDisplayCover(
+        notebook.notebook_cover,
+      ) as NotebookCoverType;
       selectedName = notebook.notebook_name;
     }
   });
@@ -178,7 +180,9 @@
         class="btn-create"
         disabled={isConfirmDisabled}
         onclick={(e) => submitHandler(e)}
-        aria-label={method === "edit" ? "Confirm edit button" : "Create notebook button"}
+        aria-label={method === "edit"
+          ? "Confirm edit button"
+          : "Create notebook button"}
       >
         {method === "edit" ? "Confirm" : "Create"}
       </button>
@@ -285,13 +289,23 @@
     transition: box-shadow 0.15s ease;
   }
 
-  .swatch-forest  { background: var(--notebook-forest); }
-  .swatch-emerald { background: var(--notebook-emerald); }
-  .swatch-lime    { background: var(--notebook-lime); }
-  .swatch-sage    { background: var(--notebook-sage); }
+  .swatch-forest {
+    background: var(--notebook-forest);
+  }
+  .swatch-emerald {
+    background: var(--notebook-emerald);
+  }
+  .swatch-lime {
+    background: var(--notebook-lime);
+  }
+  .swatch-sage {
+    background: var(--notebook-sage);
+  }
 
   .swatch.selected {
-    box-shadow: 0 0 0 2.5px white, 0 0 0 4.5px var(--theme-green);
+    box-shadow:
+      0 0 0 2.5px white,
+      0 0 0 4.5px var(--theme-green);
   }
 
   .sheet-actions {

@@ -1,0 +1,24 @@
+.page-heading {
+  font-family: var(--theme-font-serif);
+  font-size: 18px;
+  color: var(--theme-text-muted);
+  margin-top: 16px;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-bottom: 0px;
+}
+
+.notebooks-list-wrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .notebooks-list-wrap {
+    max-width: 100%;
+  }
+  .page-heading {
+    font-size: 16px;
+  }
+}

@@ -24,7 +24,6 @@ export const changeUsername = async (
       },
     );
     if (response.status === 404) throw new Error(`${response.url} Not Found.`);
-    if (response.status === 401) throw new Error(`Unauthorized`);
   } catch (err: unknown) {
     return { error: errString(err) };
   }

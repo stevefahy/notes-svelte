@@ -1,7 +1,5 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
-  // import { slide, fly } from 'svelte/transition';
-  // import { backOut, quintOut } from 'svelte/easing';
   import DateFormat from "@/lib/dateFormat";
   import type { Note, SelectedNote } from "@/lib/types";
   import { extractNoteTitle, detectNoteTag } from "@/lib/noteCardUtils";
@@ -54,100 +52,109 @@
   };
 </script>
 
-<div class="notes-list-container">
-  <ul class="notes_list">
-    {#each notes as note (note._id)}
-      {@const title = extractNoteTitle(note.note)}
-      {@const tag = detectNoteTag(note.note)}
-      {@const selected = !!isChecked[note._id]}
+<div class="notebooks-list-wrap">
+  <h2 class="page-heading">Your Notes</h2>
+  <div class="notes-list-container">
+    <ul class="notes_list">
+      {#each notes as note (note._id)}
+        {@const title = extractNoteTitle(note.note)}
+        {@const tag = detectNoteTag(note.note)}
+        {@const selected = !!isChecked[note._id]}
 
-      <li class="note-card-outer">
-        {#if !onNotesEdit}
-          <a
-            href="/notebook/{note.notebook}/{note._id}"
-            use:link
-            class="note-card-link-overlay"
-            aria-label="Open note"
-          ></a>
-        {/if}
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <div
-          class="note-card-link"
-          role={onNotesEdit ? "button" : undefined}
-          tabindex={onNotesEdit ? 0 : undefined}
-          onclick={onNotesEdit ? () => handleCardClick(note._id) : undefined}
-          onkeydown={onNotesEdit
-            ? (e) => handleCardKeydown(note._id, e)
-            : undefined}
-        >
-          <div class="note-card" class:note-card--selected={selected}>
-            <div class="note-select-col-wrapper" class:is-visible={onNotesEdit}>
+        <li class="note-card-outer">
+          {#if !onNotesEdit}
+            <a
+              href="/notebook/{note.notebook}/{note._id}"
+              use:link
+              class="note-card-link-overlay"
+              aria-label="Open note"
+            ></a>
+          {/if}
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+          <div
+            class="note-card-link"
+            role={onNotesEdit ? "button" : undefined}
+            tabindex={onNotesEdit ? 0 : undefined}
+            onclick={onNotesEdit ? () => handleCardClick(note._id) : undefined}
+            onkeydown={onNotesEdit
+              ? (e) => handleCardKeydown(note._id, e)
+              : undefined}
+          >
+            <div class="note-card" class:note-card--selected={selected}>
               <div
-                class="note-select-col"
-                role="checkbox"
-                tabindex={onNotesEdit ? 0 : -1}
-                aria-checked={selected}
-                onclick={(e) => {
-                  e.stopPropagation();
-                  handleCardClick(note._id);
-                }}
-                onkeydown={(e) => handleCardKeydown(note._id, e)}
+                class="note-select-col-wrapper"
+                class:is-visible={onNotesEdit}
               >
-                <div class="sel-circle" class:sel-circle--active={selected}>
-                  {#if selected}
-                    <svg
-                      width="10"
-                      height="8"
-                      viewBox="0 0 10 8"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M1 4l3 3 5-6"
-                        stroke="white"
-                        stroke-width="1.6"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
+                <div
+                  class="note-select-col"
+                  role="checkbox"
+                  tabindex={onNotesEdit ? 0 : -1}
+                  aria-checked={selected}
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    handleCardClick(note._id);
+                  }}
+                  onkeydown={(e) => handleCardKeydown(note._id, e)}
+                >
+                  <div class="sel-circle" class:sel-circle--active={selected}>
+                    {#if selected}
+                      <svg
+                        width="10"
+                        height="8"
+                        viewBox="0 0 10 8"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M1 4l3 3 5-6"
+                          stroke="white"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+
+              <div class="note-card-body">
+                <div class="note-title">{title}</div>
+                <div class="note-thumb-preview">
+                  <ViewNoteThumb text={note.note} />
+                </div>
+                <div class="note-foot">
+                  <span class="note-date"
+                    >{DateFormat(note.updatedAt ?? "")}</span
+                  >
+                  {#if tag === "todo"}
+                    <span class="note-tag tag-todo">Todo</span>
+                  {:else if tag === "table"}
+                    <span class="note-tag tag-table">Table</span>
+                  {:else if tag === "code"}
+                    <span class="note-tag tag-code">Code</span>
+                  {:else if tag === "image"}
+                    <span class="note-tag tag-image">Image</span>
+                  {:else if tag === "list"}
+                    <span class="note-tag tag-list">List</span>
+                  {:else if tag === "text"}
+                    <span class="note-tag tag-text">Text</span>
+                  {:else if tag === "empty"}
+                    <span class="note-tag tag-empty">Empty</span>
                   {/if}
                 </div>
               </div>
             </div>
-
-            <div class="note-card-body">
-              <div class="note-title">{title}</div>
-              <div class="note-thumb-preview">
-                <ViewNoteThumb text={note.note} />
-              </div>
-              <div class="note-foot">
-                <span class="note-date">{DateFormat(note.updatedAt ?? "")}</span
-                >
-                {#if tag === "todo"}
-                  <span class="note-tag tag-todo">Todo</span>
-                {:else if tag === "table"}
-                  <span class="note-tag tag-table">Table</span>
-                {:else if tag === "code"}
-                  <span class="note-tag tag-code">Code</span>
-                {:else if tag === "image"}
-                  <span class="note-tag tag-image">Image</span>
-                {:else if tag === "list"}
-                  <span class="note-tag tag-list">List</span>
-                {:else if tag === "text"}
-                  <span class="note-tag tag-text">Text</span>
-                {:else if tag === "empty"}
-                  <span class="note-tag tag-empty">Empty</span>
-                {/if}
-              </div>
-            </div>
           </div>
-        </div>
-      </li>
-    {/each}
-  </ul>
+        </li>
+      {/each}
+    </ul>
+  </div>
 </div>
 
 <style>
+  @import url("../../assets/styles/list-container.scss");
+
   .note-card-link {
     display: block;
     text-decoration: none;
@@ -162,19 +169,13 @@
     padding-bottom: 8px;
   }
 
-  .edit-hint {
-    padding: 6px 18px 2px;
-    font-size: 11.5px;
-    color: var(--theme-text-muted);
-  }
-
   .notes_list {
     list-style: none;
     margin: 0;
-    padding: 6px 14px 10px;
+    padding: 14px 14px;
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 10px;
   }
 
   .note-card-outer {
@@ -204,8 +205,9 @@
     gap: 10px;
   }
 
-  .note-card:hover {
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  .note-card-outer:has(> .note-card-link-overlay:hover) .note-card {
+    box-shadow: var(--theme-shadow-mid);
+    background-color: var(--theme-ghost-hover);
   }
 
   .note-card--selected {
@@ -252,8 +254,7 @@
   .note-card-body {
     flex: 1;
     min-width: 0;
-
-    padding: 12px; /* Standardize your internal spacing */
+    padding: 12px;
   }
 
   .note-title {
@@ -281,13 +282,13 @@
   }
 
   .note-date {
-    font-size: 10.5px;
+    font-size: 11px;
     color: var(--theme-text-muted);
   }
 
   /* Tag pills */
   .note-tag {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;

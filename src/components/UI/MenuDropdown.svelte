@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fly, slide } from "svelte/transition";
+  import { slide } from "svelte/transition";
   import { authStore } from "@/stores/auth";
   import { push } from "svelte-spa-router";
   import APPLICATION_CONSTANTS from "@/lib/constants";
@@ -52,42 +52,31 @@
         {/key}
       {/if}
 
-      <span
-        class="material-symbols-outlined material-icons v-icon notranslate v-theme--myCustomLightTheme v-icon--size-default"
-        >more_vert</span
-      >
+      <span class="material-symbols-outlined">more_vert</span>
     </button>
-    <span class="v-btn_overlay"></span>
-    <span class="v-btn_underlay"></span>
+
     {#if open}
-      <!-- <div class="dropdown-menu" role="menu" transition:fly={{ y: -8, duration: 200 }}> -->
       <div
         class="dropdown-menu"
         role="menu"
         transition:slide={{ duration: 150 }}
       >
-        {#if success && details}
-          <button class="dropdown-item" onclick={handleProfile} role="menuitem">
-            <span class="material-icons menu_item">account_circle</span>
-            {details.username}
-          </button>
-        {/if}
         {#if success}
           <button class="dropdown-item" onclick={handleProfile} role="menuitem">
-            <span class="material-icons menu_item">settings</span>
-            Settings
+            <span class="material-icons-outlined menu_item">person</span>
+            Profile
           </button>
         {/if}
         {#if !success}
           <button class="dropdown-item" onclick={loginHandler} role="menuitem">
             <span class="material-icons menu_item">login</span>
-            Login
+            Sign in
           </button>
         {/if}
         {#if success}
           <button class="dropdown-item" onclick={handleLogout} role="menuitem">
-            <span class="material-icons menu_item">logout</span>
-            logout
+            <span class="material-icons menu_item danger_icon">logout</span>
+            Sign out
           </button>
         {/if}
       </div>
@@ -104,7 +93,7 @@
 
 <style>
   .icon {
-    color: var(--theme-text-muted) !important;
+    color: var(--theme-text-muted);
     background: rgba(0, 0, 0, 0.05);
     border-radius: 50%;
     width: 32px;
@@ -112,16 +101,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .icon .material-icons,
-  .icon :global(i.material-icons),
-  .icon :global(.v-btn__content .material-icons),
-  .icon :global(.material-symbols-outlined) {
-    color: var(--theme-text-muted) !important;
+    border: 1px solid var(--theme-border);
   }
 
   .nav_menu {
-    padding-right: 24px;
+    padding-right: 16px;
+  }
+
+  .danger_icon {
+    background: var(--theme-danger-bg);
+    color: var(--theme-danger-dark);
+    border-radius: 10px;
+    padding: 5px;
   }
 </style>

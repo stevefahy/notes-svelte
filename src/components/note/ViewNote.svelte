@@ -1,6 +1,5 @@
 <script lang="ts">
   import ViewNoteMarkdown from "./ViewNoteMarkdown.svelte";
-  import { vCard, vCardText } from "@/lib/vuetify-classes";
 
   interface Props {
     viewText: string;
@@ -24,8 +23,8 @@
     ? 'hide'
     : ''}"
 >
-  <div class="note-card {vCard()}">
-    <div class={vCardText("cardcontent viewnote_content")}>
+  <div class="note-card">
+    <div class="v-card-text cardcontent viewnote_content">
       <ViewNoteMarkdown {viewText} onViewTextUpdate={onEdit} />
     </div>
   </div>

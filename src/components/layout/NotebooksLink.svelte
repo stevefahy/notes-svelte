@@ -4,13 +4,18 @@
 
 <a href="/notebooks" use:link class="no_link">
   <span class="breadcrumb_group">
-    <span class="material-icons-outlined breadcrumb_icon"> library_books </span>
-    <span class="breadcrumb_link_btn">
-      <span class="breadcrumb_link"> Notebooks</span>
-    </span>
+    <span class="breadcrumb_link_btn"> Notebooks</span>
   </span>
 </a>
 
 <style>
-  @import url("../../assets/styles/breadcrumb_shared.scss");
+  .no_link {
+    text-decoration: none;
+    color: var(--theme-text-muted);
+  }
+
+  .breadcrumb_link_btn:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 </style>

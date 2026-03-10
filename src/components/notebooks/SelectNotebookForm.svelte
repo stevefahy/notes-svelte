@@ -51,7 +51,8 @@
   };
 
   function focusDialog(node: HTMLElement) {
-    const firstOption = node.querySelector<HTMLButtonElement>(".notebook-option");
+    const firstOption =
+      node.querySelector<HTMLButtonElement>(".notebook-option");
     if (firstOption) firstOption.focus();
     return {};
   }
@@ -62,7 +63,9 @@
         ".notebook-option",
       ),
     );
-    const current = options.indexOf(document.activeElement as HTMLButtonElement);
+    const current = options.indexOf(
+      document.activeElement as HTMLButtonElement,
+    );
     if (e.key === "ArrowDown" && current < options.length - 1) {
       e.preventDefault();
       options[current + 1].focus();
@@ -81,7 +84,10 @@
   onclick={(e) => cancelHandler(e)}
   onkeydown={(e) => {
     if (e.key === "Enter" || e.key === " ") {
-      if (e.target instanceof HTMLElement && e.target.closest(".bottom-sheet")) {
+      if (
+        e.target instanceof HTMLElement &&
+        e.target.closest(".bottom-sheet")
+      ) {
         return;
       }
       e.preventDefault();
@@ -126,9 +132,13 @@
               onclick={() => (selectedNotebook = nb._id)}
             >
               <span
-                class="option-cover option-cover-{getDisplayCover(nb.notebook_cover)}"
+                class="option-cover option-cover-{getDisplayCover(
+                  nb.notebook_cover,
+                )}"
               >
-                <span class="nb-spine nb-spine-{getDisplayCover(nb.notebook_cover)}"></span>
+                <span
+                  class="nb-spine nb-spine-{getDisplayCover(nb.notebook_cover)}"
+                ></span>
               </span>
               <span class="option-name">{nb.notebook_name}</span>
             </button>
@@ -241,7 +251,9 @@
     color: var(--theme-text);
     text-align: left;
     cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
   }
 
   .notebook-option:hover {

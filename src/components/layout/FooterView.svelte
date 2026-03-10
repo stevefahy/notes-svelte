@@ -19,7 +19,8 @@
     justify-content: center;
     bottom: 0px;
     z-index: 6;
-    background-color:var(--theme-surface);
+    background-color: var(--theme-surface);
+    border-top: 1px solid var(--theme-border);
   }
 
   .page_footer_container {

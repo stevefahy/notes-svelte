@@ -2,7 +2,6 @@
   import { link } from "svelte-spa-router";
   import { location } from "svelte-spa-router";
   import { notebookEditStore } from "@/stores/notebookEdit";
-  import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { PageType, NotebookType, NotebookCoverType } from "@/lib/types";
   import NotebooksLink from "./NotebooksLink.svelte";
   import NotebooksNolink from "./NotebooksNolink.svelte";
@@ -56,15 +55,20 @@
 
 {#if pageLayout !== "other"}
   <div>
-    <div role="presentation" class="breadcrumb_container" class:breadcrumb--notebooks={pageLayout === "notebooks"} class:breadcrumb--section={pageLayout === "notebooks" || pageLayout === "profile"}>
+    <div
+      role="presentation"
+      class="breadcrumb_container"
+      class:breadcrumb--notebooks={pageLayout === "notebooks"}
+      class:breadcrumb--section={pageLayout === "notebooks" ||
+        pageLayout === "profile"}
+    >
       <div class="breadcrumbs_inner">
         {#if pageLayout === "profile"}
           <NotebooksLink />
           <span class="breadcrumb_link">
             <span class="breadcrumb_link_icon">
-              <span class="breadcrumb_seperator">/</span>
+              <span class="breadcrumb_seperator">›</span>
             </span>
-            <span class="material-icons breadcrumb_icon">account_circle</span>
             Profile
           </span>
         {/if}
@@ -78,14 +82,9 @@
           {#if notebook?.name}
             <span class="breadcrumb_link">
               <span class="breadcrumb_link_icon">
-                <span class="breadcrumb_seperator">/</span>
+                <span class="breadcrumb_seperator">›</span>
               </span>
-              <span
-                class="material-icons-outlined icon_notebook breadcrumb_icon notebook_cover_{getDisplayCover(notebook.cover)}"
-              >
-                description
-              </span>
-              <span class="breadcrumb_link_btn">
+              <span class="breadcrumb_link">
                 {notebook.name}
               </span>
             </span>
@@ -107,12 +106,7 @@
           {#if notebook?.name}
             <a href="/notebook/{notebook.id}" use:link class="breadcrumb_link">
               <span class="breadcrumb_link_icon">
-                <span class="breadcrumb_seperator">/</span>
-              </span>
-              <span
-                class="material-icons-outlined icon_notebook breadcrumb_icon notebook_cover_{getDisplayCover(notebook.cover)}"
-              >
-                description
+                <span class="breadcrumb_seperator">›</span>
               </span>
               <span class="breadcrumb_link_btn">
                 {notebook.name}
@@ -122,12 +116,7 @@
           {#if notebook?.name}
             <span class="breadcrumb_link">
               <span class="breadcrumb_link_icon">
-                <span class="breadcrumb_seperator">/</span>
-              </span>
-              <span
-                class="material-icons-outlined note icon_note breadcrumb_icon"
-              >
-                note
+                <span class="breadcrumb_seperator">›</span>
               </span>
               Note
             </span>
@@ -139,6 +128,5 @@
 {/if}
 
 <style>
-  @import url("../../assets/styles/breadcrumb_shared.scss");
-  @import url("../../assets/styles/breadcrumb_only.scss");
+  @import url("../../assets/styles/breadCrumb.scss");
 </style>

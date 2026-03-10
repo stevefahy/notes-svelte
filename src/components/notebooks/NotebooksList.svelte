@@ -42,11 +42,14 @@
 </script>
 
 {#if localNotebooks.length > 0 || enableAddNotebook}
-  <ul class="notebooks_list">
-    {#each localNotebooks as notebook (notebook._id)}
-      <NotebookListItem notebook_item={notebook} />
-    {/each}
-  </ul>
+  <div class="notebooks-list-wrap">
+    <h2 class="page-heading">Your Notebooks</h2>
+    <ul class="notebooks_list">
+      {#each localNotebooks as notebook (notebook._id)}
+        <NotebookListItem notebook_item={notebook} />
+      {/each}
+    </ul>
+  </div>
   {#if enableAddNotebook}
     <AddNotebookForm
       method="create"
@@ -87,6 +90,14 @@
 
 <style>
   @import url("../../assets/styles/notebook-list-shared.scss");
+  @import url("../../assets/styles/list-container.scss");
+
+  :global(li.notebooks_list_bg .vcard) {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid var(--theme-border);
+    box-shadow: var(--theme-shadow-sm);
+  }
 
   .fab {
     background: var(--theme-green);

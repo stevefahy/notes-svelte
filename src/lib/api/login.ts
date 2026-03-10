@@ -18,7 +18,17 @@ export const login = async (
       body: JSON.stringify({ email, password }),
     });
     if (response.status === 404) throw new Error(`${response.url} Not Found.`);
-    if (response.status === 401) throw new Error(`Unauthorized`);
+    if (response.status === 401) {
+      try {
+        const data = await response.json();
+        if (data && typeof data.error === "string") {
+          return { error: data.error };
+        }
+      } catch {
+        // fallback if body can't be parsed
+      }
+      return { error: "Invalid email and password combination." };
+    }
   } catch (err: unknown) {
     return { error: errString(err) };
   }

@@ -2,232 +2,563 @@
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
   import { changeUsername, changePassword, unwrapResponse } from "@/lib/api";
-  import { showErrorNotification } from "@/stores/notification";
   import { snackStore } from "@/stores/snack";
   import APPLICATION_CONSTANTS from "@/lib/constants";
-  import ErrorAlert from "@/components/UI/ErrorAlert.svelte";
   import type { ProfileFormProps, IAuthDetails } from "@/lib/types";
 
-  let { userName, onChangePassword, onChangeUsername }: ProfileFormProps =
-    $props();
+  let {
+    userName,
+    onChangePassword: _onChangePassword,
+    onChangeUsername: _onChangeUsername,
+  }: ProfileFormProps = $props();
 
   let newUsername = $state("");
   let oldPassword = $state("");
   let newPassword = $state("");
-  // let confirmPassword = $state('')
-  let error = $state({ error_state: false, message: "" });
   let isSubmitting = $state(false);
-  let userNameToggle = $state(false);
-  let passwordToggle = $state(false);
+  let usernameServerError = $state("");
+  let passwordServerError = $state("");
+  let activeTab = $state<"user" | "pass">("user");
+  let tooltipSuppressed = $state(false);
 
   const AC = APPLICATION_CONSTANTS;
 
-  const resetToggle = () => {
-    error = { error_state: false, message: "" };
-    userNameToggle = false;
-    passwordToggle = false;
-    oldPassword = "";
-    newPassword = "";
-    // confirmPassword = ''
-    newUsername = userName ?? "";
-  };
+  // ── Username live validation ─────────────────────────────────────────
+  const usernameError = $derived.by((): string => {
+    const len = newUsername.length;
+    if (len === 0) return "";
+    if (len > AC.USERNAME_MAX)
+      return `Too long — max ${AC.USERNAME_MAX} characters`;
+    if (newUsername.trim() === userName) return "Same as your current username";
+    if (newUsername.trim().length < AC.USERNAME_MIN)
+      return `At least ${AC.USERNAME_MIN} characters required`;
+    return "";
+  });
 
-  const toggleUserName = () => {
-    error = { error_state: false, message: "" };
-    passwordToggle = false;
-    userNameToggle = !userNameToggle;
-    if (userNameToggle) {
-      newUsername = userName ?? "";
+  const usernameValid = $derived(
+    newUsername.length > 0 &&
+      newUsername.length <= AC.USERNAME_MAX &&
+      newUsername.trim() !== userName &&
+      newUsername.trim().length >= AC.USERNAME_MIN,
+  );
+
+  const usernameTooltip = $derived(
+    usernameError ||
+      (newUsername.length === 0 ? "Enter a new username to save" : ""),
+  );
+
+  // ── Password live validation ──────────────────────────────────────────
+  const passwordError = $derived.by((): string => {
+    if (!newPassword || !oldPassword) return "";
+    if (newPassword === oldPassword)
+      return "Must differ from your current password";
+    if (newPassword.length < AC.PASSWORD_MIN)
+      return `At least ${AC.PASSWORD_MIN} characters required`;
+    if (newPassword.length > AC.PASSWORD_MAX)
+      return `Max ${AC.PASSWORD_MAX} characters`;
+    return "";
+  });
+
+  const passwordValid = $derived(
+    !!oldPassword &&
+      !!newPassword &&
+      newPassword !== oldPassword &&
+      newPassword.length >= AC.PASSWORD_MIN &&
+      newPassword.length <= AC.PASSWORD_MAX,
+  );
+
+  const passwordTooltip = $derived(
+    passwordError ||
+      (!oldPassword || !newPassword ? "Fill in both fields to continue" : ""),
+  );
+
+  // ── Password strength bar (0–4) ───────────────────────────────────────
+  const strengthScore = $derived.by((): number => {
+    let s = 0;
+    if (newPassword.length >= AC.PASSWORD_MIN) s++;
+    if (/[A-Z]/.test(newPassword)) s++;
+    if (/[0-9]/.test(newPassword)) s++;
+    if (/[^A-Za-z0-9]/.test(newPassword)) s++;
+    return s;
+  });
+
+  const strengthClass = $derived(
+    strengthScore <= 1 ? "weak" : strengthScore <= 2 ? "ok" : "good",
+  );
+
+  function suppressTooltip() {
+    tooltipSuppressed = true;
+  }
+
+  function resetTooltip() {
+    tooltipSuppressed = false;
+  }
+
+  function handleTooltipKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      suppressTooltip();
     }
-  };
-
-  const togglePassword = () => {
-    error = { error_state: false, message: "" };
-    userNameToggle = false;
-    passwordToggle = !passwordToggle;
-  };
+  }
 
   const handleChangeUsername = async (e: Event) => {
     e.preventDefault();
     const token = get(authStore).token;
-    if (!token || !newUsername.trim()) return;
-    if (newUsername.length < AC.USERNAME_MIN) {
-      error = { error_state: true, message: AC.CHANGE_USER_TOO_FEW };
-      return;
-    }
-    if (newUsername.length > AC.USERNAME_MAX) {
-      error = { error_state: true, message: AC.CHANGE_USER_TOO_MANY };
-      return;
-    }
-    if (newUsername === userName) {
-      error = { error_state: true, message: AC.CHANGE_USER_UNIQUE };
-      return;
-    }
+    if (!token || !usernameValid) return;
     isSubmitting = true;
-    error = { error_state: false, message: "" };
     const result = unwrapResponse<{ details: IAuthDetails }>(
       await changeUsername(token, { newUsername: newUsername.trim() }),
     );
     isSubmitting = false;
     if (!result.ok) {
-      showErrorNotification(result.error ?? AC.GENERAL_ERROR);
+      usernameServerError = result.error ?? AC.GENERAL_ERROR;
     } else if (result.data.details) {
+      usernameServerError = "";
       authStore.update((ctx) => ({ ...ctx, details: result.data.details }));
       snackStore.ShowSnack({ n_status: true, message: "User name changed!" });
-      resetToggle();
+      newUsername = "";
     }
   };
 
   const handleChangePassword = async (e: Event) => {
     e.preventDefault();
     const token = get(authStore).token;
-    if (!token) return;
-    if (oldPassword === newPassword) {
-      error = { error_state: true, message: AC.CHANGE_PASS_UNIQUE };
-      return;
-    }
-    if (newPassword.length < AC.PASSWORD_MIN) {
-      error = { error_state: true, message: AC.CHANGE_PASS_TOO_FEW };
-      return;
-    }
-    if (newPassword.length > AC.PASSWORD_MAX) {
-      error = { error_state: true, message: AC.CHANGE_PASS_TOO_MANY };
-      return;
-    }
-    // if (newPassword !== confirmPassword) {
-    //   error = { error_state: true, message: AC.CHANGE_PASS_LENGTH }
-    //   return
-    // }
+    if (!token || !passwordValid) return;
     isSubmitting = true;
-    error = { error_state: false, message: "" };
     const result = unwrapResponse(
       await changePassword(token, { oldPassword, newPassword }),
     );
     isSubmitting = false;
     if (!result.ok) {
-      showErrorNotification(result.error ?? AC.GENERAL_ERROR);
+      passwordServerError = result.error ?? AC.GENERAL_ERROR;
     } else {
+      passwordServerError = "";
       snackStore.ShowSnack({ n_status: true, message: "Password updated" });
-      resetToggle();
+      oldPassword = "";
+      newPassword = "";
     }
   };
 </script>
 
-<div class="change_buttons">
-  <button
-    type="button"
-    class="btn-contained"
-    aria-label="User Name button"
-    onclick={toggleUserName}
-  >
-    User Name
-  </button>
-  <button
-    type="button"
-    class="btn-contained"
-    aria-label="Password button"
-    onclick={togglePassword}
-  >
-    Password
-  </button>
+<div class="pf-outer">
+  <div class="tab-container">
+    <!-- Tab bar -->
+    <div class="tabs">
+      <button
+        class="tab"
+        class:active={activeTab === "user"}
+        type="button"
+        onclick={() => (activeTab = "user")}
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Username
+      </button>
+      <button
+        class="tab"
+        class:active={activeTab === "pass"}
+        type="button"
+        onclick={() => (activeTab = "pass")}
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        Password
+      </button>
+    </div>
+
+    <!-- Tab panel -->
+    <div class="tab-panel">
+      {#if activeTab === "user"}
+        <div class="tab-content">
+          <form onsubmit={handleChangeUsername}>
+            <div class="form-field">
+              <label class="form-label" for="newUsername">New Username</label>
+              <input
+                class="form-input"
+                class:input-error={!!usernameError || !!usernameServerError}
+                type="text"
+                id="newUsername"
+                bind:value={newUsername}
+                oninput={() => (usernameServerError = "")}
+                placeholder="Enter new username"
+              />
+            </div>
+            <div class="field-feedback">
+              <div
+                class="inline-error"
+                class:visible={!!(usernameServerError || usernameError)}
+              >
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <circle cx="6" cy="6" r="5.5" fill="#c0392b" />
+                  <path
+                    d="M6 3.5v3M6 8v.5"
+                    stroke="white"
+                    stroke-width="1.2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span>{usernameServerError || usernameError}</span>
+              </div>
+              <span
+                class="char-counter"
+                class:over={newUsername.length > AC.USERNAME_MAX}
+              >
+                {newUsername.length} / {AC.USERNAME_MAX}
+              </span>
+            </div>
+            <div
+              class="btn-wrap"
+              onclick={suppressTooltip}
+              onkeydown={handleTooltipKeydown}
+              onmouseleave={resetTooltip}
+              role="button"
+              tabindex="0"
+            >
+              {#if !usernameValid && !tooltipSuppressed}
+                <div class="btn-tooltip">{usernameTooltip}</div>
+              {/if}
+              <button
+                type="submit"
+                class="btn-save"
+                disabled={!usernameValid || isSubmitting}>Save</button
+              >
+            </div>
+          </form>
+        </div>
+      {/if}
+
+      {#if activeTab === "pass"}
+        <div class="tab-content">
+          <form onsubmit={handleChangePassword}>
+            <div class="form-field">
+              <label class="form-label" for="oldPassword"
+                >Current Password</label
+              >
+              <input
+                class="form-input"
+                class:input-error={!!passwordServerError}
+                type="password"
+                id="oldPassword"
+                bind:value={oldPassword}
+                oninput={() => (passwordServerError = "")}
+                placeholder="Current password"
+              />
+            </div>
+            <div class="field-feedback">
+              <div class="inline-error" class:visible={!!passwordServerError}>
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <circle cx="6" cy="6" r="5.5" fill="#c0392b" />
+                  <path
+                    d="M6 3.5v3M6 8v.5"
+                    stroke="white"
+                    stroke-width="1.2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span>{passwordServerError}</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="newPassword">New Password</label>
+              <input
+                class="form-input"
+                class:input-error={!!passwordError}
+                type="password"
+                id="newPassword"
+                bind:value={newPassword}
+                placeholder="Min. {AC.PASSWORD_MIN} characters"
+              />
+            </div>
+            <div class="strength-row">
+              {#each [1, 2, 3, 4] as i}
+                <div
+                  class="bar-seg"
+                  class:weak={i <= strengthScore && strengthClass === "weak"}
+                  class:ok={i <= strengthScore && strengthClass === "ok"}
+                  class:good={i <= strengthScore && strengthClass === "good"}
+                ></div>
+              {/each}
+            </div>
+            <div class="field-feedback">
+              <div class="inline-error" class:visible={!!passwordError}>
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                  <circle cx="6" cy="6" r="5.5" fill="#c0392b" />
+                  <path
+                    d="M6 3.5v3M6 8v.5"
+                    stroke="white"
+                    stroke-width="1.2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span>{passwordError}</span>
+              </div>
+            </div>
+            <div
+              class="btn-wrap"
+              onclick={suppressTooltip}
+              onkeydown={handleTooltipKeydown}
+              onmouseleave={resetTooltip}
+              role="button"
+              tabindex="0"
+            >
+              {#if !passwordValid && !tooltipSuppressed}
+                <div class="btn-tooltip">{passwordTooltip}</div>
+              {/if}
+              <button
+                type="submit"
+                class="btn-save"
+                disabled={!passwordValid || isSubmitting}>Update</button
+              >
+            </div>
+          </form>
+        </div>
+      {/if}
+    </div>
+  </div>
 </div>
 
-{#if userNameToggle}
-  <div class="form_container">
-    <form onsubmit={handleChangeUsername} class="form">
-      <div class="control">
-        <label for="newUsername">User name</label>
-        <input
-          type="text"
-          id="newUsername"
-          bind:value={newUsername}
-          placeholder="New username"
-        />
-      </div>
-      <button type="submit" disabled={isSubmitting} class="btn-contained"
-        >Change User Name</button
-      >
-    </form>
-  </div>
-{/if}
-
-{#if passwordToggle}
-  <div class="form_container">
-    <form onsubmit={handleChangePassword} class="form">
-      <h3>Change Password</h3>
-      <div class="control">
-        <label for="oldPassword">Current Password</label>
-        <input type="password" id="oldPassword" bind:value={oldPassword} />
-      </div>
-      <div class="control">
-        <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" bind:value={newPassword} />
-      </div>
-      <button type="submit" disabled={isSubmitting} class="btn-contained"
-        >Update Password</button
-      >
-    </form>
-  </div>
-{/if}
-
-{#if error.error_state}
-  <ErrorAlert error_state={error.error_state} message={error.message} />
-{/if}
-
 <style>
-  .form {
-    margin: 1.5rem auto;
+  .pf-outer {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .form button[type="submit"] {
-    margin-top: 1.5rem;
-  }
-
-  .control {
-    margin-bottom: 0.5rem;
-  }
-
-  .control label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #353336;
-    display: block;
-  }
-
-  .control input {
-    display: block;
-    font: inherit;
     width: 100%;
-    border-radius: 4px;
-    border: 1px solid #38015c;
-    padding: 0.25rem;
-    background-color: #f7f0fa;
-  }
-
-  .change_buttons {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
   }
 
-  .change_buttons .btn-contained {
-    padding: 10px 20px;
+  .tab-container {
+    width: 100%;
+    max-width: 340px;
   }
 
-  .form_container {
+  /* ── Tab bar ── */
+  .tabs {
     display: flex;
-    flex-direction: row;
-    align-content: center;
+    background: var(--theme-surface);
+    border-radius: 10px 10px 0 0;
+    border: 1px solid var(--theme-border-green);
+    border-bottom: none;
+    overflow: hidden;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 6px;
+    text-align: center;
+    font-family: var(--theme-font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--theme-text-muted);
+    background: var(--theme-bg);
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .tab.active {
+    color: var(--theme-green);
+    background: var(--theme-surface);
+    border-bottom: 1px solid var(--theme-green);
+  }
+
+  /* ── Tab panel ── */
+  .tab-panel {
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border-green);
+    border-radius: 0 0 10px 10px;
+    padding: 16px;
+    margin-bottom: 30px;
+  }
+  .tab-content {
+    animation: fadeUp 0.18s ease;
+  }
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ── Form ── */
+  .form-field {
+    margin-bottom: 4px;
+  }
+  .form-label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--theme-text-muted);
+    margin-bottom: 5px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--theme-border-input);
+    border-radius: 8px;
+    font-family: var(--theme-font-sans);
+    font-size: 13.5px;
+    background: var(--theme-input-bg);
+    color: var(--theme-text);
+    outline: none;
+    transition:
+      border-color 0.15s,
+      background 0.15s;
+  }
+  .form-input:focus {
+    border-color: var(--theme-green-mid);
+    background: var(--theme-surface);
+    box-shadow: 0 0 0 3px rgba(61, 153, 102, 0.1);
+  }
+  .form-input.input-error {
+    border-color: var(--theme-danger-dark);
+    background: #fff8f8;
+  }
+  .form-input.input-error:focus {
+    border-color: var(--theme-danger-dark);
+  }
+
+  /* ── Fixed-height feedback row ── */
+  .field-feedback {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 0 1px;
+  }
+  .inline-error {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    color: var(--theme-danger-dark);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .inline-error.visible {
+    opacity: 1;
+  }
+  .char-counter {
+    font-size: 10px;
+    color: var(--theme-text-muted);
+    margin-left: auto;
+  }
+  .char-counter.over {
+    color: var(--theme-danger-dark);
+    font-weight: 600;
+  }
+
+  /* ── Strength bar ── */
+  .strength-row {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+  .bar-seg {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--theme-border);
+    transition: background 0.2s;
+  }
+  .bar-seg.weak {
+    background: var(--theme-danger-dark);
+  }
+  .bar-seg.ok {
+    background: #d4a84b;
+  }
+  .bar-seg.good {
+    background: var(--theme-green-mid);
+  }
+
+  /* ── Save button + tooltip ── */
+  .btn-wrap {
+    position: relative;
+  }
+  .btn-tooltip {
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--theme-green);
+    color: white;
+    font-family: var(--theme-font-sans);
+    font-size: 10.5px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+  }
+  .btn-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--theme-green);
+  }
+  @media (hover: hover) {
+    .btn-wrap:hover .btn-tooltip {
+      opacity: 1;
+    }
+  }
+
+  .btn-save {
+    width: 100%;
+    padding: 10px;
+    background: var(--theme-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--theme-font-sans);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-save:hover:not(:disabled) {
+    background: var(--theme-green-dark);
+  }
+  .btn-save:disabled {
+    background: #a0b89a;
+    cursor: not-allowed;
   }
 </style>

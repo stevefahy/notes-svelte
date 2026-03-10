@@ -42,6 +42,7 @@ export interface Notebook {
   notebook_cover: NotebookCoverType | string;
   createdAt?: TDateISO | "No date";
   updatedAt?: TDateISO | "No date";
+  noteCount?: number;
 }
 
 export interface CreateNoteObj {

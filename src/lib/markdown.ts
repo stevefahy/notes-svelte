@@ -14,11 +14,15 @@ import fm from "front-matter";
 import yaml from "js-yaml";
 
 // Gray-matter–compatible API using front-matter (no eval)
-function matter(
-  input: string,
-): { content: string; data: Record<string, unknown> } {
+function matter(input: string): {
+  content: string;
+  data: Record<string, unknown>;
+} {
   const parsed = fm(input);
-  return { content: parsed.body, data: parsed.attributes as Record<string, unknown> };
+  return {
+    content: parsed.body,
+    data: parsed.attributes as Record<string, unknown>,
+  };
 }
 
 matter.stringify = function stringify(
@@ -96,7 +100,7 @@ md.use(markdownItAttrs, {
 md.use(markdownItTaskCheckbox, {
   disabled: false,
   divWrap: true,
-  divClass: "checkbox",
+  divClass: "custom-checkbox",
   idPrefix: "cbx_",
   ulClass: "task-list",
   liClass: "task-list-item",

@@ -1,18 +1,20 @@
-.breadcrumb_link_icon {
-  font-size: var(--size-4) !important;
+.breadcrumb_link {
+  display: flex;
+  color: inherit;
+}
+
+.breadcrumb_link_btn {
   display: flex;
   align-items: center;
-  margin-right: 1px;
-  color: var(--theme-text-muted);
 }
 
-.breadcrumb_link .icon_note {
-  transform: rotate(90deg);
+.breadcrumb_link_btn:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-.breadcrumb_link .icon_notebook {
-  transform: rotate(180deg);
-  transform: scaleY(-1);
+:global(span.breadcrumb_link:not(a .breadcrumb_link)) {
+  color: var(--theme-text);
 }
 
 .breadcrumb_container {
@@ -22,37 +24,30 @@
   display: flex;
   align-items: center;
   padding: 9px 18px;
-  background: var(--theme-bg);
-
+  background: var(--theme-surface);
   justify-content: flex-start;
   z-index: 6;
-}
-
-/* Sec-head style for section pages (Notebooks, Profile) */
-.breadcrumb_container.breadcrumb--section {
-  padding: 18px 18px 12px;
-  min-height: calc(var(--breadcrumb-height) * 1px);
-}
-
-.breadcrumb_container.breadcrumb--notebooks .breadcrumb_group,
-.breadcrumb_container.breadcrumb--section .breadcrumb_group {
-  font-family: var(--theme-font-serif);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--theme-text);
-}
-
-.breadcrumb_container.breadcrumb--notebooks .breadcrumb_icon,
-.breadcrumb_container.breadcrumb--section .breadcrumb_icon {
-  color: var(--theme-text-muted);
+  border-bottom: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-sm);
 }
 
 .breadcrumbs_inner {
-  width: 100%;
   display: flex;
-  color: var(--theme-text-secondary);
   align-items: center;
-  font-size: 12.5px;
+  margin: 0px;
+  font-family: var(--theme-font-lato);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+  color: var(--theme-text-muted);
+}
+
+.breadcrumb_link_icon {
+  font-size: var(--size-4) !important;
+  display: flex;
+  align-items: center;
+  margin-right: 1px;
+  color: var(--theme-text-muted);
 }
 
 .breadcrumb_edit_btn {
@@ -93,12 +88,7 @@
     border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 }
 
-.breadcrumb_link_btn {
-  display: flex;
-  align-items: center;
-}
-
-.breadcrumb_link_btn:hover {
-  text-decoration: underline;
-  cursor: pointer;
+/* Sec-head style for section pages (Notebooks, Profile) */
+.breadcrumb_container.breadcrumb--section {
+  min-height: calc(var(--breadcrumb-height) * 1px);
 }

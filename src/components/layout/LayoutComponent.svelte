@@ -40,6 +40,13 @@
     );
   };
 
+  $effect(() => {
+    const loc = $location;
+    if (loc !== "/login") {
+      setTimeout(setScreenHeight, 0);
+    }
+  });
+
   const dimensionsChange = () => {
     const width = window?.innerWidth ?? 0;
     mobileSizeStore.set(width < AC.MOBILE_LAYOUT_WIDTH ? "small" : "default");
@@ -83,7 +90,7 @@
 
 <style>
   main.login-page {
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
   }

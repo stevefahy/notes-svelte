@@ -172,16 +172,17 @@
       class="view_container {isSplitScreen ? 'editnote_box_split' : ''}"
       id="view_container"
     >
-      <ViewNote
-        {viewText}
-        onEdit={(t) => handleViewTextUpdate(t)}
-        visible={showViewPane}
-        splitScreen={isSplitScreen}
-      />
       <EditNote
         loadedText={viewText}
         onUpdate={(t) => handleViewTextUpdate(t)}
         visible={showEditPane}
+        splitScreen={isSplitScreen}
+      />
+
+      <ViewNote
+        {viewText}
+        onEdit={(t) => handleViewTextUpdate(t)}
+        visible={showViewPane}
         splitScreen={isSplitScreen}
       />
     </div>

@@ -131,7 +131,6 @@ function createAuthStore() {
     try {
       const result = unwrapResponse(await login(email, password));
       if (!result.ok) {
-        showErrorNotification(result.error ?? AC.GENERAL_ERROR);
         return { error: result.error };
       }
       const data = result.data as {
@@ -148,9 +147,8 @@ function createAuthStore() {
       }));
       return data as AuthAuthenticate;
     } catch (err) {
-      showErrorNotification(`${err}`);
+      return { error: `${err}` };
     }
-    return undefined;
   };
 
   const handleSignup = async (
@@ -166,7 +164,6 @@ function createAuthStore() {
       );
       if (!result.ok) {
         const errMsg = result.error ?? AC.GENERAL_ERROR;
-        showErrorNotification(errMsg);
         return { error: errMsg };
       }
       const data = result.data as {
@@ -183,10 +180,8 @@ function createAuthStore() {
       }));
       return data as AuthSignup;
     } catch (err) {
-      showErrorNotification(`${err}`);
       return { error: `${err}` };
     }
-    return { error: AC.GENERAL_ERROR };
   };
 
   const authGuardVerify = (): boolean => {

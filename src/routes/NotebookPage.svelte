@@ -210,10 +210,6 @@
     if (notebookId) await loadNotes(notebookId);
   };
 
-  const editNotebookBtnHandler = () => {
-    editNotebookMode = true;
-  };
-
   const cancelEditNotebook = () => {
     editNotebookMode = false;
     notebookEditStore.update((s) => ({ ...s, editing: false }));
@@ -377,6 +373,7 @@
             stroke-linecap="round"
             stroke-linejoin="round"
             aria-hidden="true"
+            class="media_query_size"
           >
             <path
               d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -394,6 +391,7 @@
             viewBox="0 0 12 12"
             fill="none"
             aria-hidden="true"
+            class="media_query_size"
           >
             <path
               d="M6 1v10M1 6h10"
@@ -407,22 +405,45 @@
       {/if}
       {#if (notes ?? []).length < 1}
         <button class="btn-action-danger" onclick={deleteNotebookHandler}>
-          Delete Notebook
+          <span class="icon_text">
+            <span class="material-symbols-outlined button_icon danger"
+              >delete</span
+            >
+            Delete Notebook
+          </span>
         </button>
       {/if}
       {#if editNotesMode && selectedNotes.length > 0}
         <button class="btn-action-danger" onclick={deleteNotesHandler}>
-          Delete
+          <span class="icon_text">
+            <span
+              class="material-symbols-outlined button_icon danger media_query_size"
+              >delete</span
+            >
+            Delete
+          </span>
         </button>
       {/if}
       {#if editNotesMode && selectedNotes.length > 0 && userNotebooks && userNotebooks.length > 1}
         <button class="btn-action-ghost" onclick={moveNoteFormHandler}>
-          Move to…
+          <span class="icon_text">
+            <span
+              class="material-symbols-outlined button_icon green symbol_size media_query_size"
+              >flip_to_front</span
+            >
+            Move to…
+          </span>
         </button>
       {/if}
       {#if editNotesMode}
         <button class="btn-action-ghost" onclick={cancelEditNotesHandler}>
-          Cancel
+          <span class="icon_text">
+            <span
+              class="material-symbols-outlined button_icon green media_query_size"
+              >cancel</span
+            >
+            Cancel
+          </span>
         </button>
       {/if}
     </div>
