@@ -79,12 +79,36 @@ Open this HTML file in a browser to see the target design (green theme v2). It i
 | Edit mode selection pill | ✅ Done |
 | Button shape consistency (square everywhere) | ✅ Done |
 | NotePage footer (icons, outline Split Screen) | ✅ Done |
-| Footer layout (--footer-height: 70, theme-surface bg) | ✅ Done |
+| Footer layout (--footer-height: 70, theme-surface bg, border-top) | ✅ Done |
+| Header logo (24px Lora, letter-spacing -0.02em) | ✅ Done |
+| Breadcrumb (white surface, Lato 16px, border + shadow) | ✅ Done |
+| Dropdown menu (panel, icon pills, slide animation) | ✅ Done |
+| Snackbar (dark green, slide-up, flips to top on desktop) | ✅ Done |
+| Note count badge on notebook list items | ✅ Done |
+| Action button hover states + responsive padding | ✅ Done |
+| Note card hover (`:has()` selector) | ✅ Done |
+| ProfileForm — two-tab UI (Username/Password), strength bar, tooltip | ✅ Done |
+| UserProfile — gradient avatar, Lora name/email | ✅ Done |
+| Note view/edit panes (--theme-edit-bg, --theme-edit-text) | ✅ Done |
 
 ## Remaining (Svelte)
 
-- **NotePage** — ✅ Done (footer buttons with SVG icons, outline style for Split Screen)
-- **ProfileForm** — `btn-contained` buttons need theme migration
+- **`.btn-contained`** — legacy Vuetify-compat class in `svelte-shared.scss` still uses red (`#b30000`). Not yet migrated to theme green.
+- **Other legacy classes** — any remaining `.v-btn` or legacy button classes in shared CSS.
+
+---
+
+## Porting Notes (Vue / Angular / React / Next.js)
+
+The Vue app has been used as the reference "un-updated" baseline. Key differences from the Svelte reference that prompt docs now address (see Section 15 of THEME-UPDATE-PROMPT.md):
+
+- **CSS variable set is completely different** — legacy apps use `--color-primary: #4d0000` (red), must be fully replaced
+- **`--footer-height` is `55`, `--breadcrumb-height` is `50`** — both must change
+- **Roboto font** — must be removed; DM Sans / Lora / Lato must be added
+- **Vuetify components** need replacing: `v-btn` → native `<button>`, `v-dialog` → bottom sheet, `v-snackbar` → custom snackbar, `v-menu` → custom dropdown
+- **Header** is dark red (`#4d0000`) — must become white surface with green logo
+- **Notebook tab classes** are `.tab_red/blue/green/default` — must become `.tab_forest/emerald/lime/sage`
+- **No `.app-shell` wrapper** in LayoutComponent — must be added with login-page detection
 
 ---
 
@@ -99,6 +123,8 @@ Context:
 - Full implementation spec: .cursor/THEME-UPDATE-PROMPT.md
 - Overview/continuity: .cursor/THEME-UPDATE-OVERVIEW.md
 
-Completed in Svelte: Login, Notebooks list, New Notebook sheet, Notebook View (note list), desktop app-shell (centred 480px column, dark green wings), Move to Notebook dialog, edit mode selection pill, button shape consistency (square), NotePage footer buttons. Remaining: ProfileForm buttons.
+Completed in Svelte: Login, Notebooks list, New Notebook sheet, Notebook View (note list), desktop app-shell (centred 1200px column, dark green wings), Move to Notebook dialog, edit mode selection pill, button shape consistency (square), NotePage footer buttons, header (24px Lora logo), breadcrumb (white, Lato, border), dropdown menu, snackbar, note count badge, action button hover states, note card hover (:has()), ProfileForm (two-tab Username/Password UI with strength bar), UserProfile avatar, view/edit pane styles.
+
+Remaining in Svelte: legacy `.btn-contained` class.
 Use CSS variables for centralised theming. Please read THEME-UPDATE-PROMPT.md and continue from where we left off.
 ```
