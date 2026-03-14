@@ -25,3 +25,5 @@ dist-ssr
 
 # MD Files
 /docs
+
+.cursor/*
