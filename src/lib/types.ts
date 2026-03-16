@@ -164,9 +164,12 @@ export interface ProfileFormProps {
   userName: string | undefined;
 }
 
+export type SnackVariant = "success" | "error" | "warning";
+
 export interface Snack {
   n_status: boolean | null;
   message: string | null;
+  variant?: SnackVariant;
 }
 
 export type DeleteNotes =
@@ -243,8 +246,20 @@ export interface IAuthContext {
 }
 
 export type AuthAuthenticate =
-  | { success?: never; token?: never; details?: never; error: string }
-  | { success: boolean; token: string; details: IAuthDetails; error?: never }
+  | {
+      success?: never;
+      token?: never;
+      details?: never;
+      error: string;
+      fromServer?: boolean;
+    }
+  | {
+      success: boolean;
+      token: string;
+      details: IAuthDetails;
+      error?: never;
+      fromServer?: boolean;
+    }
   | undefined;
 
 export type AuthSignup =

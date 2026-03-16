@@ -2,11 +2,11 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { push } from "svelte-spa-router";
+  import { params as paramsStore } from "svelte-spa-router";
   import { initScrollSync, removeScrollSync } from "@/lib/scroll_sync";
   import { authStore } from "@/stores/auth";
   import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import { notebookEditStore } from "@/stores/notebookEdit";
-  import { snackStore } from "@/stores/snack";
   import {
     createNote,
     getNote,
@@ -15,25 +15,39 @@
     unwrapResponse,
   } from "@/lib/api";
   import APPLICATION_CONSTANTS from "@/lib/constants";
-  import { showErrorNotification } from "@/stores/notification";
+  import { showErrorSnack, showSnack } from "@/stores/snack";
   import type { Note, Notebook } from "@/lib/types";
   import FooterView from "@/components/layout/FooterView.svelte";
   import ViewNote from "@/components/note/ViewNote.svelte";
   import EditNote from "@/components/note/EditNote.svelte";
   import type { NotePageProps } from "@/lib/types";
+  import { link } from "svelte-spa-router";
 
   const AC = APPLICATION_CONSTANTS;
 
-  let { params }: NotePageProps = $props();
+  let { params: routeParams }: NotePageProps = $props();
 
-  const notebookId = $derived(params?.notebookId);
-  const noteId = $derived(params?.noteId);
+  const notebookId = $derived.by(() => {
+    const fromParams = (routeParams ?? $paramsStore)?.notebookId;
+    if (fromParams) return fromParams;
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    const m = /#?\/notebook\/([^/]+)\/([^/]+)/.exec(hash);
+    return m?.[1] ?? null;
+  });
+  const noteId = $derived.by(() => {
+    const fromParams = (routeParams ?? $paramsStore)?.noteId;
+    if (fromParams) return fromParams;
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    const m = /#?\/notebook\/([^/]+)\/([^/]+)/.exec(hash);
+    return m?.[2] ?? null;
+  });
 
   let note = $state<Note | null>(null);
   let notebook = $state<Notebook | null>(null);
   let viewText = $state("");
   let originalText = $state("");
   let noteLoaded = $state(false);
+  let loadError = $state<string | null>(null);
   let isViewMode = $state(true);
   let isSplitScreen = $state(false);
   let isMobile = $state(false);
@@ -44,11 +58,21 @@
 
   const loadNotebook = async () => {
     const token = get(authStore).token;
-    if (!token || !notebookId) return;
+    if (!token || !notebookId) {
+      if (!notebookId) loadError = "Invalid route.";
+      noteLoaded = true;
+      return;
+    }
     const result = unwrapResponse<{ notebook: Notebook }>(
       await getNotebook(token, notebookId),
     );
-    if (result.ok && result.data.notebook) {
+    if (!result.ok) {
+      loadError = result.error ?? "Unknown error";
+      showErrorSnack(loadError, { fromServer: result.fromServer });
+      noteLoaded = true;
+      return;
+    }
+    if (result.data.notebook) {
       const nb = result.data.notebook;
       notebook = nb;
       notebookEditStore.update((s) => ({
@@ -65,12 +89,18 @@
       return;
     }
     const token = get(authStore).token;
-    if (!token || !notebookId || !noteId) return;
+    if (!token || !notebookId || !noteId) {
+      if (!notebookId || !noteId) loadError = "Invalid route.";
+      noteLoaded = true;
+      return;
+    }
     const result = unwrapResponse<{ note: Note }>(
       await getNote(token, notebookId, noteId),
     );
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      loadError = result.error ?? "Unknown error";
+      showErrorSnack(loadError, { fromServer: result.fromServer });
+      noteLoaded = true;
       return;
     }
     if (result.data.note) {
@@ -90,7 +120,9 @@
       await createNote(token, { notebookId, note: noteContent }),
     );
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     push(`/notebook/${notebookId}`);
@@ -103,11 +135,13 @@
       await saveNote(token, notebookId, noteId, noteContent),
     );
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     originalText = noteContent;
-    snackStore.ShowSnack({ n_status: true, message: "Note Saved" });
+    showSnack({ message: "Note Saved" });
   };
 
   const handleViewTextUpdate = (text: string) => {
@@ -156,6 +190,7 @@
     (async () => {
       await authStore.getAuth();
       await loadNotebook();
+      if (loadError) return;
       await loadNote();
       // View mode for existing notes, Edit mode for create-note (matching Vue)
       isViewMode = noteId === "create-note";
@@ -166,6 +201,18 @@
 
 {#if !noteLoaded}
   <div class="loading_routes">Loading...</div>
+{:else if loadError}
+  <div class="page_scrollable_header_breadcrumb_footer">
+    <div class="loading_routes error-state">
+      <p>Unable to load content.</p>
+      <a href="/notebooks" use:link class="back-link">Back to Notebooks</a>
+    </div>
+  </div>
+  <FooterView>
+    <button class="btn-action-ghost" onclick={() => push("/notebooks")}>
+      Back to Notebooks
+    </button>
+  </FooterView>
 {:else}
   <div class="page_scrollable_header_breadcrumb_footer">
     <div

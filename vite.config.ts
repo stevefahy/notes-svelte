@@ -39,6 +39,7 @@ export default defineConfig({
         target: "http://localhost:5000",
         changeOrigin: true,
         secure: false,
+        proxyTimeout: 60000, // wait for server (e.g. MongoDB timeout ~5s dev, ~15s prod)
       },
     },
   },

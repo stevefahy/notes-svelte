@@ -2,13 +2,15 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
-  import { showErrorNotification } from "@/stores/notification";
+  import { showErrorSnack } from "@/stores/snack";
   import { getNotebooks, unwrapResponse } from "@/lib/api";
   import type { GetNotebooks, Notebook } from "@/lib/types";
   import LoadingScreen from "@/components/UI/LoadingScreen.svelte";
   import NotebooksList from "@/components/notebooks/NotebooksList.svelte";
+  import { link } from "svelte-spa-router";
 
   let notebooksLoaded = $state(false);
+  let loadError = $state<string | null>(null);
   let userNotebooks = $state<GetNotebooks>({ success: false, notebooks: [] });
 
   const filterNotebooks = (notebooks: Notebook[]) => {
@@ -35,7 +37,9 @@
         await getNotebooks(token),
       );
       if (!result.ok) {
-        showErrorNotification(result.error ?? "Unknown error");
+        loadError = result.error ?? "Unknown error";
+        showErrorSnack(loadError, { fromServer: result.fromServer });
+        notebooksLoaded = true;
         return;
       }
       if (result.data.notebooks) {
@@ -46,7 +50,9 @@
         notebooksLoaded = true;
       }
     } catch (err) {
-      showErrorNotification(String(err));
+      loadError = err instanceof Error ? err.message : String(err);
+      showErrorSnack(loadError);
+      notebooksLoaded = true;
     }
   };
 
@@ -56,8 +62,15 @@
   });
 </script>
 
-{#if !notebooksLoaded}
+{#if !notebooksLoaded && !loadError}
   <LoadingScreen />
+{:else if loadError}
+  <div class="page_scrollable_header_breadcrumb_footer_list">
+    <div class="loading_routes error-state">
+      <p>Unable to load notebooks.</p>
+      <a href="/notebooks" use:link class="back-link">Back to Notebooks</a>
+    </div>
+  </div>
 {:else}
   <div class="page_scrollable_header_breadcrumb_footer_list">
     <NotebooksList

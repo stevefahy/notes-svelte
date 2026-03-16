@@ -2,7 +2,8 @@
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
   import { changeUsername, changePassword, unwrapResponse } from "@/lib/api";
-  import { snackStore } from "@/stores/snack";
+  import { showSnack } from "@/stores/snack";
+  import { toUserFriendlyError } from "@/lib/errorMessageMap";
   import APPLICATION_CONSTANTS from "@/lib/constants";
   import type { ProfileFormProps, IAuthDetails } from "@/lib/types";
 
@@ -111,11 +112,14 @@
     );
     isSubmitting = false;
     if (!result.ok) {
-      usernameServerError = result.error ?? AC.GENERAL_ERROR;
+      usernameServerError =
+        result.fromServer === true
+          ? (result.error ?? AC.GENERAL_ERROR)
+          : toUserFriendlyError(result.error ?? AC.GENERAL_ERROR);
     } else if (result.data.details) {
       usernameServerError = "";
       authStore.update((ctx) => ({ ...ctx, details: result.data.details }));
-      snackStore.ShowSnack({ n_status: true, message: "User name changed!" });
+      showSnack({ message: "User name changed!" });
       newUsername = "";
     }
   };
@@ -130,10 +134,13 @@
     );
     isSubmitting = false;
     if (!result.ok) {
-      passwordServerError = result.error ?? AC.GENERAL_ERROR;
+      passwordServerError =
+        result.fromServer === true
+          ? (result.error ?? AC.GENERAL_ERROR)
+          : toUserFriendlyError(result.error ?? AC.GENERAL_ERROR);
     } else {
       passwordServerError = "";
-      snackStore.ShowSnack({ n_status: true, message: "Password updated" });
+      showSnack({ message: "Password updated" });
       oldPassword = "";
       newPassword = "";
     }
@@ -447,19 +454,22 @@
     border-color: var(--theme-danger-dark);
   }
 
-  /* ── Fixed-height feedback row ── */
+  /* ── Feedback row (grows when error wraps) ── */
   .field-feedback {
-    height: 20px;
+    min-height: 20px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 8px;
     margin-bottom: 8px;
     padding: 0 1px;
   }
   .inline-error {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 4px;
+    flex: 1;
+    min-width: 0;
     font-size: 10.5px;
     color: var(--theme-danger-dark);
     opacity: 0;
@@ -468,10 +478,15 @@
   .inline-error.visible {
     opacity: 1;
   }
+  .inline-error span {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    text-align: left;
+  }
   .char-counter {
     font-size: 10px;
     color: var(--theme-text-muted);
-    margin-left: auto;
+    flex-shrink: 0;
   }
   .char-counter.over {
     color: var(--theme-danger-dark);

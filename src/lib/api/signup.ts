@@ -20,7 +20,7 @@ export const signup = async (
       body: JSON.stringify({ username, email, password, framework }),
     });
   } catch (err: unknown) {
-    return { error: errString(err) };
+    return { error: errString(err), fromServer: false };
   }
   let data: AuthSignup;
   try {
@@ -30,6 +30,7 @@ export const signup = async (
       error: response.ok
         ? AC.SIGNUP_ERROR
         : `Server error (${response.status}). Check that the backend is running on port 5000 and the database is connected.`,
+      fromServer: false,
     };
   }
   if (data === null || data === undefined) {
@@ -37,15 +38,18 @@ export const signup = async (
       error: response.ok
         ? AC.SIGNUP_ERROR
         : `Server error (${response.status}). Check that the backend is running on port 5000 and the database is connected.`,
+      fromServer: false,
     };
   }
-  if (data && "error" in data && data.error) return { error: data.error };
+  if (data && "error" in data && data.error)
+    return { error: typeof data.error === "string" ? data.error : String(data.error), fromServer: true };
   if (!response.ok) {
     return {
       error:
         data && typeof data === "object" && "error" in data && data.error
           ? String(data.error)
           : `Server error (${response.status}). Check that the backend is running on port 5000 and the database is connected.`,
+      fromServer: false,
     };
   }
   return data;

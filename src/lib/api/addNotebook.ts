@@ -28,17 +28,18 @@ export const addNotebook = async (
         body: JSON.stringify(notebook),
       },
     );
-    if (response.status === 404) throw new Error(`${response.url} Not Found.`);
+    if (response.status === 404) throw new Error(`404 Not Found: ${response.url}`);
   } catch (err: unknown) {
-    return { error: errString(err) };
+    return { error: errString(err), fromServer: false };
   }
   let data: GetNotebook;
   try {
     data = await response.json();
-    if (data === null) return { error: `${AC.NOTEBOOK_CREATE_ERROR}` };
+    if (data === null) return { error: `${AC.NOTEBOOK_CREATE_ERROR}`, fromServer: false };
   } catch (err: unknown) {
-    return { error: errString(err) };
+    return { error: errString(err), fromServer: false };
   }
-  if (data && "error" in data && data.error) return { error: data.error };
+  if (data && "error" in data && data.error)
+    return { error: typeof data.error === "string" ? data.error : String(data.error), fromServer: true };
   return data;
 };

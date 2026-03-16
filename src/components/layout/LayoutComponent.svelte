@@ -2,32 +2,13 @@
   let { children } = $props();
   import { location } from "svelte-spa-router";
   import MainNavigation from "./MainNavigation.svelte";
-  import NotificationView from "../UI/NotificationView.svelte";
   import SnackBar from "../UI/SnackBar.svelte";
-  import { notificationStore } from "@/stores/notification";
   import { mobileSizeStore } from "@/stores/mobileSize";
   import APPLICATION_CONSTANTS from "@/lib/constants";
   import { onMount, onDestroy } from "svelte";
-  import type { NotificationInterface } from "@/lib/types";
 
   const AC = APPLICATION_CONSTANTS;
   const isLoginPage = $derived($location === "/login");
-
-  let notificationStatus = $state<"pending" | "success" | "error" | null>(null);
-  let notificationData = $state<NotificationInterface | null>(null);
-
-  $effect(() => {
-    const state = $notificationStore;
-    const n_status = state.notification.n_status;
-    if (n_status) {
-      notificationStatus = n_status;
-      notificationData = state.notification;
-      const id = setTimeout(() => {
-        notificationStatus = null;
-      }, 5000);
-      return () => clearTimeout(id);
-    }
-  });
 
   const setScreenHeight = () => {
     const jsvh = window?.innerHeight;
@@ -76,15 +57,6 @@
   <main class:login-page={isLoginPage}>
     {@render children?.()}
   </main>
-  {#if notificationStatus}
-    <div class="notification-wrapper">
-      <NotificationView
-        n_status={notificationStatus}
-        title={notificationData?.title ?? ""}
-        message={notificationData?.message ?? ""}
-      />
-    </div>
-  {/if}
   <SnackBar />
 </div>
 

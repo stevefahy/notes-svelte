@@ -2,7 +2,7 @@
   import { get } from "svelte/store";
   import { params as paramsStore } from "svelte-spa-router";
   import { authStore } from "@/stores/auth";
-  import { showErrorNotification } from "@/stores/notification";
+  import { showErrorSnack } from "@/stores/snack";
   import { notebookEditStore } from "@/stores/notebookEdit";
   import { editNotesStore } from "@/stores/editNotes";
   import {
@@ -20,7 +20,7 @@
   import AddNotebookForm from "@/components/notebooks/AddNotebookForm.svelte";
   import SelectNotebookForm from "@/components/notebooks/SelectNotebookForm.svelte";
   import NoteList from "@/components/note/NoteList.svelte";
-  import { onDestroy } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { push, link, location } from "svelte-spa-router";
 
   interface Props {
@@ -89,7 +89,9 @@
         await getNotebook(token, nid),
       );
       if (!result.ok) {
-        showErrorNotification(result.error ?? "Unknown error");
+        showErrorSnack(result.error ?? "Unknown error", {
+          fromServer: result.fromServer,
+        });
         loadError = result.error ?? null;
         notebookLoaded = true;
         return;
@@ -104,7 +106,7 @@
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showErrorNotification(loadError);
+      showErrorSnack(loadError);
     } finally {
       notebookLoaded = true;
     }
@@ -121,7 +123,9 @@
         await getNotes(token, nid),
       );
       if (!result.ok) {
-        showErrorNotification(result.error ?? "Unknown error");
+        showErrorSnack(result.error ?? "Unknown error", {
+          fromServer: result.fromServer,
+        });
         loadError = result.error ?? null;
       } else if (result.data.notes) {
         const notesList = Array.isArray(result.data.notes)
@@ -133,7 +137,7 @@
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showErrorNotification(loadError);
+      showErrorSnack(loadError);
     } finally {
       notesLoaded = true;
     }
@@ -147,7 +151,9 @@
         await getNotebooks(token),
       );
       if (!result.ok) {
-        showErrorNotification(result.error ?? "Unknown error");
+        showErrorSnack(result.error ?? "Unknown error", {
+          fromServer: result.fromServer,
+        });
         return;
       }
       if (result.data.notebooks) {
@@ -158,7 +164,7 @@
         userNotebooks = [];
       }
     } catch (err) {
-      showErrorNotification(err instanceof Error ? err.message : String(err));
+      showErrorSnack(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -167,12 +173,15 @@
   };
 
   const deleteNotebookHandler = async () => {
-    if (!confirm("Delete this notebook?")) return;
+    if (!navigator.onLine) {
+      showErrorSnack("Connection failed. Please check your network.");
+      return;
+    }
     const token = get(authStore).token;
     if (!token || !notebookId) return;
     const result = unwrapResponse(await deleteNotebook(token, notebookId));
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error");
       return;
     }
     push("/notebooks");
@@ -203,7 +212,9 @@
     if (!token) return;
     const result = unwrapResponse(await deleteNotes(token, selectedNotes));
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     cancelEditNotesHandler();
@@ -229,7 +240,7 @@
       ),
     );
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error");
       return;
     }
     if (result.data.notebook_edited) {
@@ -265,7 +276,9 @@
       ),
     );
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     if (result.ok) {
@@ -277,6 +290,7 @@
 
   onDestroy(() => {
     editNotesStore.set({ active: false, selectedCount: 0 });
+    notebookEditStore.update((s) => ({ ...s, editing: false }));
   });
 
   $effect(() => {
@@ -285,41 +299,62 @@
     }
   });
 
-  $effect(() => {
-    const nid = notebookId;
-    if (!nid) return;
+  const loadNotebookPage = async (nid: string) => {
     notesLoaded = false;
     notebookLoaded = false;
     loadError = null;
-    let cancelled = false;
-    const run = async () => {
-      try {
-        await authStore.getAuth();
-        if (cancelled) return;
-        // Run both in parallel; each sets its own flag when done (with try/catch)
-        await Promise.all([loadNotebook(nid), loadNotes(nid), loadNotebooks()]);
-      } catch (err) {
-        if (!cancelled) {
-          loadError = err instanceof Error ? err.message : String(err);
-          showErrorNotification(loadError);
-          notesLoaded = true;
-          notebookLoaded = true;
-        }
+    const timeoutId = setTimeout(() => {
+      if (!notebookLoaded || !notesLoaded) {
+        loadError = "Connection timed out. Please check your network.";
+        showErrorSnack(loadError);
+        notebookLoaded = true;
+        notesLoaded = true;
       }
-    };
-    run();
-    return () => {
-      cancelled = true;
-    };
+    }, 8000);
+    try {
+      await authStore.getAuth();
+      await Promise.all([loadNotebook(nid), loadNotes(nid), loadNotebooks()]);
+    } catch (err) {
+      loadError = err instanceof Error ? err.message : String(err);
+      showErrorSnack(loadError);
+      notesLoaded = true;
+      notebookLoaded = true;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  onMount(() => {
+    const fromParams = routeParams ?? get(paramsStore);
+    let nid: string | null | undefined = fromParams?.notebookId;
+    if (!nid) {
+      const loc = get(location);
+      if (loc) {
+        const m = /\/notebook\/([^/]+)/.exec(loc);
+        nid = m?.[1] ?? null;
+      }
+    }
+    if (!nid) {
+      const hash = window.location.hash || "";
+      const m = /#?\/notebook\/([^/]+)/.exec(hash);
+      nid = m?.[1] ?? null;
+    }
+    if (!nid) {
+      loadError = "Unable to load content.";
+      notebookLoaded = true;
+      notesLoaded = true;
+      return;
+    }
+    loadNotebookPage(nid);
   });
 </script>
 
 {#if !notebookLoaded || !notesLoaded}
   <div class="loading_routes">Loading...</div>
-{:else if loadError}
+{:else if loadError || (!notebook && notes === null)}
   <div class="page_scrollable_header_breadcrumb_footer_list">
     <div class="loading_routes error-state">
-      <p>{loadError}</p>
+      <p>Unable to load content.</p>
       <a href="/notebooks" use:link class="back-link">Back to Notebooks</a>
     </div>
   </div>

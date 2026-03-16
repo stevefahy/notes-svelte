@@ -4,11 +4,24 @@ import type { RoutePrecondition } from "svelte-spa-router";
 import { authStore } from "@/stores/auth";
 import APPLICATION_CONSTANTS from "@/lib/constants";
 import type { ComponentType } from "svelte";
+import RouteLoadError from "@/routes/RouteLoadError.svelte";
 
 const AC = APPLICATION_CONSTANTS;
 
 function asyncRoute<T>(importFn: () => Promise<{ default: T }>) {
   return importFn as () => Promise<{ default: ComponentType }>;
+}
+
+function asyncRouteWithFallback<T>(
+  importFn: () => Promise<{ default: T }>,
+): () => Promise<{ default: ComponentType }> {
+  return async () => {
+    try {
+      return (await importFn()) as { default: ComponentType };
+    } catch {
+      return { default: RouteLoadError as unknown as ComponentType };
+    }
+  };
 }
 
 const authGuard: RoutePrecondition = (detail) => {
@@ -23,58 +36,43 @@ const authGuard: RoutePrecondition = (detail) => {
 
 export const routes = {
   "/": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/Redirect.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/Redirect.svelte"),
+    ),
     conditions: [authGuard],
   }),
   "/login": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/LoginPage.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/LoginPage.svelte"),
+    ),
   }),
   "/profile": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/ProfilePage.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/ProfilePage.svelte"),
+    ),
     conditions: [authGuard],
   }),
   "/notebooks": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/NotebooksPage.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/NotebooksPage.svelte"),
+    ),
     conditions: [authGuard],
   }),
   "/notebook/:notebookId": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/NotebookPage.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/NotebookPage.svelte"),
+    ),
     conditions: [authGuard],
   }),
   "/notebook/:notebookId/:noteId": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/NotePage.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/NotePage.svelte"),
+    ),
     conditions: [authGuard],
   }),
   "*": wrap({
-    asyncComponent: asyncRoute(() => import("@/routes/NotFoundPage.svelte")),
+    asyncComponent: asyncRouteWithFallback(
+      () => import("@/routes/NotFoundPage.svelte"),
+    ),
   }),
 };
-
-// export const routes = {
-//   "/": wrap({
-//     asyncComponent: () => import("@/routes/Redirect.svelte"),
-//     conditions: [authGuard],
-//   }),
-//   "/login": wrap({
-//     asyncComponent: () => import("@/routes/LoginPage.svelte"),
-//   }),
-//   "/profile": wrap({
-//     asyncComponent: () => import("@/routes/ProfilePage.svelte"),
-//     conditions: [authGuard],
-//   }),
-//   "/notebooks": wrap({
-//     asyncComponent: () => import("@/routes/NotebooksPage.svelte"),
-//     conditions: [authGuard],
-//   }),
-//   "/notebook/:notebookId": wrap({
-//     component: NotebookPage,
-//     conditions: [authGuard],
-//   }),
-//   "/notebook/:notebookId/:noteId": wrap({
-//     asyncComponent: () => import("@/routes/NotePage.svelte"),
-//     conditions: [authGuard],
-//   }),
-//   "*": wrap({
-//     asyncComponent: () => import("@/routes/NotFoundPage.svelte"),
-//   }),
-// };

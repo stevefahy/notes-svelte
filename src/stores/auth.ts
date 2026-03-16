@@ -8,7 +8,7 @@ import type {
 } from "@/lib/types";
 import { login, signup, logout, refreshtoken, unwrapResponse } from "@/lib/api";
 import APPLICATION_CONSTANTS from "@/lib/constants";
-import { showErrorNotification } from "./notification";
+import { showErrorSnack } from "./snack";
 
 const AC = APPLICATION_CONSTANTS;
 
@@ -96,13 +96,15 @@ function createAuthStore() {
       try {
         const result = unwrapResponse(await logout(token));
         if (!result.ok) {
-          showErrorNotification(result.error ?? AC.GENERAL_ERROR);
+          showErrorSnack(result.error ?? AC.GENERAL_ERROR, {
+            fromServer: result.fromServer,
+          });
           return;
         }
         resetAuthContext();
         replace(AC.LOGIN_PAGE);
       } catch (err) {
-        showErrorNotification(`${err}`);
+        showErrorSnack(`${err}`);
       }
     }
   };
@@ -164,7 +166,7 @@ function createAuthStore() {
       );
       if (!result.ok) {
         const errMsg = result.error ?? AC.GENERAL_ERROR;
-        return { error: errMsg };
+        return { error: errMsg, fromServer: result.fromServer };
       }
       const data = result.data as {
         success: boolean;

@@ -603,8 +603,11 @@ ul p {
 }
 
 .back-link {
-  color: var(---theme-text-secondary);
-  text-decoration: underline;
+  color: var(--theme-text-secondary);
+  text-decoration: none;
+}
+.back-link:hover {
+  text-decoration: underline !important;
 }
 
 .main-navigation_header_container {
@@ -859,14 +862,6 @@ li code:not(pre code) {
   /* Manually rounding the corner so the hover background/shadow matches the menu */
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
-}
-
-.notification-wrapper {
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
 }
 
 .form button.btn-contained {

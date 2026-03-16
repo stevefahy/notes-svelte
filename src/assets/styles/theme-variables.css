@@ -32,6 +32,14 @@
   --theme-ghost-hover: #fbfbfb;
   --theme-green-snackbar: #2d4a2d;
 
+  /* Snackbar variants */
+  --theme-snackbar-error-bg: #2c1a1a;
+  --theme-snackbar-error-text: #f5c1c1;
+  --theme-snackbar-error-dot: #e87070;
+  --theme-snackbar-warning-bg: #2c2310;
+  --theme-snackbar-warning-text: #fad9a0;
+  --theme-snackbar-warning-dot: #f0a030;
+
   /* Text */
   --theme-text: #111c16;
   --theme-text-secondary: #3d5a47;

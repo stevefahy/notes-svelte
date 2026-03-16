@@ -67,6 +67,7 @@
   const isConfirmDisabled = $derived(!formChanged);
 
   let error = $state({ error_state: false, message: "" });
+  let isSubmitting = $state(false);
 
   const cancelHandler = (e: Event) => {
     e.preventDefault();
@@ -78,7 +79,7 @@
   const submitHandler = async (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isConfirmDisabled) return;
+    if (isConfirmDisabled || isSubmitting) return;
     error = { error_state: false, message: "" };
 
     if (!selectedName || selectedName.length < AC.NOTEBOOK_NAME_MIN) {
@@ -90,7 +91,12 @@
       return;
     }
     const cover = selectedCover || "forest";
-    await onAddNotebook?.(selectedName, cover);
+    isSubmitting = true;
+    try {
+      await onAddNotebook?.(selectedName, cover);
+    } finally {
+      isSubmitting = false;
+    }
   };
 
   function focusNameInput(node: HTMLElement) {
@@ -140,6 +146,8 @@
           id="new-notebook"
           placeholder="e.g. Personal, Work…"
           bind:value={selectedName}
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
         />
       </div>
 
@@ -151,6 +159,7 @@
               type="button"
               class="swatch swatch-{cover.value}"
               class:selected={selectedCover === cover.value}
+              disabled={isSubmitting}
               onclick={() => (selectedCover = cover.value)}
               aria-label="{cover.label} cover"
               aria-pressed={selectedCover === cover.value}
@@ -178,13 +187,17 @@
       <button
         type="button"
         class="btn-create"
-        disabled={isConfirmDisabled}
+        disabled={isConfirmDisabled || isSubmitting}
         onclick={(e) => submitHandler(e)}
         aria-label={method === "edit"
           ? "Confirm edit button"
           : "Create notebook button"}
       >
-        {method === "edit" ? "Confirm" : "Create"}
+        {#if isSubmitting}
+          {method === "edit" ? "Saving…" : "Creating…"}
+        {:else}
+          {method === "edit" ? "Confirm" : "Create"}
+        {/if}
       </button>
     </div>
   </div>
@@ -272,6 +285,11 @@
     box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.12);
   }
 
+  .form-input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
   .swatch-row {
     display: flex;
     gap: 10px;
@@ -306,6 +324,11 @@
     box-shadow:
       0 0 0 2.5px white,
       0 0 0 4.5px var(--theme-green);
+  }
+
+  .swatch:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .sheet-actions {

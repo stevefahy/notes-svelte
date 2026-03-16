@@ -1,7 +1,7 @@
 <script lang="ts">
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
-  import { showErrorNotification } from "@/stores/notification";
+  import { showErrorSnack } from "@/stores/snack";
   import { addNotebook, unwrapResponse } from "@/lib/api";
   import type { Notebook } from "@/lib/types";
   import NotebookListItem from "./NotebookListItem.svelte";
@@ -29,7 +29,9 @@
       await addNotebook(token, notebook_name, notebook_cover),
     );
     if (!result.ok) {
-      showErrorNotification(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     enableAddNotebook = false;

@@ -4,6 +4,7 @@
   import { authStore } from "@/stores/auth";
   import APPLICATION_CONSTANTS from "@/lib/constants";
   import { querystring } from "svelte-spa-router";
+  import { toUserFriendlyError } from "@/lib/errorMessageMap";
 
   const AC = APPLICATION_CONSTANTS;
 
@@ -79,11 +80,14 @@
         if (result && !("error" in result)) {
           push(getRedirectPath());
         } else if (result && "error" in result) {
-          formError = result.error ?? AC.GENERAL_ERROR;
+          formError =
+            result.fromServer === true
+              ? (result.error ?? AC.GENERAL_ERROR)
+              : toUserFriendlyError(result.error ?? AC.GENERAL_ERROR);
         }
       } catch {
         isSubmitting = false;
-        formError = AC.GENERAL_ERROR;
+        formError = toUserFriendlyError(AC.GENERAL_ERROR);
       }
     } else {
       if (!validateForm(["username", "email", "password"])) {
@@ -95,7 +99,10 @@
         isSubmitting = false;
         if (!result) return;
         if ("error" in result) {
-          formError = result.error ?? AC.GENERAL_ERROR;
+          formError =
+            result.fromServer === true
+              ? (result.error ?? AC.GENERAL_ERROR)
+              : toUserFriendlyError(result.error ?? AC.GENERAL_ERROR);
           return;
         }
         if (
@@ -110,7 +117,7 @@
         }
       } catch {
         isSubmitting = false;
-        formError = AC.GENERAL_ERROR;
+        formError = toUserFriendlyError(AC.GENERAL_ERROR);
       }
     }
   };

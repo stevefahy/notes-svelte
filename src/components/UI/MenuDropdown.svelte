@@ -38,7 +38,7 @@
 <div class="nav_menu">
   <div class="dropdown">
     <button
-      class="icon more_vert"
+      class="icon profile-trigger"
       class:is-active={open}
       onclick={toggleMenu}
       onkeydown={(e) => e.key === "Escape" && (open = false)}
@@ -52,7 +52,7 @@
         {/key}
       {/if}
 
-      <span class="material-symbols-outlined">more_vert</span>
+      <span class="material-icons-outlined menu_item">person</span>
     </button>
 
     {#if open}
@@ -102,6 +102,9 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--theme-border);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
 
   .nav_menu {
