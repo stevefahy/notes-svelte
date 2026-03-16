@@ -47,17 +47,28 @@ function createAuthStore() {
     }
   };
 
+  let refreshInProgress: Promise<AuthAuthenticate | undefined> | null = null;
+
   const getRefreshToken = async (): Promise<AuthAuthenticate> => {
+    if (refreshInProgress) return refreshInProgress;
+    const promise = (async () => {
+      try {
+        const response = await refreshtoken();
+        if (!response) return undefined;
+        if (response && "error" in response) return response;
+        if (response && "success" in response && response.success)
+          return response;
+      } catch {
+        // silent
+      }
+      return undefined;
+    })();
+    refreshInProgress = promise;
     try {
-      const response = await refreshtoken();
-      if (!response) return undefined;
-      if (response && "error" in response) return response;
-      if (response && "success" in response && response.success)
-        return response;
-    } catch {
-      // silent
+      return await promise;
+    } finally {
+      refreshInProgress = null;
     }
-    return undefined;
   };
 
   const verifyRefreshToken = async () => {
@@ -84,6 +95,31 @@ function createAuthStore() {
       resetAuthContext();
       autoLogout();
     }
+  };
+
+  const verifyRefreshTokenWithRetry = async (retries = 3) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await getRefreshToken();
+        if (response && "success" in response && response.success) {
+          update((ctx) => ({
+            ...ctx,
+            success: response.success,
+            details: response.details,
+            token: response.token,
+            loading: false,
+          }));
+          return;
+        }
+      } catch {
+        /* retry on next iteration */
+      }
+      if (i < retries - 1) {
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+    resetAuthContext();
+    autoLogout();
   };
 
   const autoLogout = () => {
@@ -193,11 +229,12 @@ function createAuthStore() {
 
   const getAuth = async () => {
     const ctx = get({ subscribe });
-    if (!ctx.token) await verifyRefreshToken();
+    if (!ctx.token) await verifyRefreshTokenWithRetry();
   };
 
   const autoRefreshToken = () => {
     interval = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
       const ctx = get({ subscribe });
       if (!ctx.success) autoLogout();
       else verifyRefreshToken();
@@ -217,7 +254,7 @@ function createAuthStore() {
   if (typeof document !== "undefined") {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
-        verifyRefreshToken();
+        setTimeout(() => verifyRefreshTokenWithRetry(), 500);
       }
     });
   }
@@ -229,6 +266,7 @@ function createAuthStore() {
     authGuardVerify,
     getAuth,
     verifyRefreshToken,
+    verifyRefreshTokenWithRetry,
   };
 }
 

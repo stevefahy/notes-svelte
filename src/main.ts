@@ -4,7 +4,7 @@ import App from "@/App.svelte";
 import { authStore } from "@/stores/auth";
 
 async function init() {
-  await authStore.verifyRefreshToken();
+  await authStore.verifyRefreshTokenWithRetry();
   mount(App, {
     target: document.getElementById("app")!,
   });
