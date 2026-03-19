@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { push } from "svelte-spa-router";
+  import { push } from "@/lib/router";
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
   import APPLICATION_CONSTANTS from "@/lib/constants";
@@ -7,6 +7,7 @@
   import { toUserFriendlyError } from "@/lib/errorMessageMap";
 
   const AC = APPLICATION_CONSTANTS;
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   let isLogin = $state(true);
   let isSubmitting = $state(false);
@@ -15,6 +16,7 @@
   let password = $state("");
   let fieldErrors = $state({ username: "", email: "", password: "" });
   let formError = $state("");
+  let tooltipSuppressed = $state(false);
 
   const getRedirectPath = () => {
     const qs = $querystring || "";
@@ -31,32 +33,95 @@
     password = "";
   };
 
-  const validateForm = (validate: string[]) => {
+  // Create Account validation (real-time)
+  const usernameError = $derived.by((): string => {
+    const t = username.trim();
+    const len = t.length;
+    if (len === 0) return "";
+    if (len < AC.USERNAME_MIN) return AC.SIGNUP_INVALID_USERNAME;
+    if (username.length > AC.USERNAME_MAX)
+      return `Too long — max ${AC.USERNAME_MAX} characters`;
+    return "";
+  });
+
+  const emailError = $derived.by((): string => {
+    const t = email.trim();
+    if (t.length === 0) return "";
+    if (!EMAIL_REGEX.test(t)) return AC.EMAIL_INVALID;
+    return "";
+  });
+
+  const passwordError = $derived.by((): string => {
+    if (!password) return "";
+    if (password.length < AC.PASSWORD_MIN) return AC.SIGNUP_INVALID_PASSWORD;
+    if (password.length > AC.PASSWORD_MAX)
+      return `Max ${AC.PASSWORD_MAX} characters`;
+    return "";
+  });
+
+  const usernameValid = $derived(
+    username.trim().length >= AC.USERNAME_MIN &&
+      username.length <= AC.USERNAME_MAX,
+  );
+  const emailValid = $derived(
+    email.trim().length > 0 && EMAIL_REGEX.test(email.trim()),
+  );
+  const passwordValid = $derived(
+    password.length >= AC.PASSWORD_MIN && password.length <= AC.PASSWORD_MAX,
+  );
+  const signupFormValid = $derived(
+    usernameValid && emailValid && passwordValid,
+  );
+
+  const strengthScore = $derived.by((): number => {
+    let s = 0;
+    if (password.length >= AC.PASSWORD_MIN) s++;
+    if (/[A-Z]/.test(password)) s++;
+    if (/[0-9]/.test(password)) s++;
+    if (/[^A-Za-z0-9]/.test(password)) s++;
+    return s;
+  });
+  const strengthClass = $derived(
+    strengthScore <= 1 ? "weak" : strengthScore <= 2 ? "ok" : "good",
+  );
+
+  const signupTooltip = $derived.by((): string => {
+    if (!username.trim()) return "Enter a username";
+    if (!email.trim()) return AC.EMAIL_INVALID;
+    if (!password) return "Enter a password";
+    if (usernameError) return usernameError;
+    if (emailError) return emailError;
+    if (passwordError) return passwordError;
+    return "";
+  });
+
+  function suppressTooltip() {
+    tooltipSuppressed = true;
+  }
+  function resetTooltip() {
+    tooltipSuppressed = false;
+  }
+  function handleTooltipKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      suppressTooltip();
+    }
+  }
+
+  const validateLoginForm = () => {
     fieldErrors = { username: "", email: "", password: "" };
     formError = "";
     let valid = true;
-
-    if (validate.includes("username")) {
-      if (username && username.length < 2) {
-        fieldErrors.username = AC.SIGNUP_INVALID_USERNAME;
-        valid = false;
-      }
+    if (!email || !EMAIL_REGEX.test(email.trim())) {
+      fieldErrors.email = AC.SIGNUP_INVALID_EMAIL;
+      valid = false;
     }
-    if (validate.includes("email")) {
-      if (!email || !email.includes("@") || !email.includes(".")) {
-        fieldErrors.email = AC.SIGNUP_INVALID_EMAIL;
-        valid = false;
-      }
-    }
-    if (validate.includes("password")) {
-      const len = password.trim().length;
-      if (!password || len < AC.PASSWORD_MIN) {
-        fieldErrors.password = AC.SIGNUP_INVALID_PASSWORD;
-        valid = false;
-      } else if (len > AC.PASSWORD_MAX) {
-        fieldErrors.password = AC.CHANGE_PASS_TOO_MANY;
-        valid = false;
-      }
+    if (!password || password.length < AC.PASSWORD_MIN) {
+      fieldErrors.password = AC.SIGNUP_INVALID_PASSWORD;
+      valid = false;
+    } else if (password.length > AC.PASSWORD_MAX) {
+      fieldErrors.password = AC.CHANGE_PASS_TOO_MANY;
+      valid = false;
     }
     return valid;
   };
@@ -70,7 +135,7 @@
     const onRegister = ctx?.onRegister;
 
     if (isLogin) {
-      if (!validateForm(["email", "password"])) {
+      if (!validateLoginForm()) {
         isSubmitting = false;
         return;
       }
@@ -90,7 +155,7 @@
         formError = toUserFriendlyError(AC.GENERAL_ERROR);
       }
     } else {
-      if (!validateForm(["username", "email", "password"])) {
+      if (!signupFormValid) {
         isSubmitting = false;
         return;
       }
@@ -148,14 +213,14 @@
     <h2 class="login-card-title">{isLogin ? "Sign in" : "Create account"}</h2>
     <form novalidate onsubmit={submitHandler}>
       {#if !isLogin}
-        <label class="form-label" for="username">Your Name</label>
+        <label class="form-label" for="username">Username</label>
         <input
           class="form-input"
-          class:input-error={!!fieldErrors.username}
+          class:input-error={!!usernameError || !!fieldErrors.username}
           type="text"
           id="username"
           required
-          placeholder="Username"
+          placeholder="Enter username"
           autocomplete="username"
           bind:value={username}
           oninput={() => {
@@ -164,30 +229,24 @@
           }}
         />
         <div class="field-feedback">
-          <div class="inline-error" class:visible={!!fieldErrors.username}>
-            <svg
-              width="11"
-              height="11"
-              viewBox="0 0 12 12"
-              fill="none"
-              class="inline-error-icon"
-            >
-              <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
-              <path
-                d="M6 3.5v3M6 8v.5"
-                stroke="white"
-                stroke-width="1.2"
-                stroke-linecap="round"
-              />
-            </svg>
-            {fieldErrors.username}
+          <div
+            class="inline-error"
+            class:visible={!!(usernameError || fieldErrors.username)}
+          >
+            {usernameError || fieldErrors.username}
           </div>
+          <span
+            class="char-counter"
+            class:over={username.length > AC.USERNAME_MAX}
+          >
+            {username.length} / {AC.USERNAME_MAX}
+          </span>
         </div>
       {/if}
       <label class="form-label" for="email">Email address</label>
       <input
         class="form-input"
-        class:input-error={!!fieldErrors.email}
+        class:input-error={!!(fieldErrors.email || (!isLogin && emailError))}
         type="email"
         id="email"
         required
@@ -204,33 +263,21 @@
         }}
       />
       <div class="field-feedback">
-        <div class="inline-error" class:visible={!!fieldErrors.email}>
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 12 12"
-            fill="none"
-            class="inline-error-icon"
-          >
-            <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
-            <path
-              d="M6 3.5v3M6 8v.5"
-              stroke="white"
-              stroke-width="1.2"
-              stroke-linecap="round"
-            />
-          </svg>
-          {fieldErrors.email}
+        <div
+          class="inline-error"
+          class:visible={!!(fieldErrors.email || (!isLogin && emailError))}
+        >
+          {fieldErrors.email || (!isLogin ? emailError : "")}
         </div>
       </div>
       <label class="form-label" for="password">Password</label>
       <input
         class="form-input"
-        class:input-error={!!fieldErrors.password}
+        class:input-error={!!(fieldErrors.password || (!isLogin && passwordError))}
         type="password"
         id="password"
         required
-        placeholder={isLogin ? "Password" : "Password (7-10 characters)"}
+        placeholder={isLogin ? "Password" : `Min. ${AC.PASSWORD_MIN} Characters`}
         autocomplete={isLogin ? "current-password" : "new-password"}
         bind:value={password}
         onchange={() => {
@@ -242,29 +289,51 @@
           formError = "";
         }}
       />
+      {#if !isLogin}
+        <div class="strength-row">
+          {#each [1, 2, 3, 4] as i}
+            <div
+              class="bar-seg"
+              class:weak={i <= strengthScore && strengthClass === "weak"}
+              class:ok={i <= strengthScore && strengthClass === "ok"}
+              class:good={i <= strengthScore && strengthClass === "good"}
+            ></div>
+          {/each}
+        </div>
+      {/if}
       <div class="field-feedback">
-        <div class="inline-error" class:visible={!!fieldErrors.password}>
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 12 12"
-            fill="none"
-            class="inline-error-icon"
-          >
-            <circle cx="6" cy="6" r="5.5" fill="#b91c1c" />
-            <path
-              d="M6 3.5v3M6 8v.5"
-              stroke="white"
-              stroke-width="1.2"
-              stroke-linecap="round"
-            />
-          </svg>
-          {fieldErrors.password}
+        <div
+          class="inline-error"
+          class:visible={!!(fieldErrors.password || (!isLogin && passwordError))}
+        >
+          {fieldErrors.password || (!isLogin ? passwordError : "")}
         </div>
       </div>
-      <button class="btn-login" type="submit" disabled={isSubmitting}>
-        {isLogin ? "Sign in" : "Create Account"}
-      </button>
+      {#if isLogin}
+        <button class="btn-login" type="submit" disabled={isSubmitting}>
+          Sign in
+        </button>
+      {:else}
+        <div
+          class="btn-wrap"
+          onclick={suppressTooltip}
+          onkeydown={handleTooltipKeydown}
+          onmouseleave={resetTooltip}
+          role="button"
+          tabindex="0"
+        >
+          {#if !signupFormValid && !tooltipSuppressed}
+            <div class="btn-tooltip">{signupTooltip}</div>
+          {/if}
+          <button
+            class="btn-login"
+            type="submit"
+            disabled={!signupFormValid || isSubmitting}
+          >
+            Create Account
+          </button>
+        </div>
+      {/if}
       <div class="login-alt">
         {isLogin ? "No account? " : ""}
         <button
@@ -426,12 +495,85 @@
   }
 
   .field-feedback {
+    min-height: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+    margin-top: 2px;
+    padding: 0 1px;
+  }
+
+  .char-counter {
+    font-size: 10px;
+    color: var(--theme-text-secondary);
+    flex-shrink: 0;
+  }
+  .char-counter.over {
+    color: var(--theme-danger-dark);
+    font-weight: 600;
+  }
+
+  .strength-row {
     height: 20px;
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-bottom: 10px;
-    padding: 0 1px;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+  .bar-seg {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--theme-border);
+    transition: background 0.2s;
+  }
+  .bar-seg.weak {
+    background: var(--theme-danger-dark);
+  }
+  .bar-seg.ok {
+    background: #d4a84b;
+  }
+  .bar-seg.good {
+    background: var(--theme-green-mid);
+  }
+
+  .btn-wrap {
+    position: relative;
+  }
+  .btn-tooltip {
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--theme-green);
+    color: white;
+    font-family: var(--theme-font-sans);
+    font-size: 10.5px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+  }
+  .btn-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--theme-green);
+  }
+  @media (hover: hover) {
+    .btn-wrap:hover .btn-tooltip {
+      opacity: 1;
+    }
   }
 
   .inline-error {
@@ -442,10 +584,6 @@
     color: var(--theme-danger-dark);
     opacity: 0;
     transition: opacity 0.15s;
-  }
-
-  .inline-error-icon {
-    margin-top: 1px;
   }
 
   .inline-error.visible {

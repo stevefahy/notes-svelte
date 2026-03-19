@@ -1,7 +1,7 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
   import { authStore } from "@/stores/auth";
-  import { push } from "svelte-spa-router";
+  import { push } from "@/lib/router";
   import APPLICATION_CONSTANTS from "@/lib/constants";
 
   const AC = APPLICATION_CONSTANTS;

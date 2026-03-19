@@ -32,8 +32,7 @@
     border: none;
     cursor: pointer;
 
-    /* Using the theme variable we set up previously */
-    background-color: var(--v-theme-secondary, #b30000);
+    background-color: var(--theme-green, #1b3d29);
     color: white;
     font-family: sans-serif;
     font-weight: 500;

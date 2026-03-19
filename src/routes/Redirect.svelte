@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { replace } from "svelte-spa-router";
+  import { replace } from "@/lib/router";
 
   replace("/notebooks");
 </script>

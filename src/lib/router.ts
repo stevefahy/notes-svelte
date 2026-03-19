@@ -1,12 +1,34 @@
-import { push, replace } from "svelte-spa-router";
+import { push as spaPush, replace as spaReplace } from "svelte-spa-router";
 import { wrap } from "svelte-spa-router/wrap";
 import type { RoutePrecondition } from "svelte-spa-router";
+import { get, writable } from "svelte/store";
 import { authStore } from "@/stores/auth";
 import APPLICATION_CONSTANTS from "@/lib/constants";
 import type { ComponentType } from "svelte";
 import RouteLoadError from "@/routes/RouteLoadError.svelte";
 
 const AC = APPLICATION_CONSTANTS;
+
+/** Callback registered by NotePage; runs before navigation away from note route. */
+export type ConfirmNavigateAwayFn = () => Promise<void>;
+
+export const confirmNavigateAwayStore = writable<ConfirmNavigateAwayFn | null>(
+  null,
+);
+
+/** Wrapped push that runs confirmNavigateAway before navigating. */
+export async function push(path: string): Promise<void> {
+  const fn = get(confirmNavigateAwayStore);
+  if (fn) await fn();
+  return spaPush(path);
+}
+
+/** Wrapped replace that runs confirmNavigateAway before navigating. */
+export async function replace(path: string): Promise<void> {
+  const fn = get(confirmNavigateAwayStore);
+  if (fn) await fn();
+  return spaReplace(path);
+}
 
 function asyncRoute<T>(importFn: () => Promise<{ default: T }>) {
   return importFn as () => Promise<{ default: ComponentType }>;

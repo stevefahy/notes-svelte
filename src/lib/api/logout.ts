@@ -1,4 +1,5 @@
 import { errString } from "../errString";
+import { normalizeErrorToString } from "../errorMessageMap";
 import APPLICATION_CONSTANTS from "../constants";
 import type { Logout } from "../types";
 
@@ -17,9 +18,34 @@ export const logout = async (token: string): Promise<Logout> => {
       },
     });
     if (response.status === 404) throw new Error(`404 Not Found: ${response.url}`);
-    if (response.status === 401) throw new Error(`Unauthorized`);
+    if (response.status === 401) {
+      try {
+        const data = await response.json();
+        if (data && typeof data.error === "string")
+          return { error: data.error, fromServer: true };
+      } catch {
+        // fallback if body can't be parsed
+      }
+      return { error: AC.UNAUTHORIZED, fromServer: false };
+    }
   } catch (err: unknown) {
     return { error: errString(err), fromServer: false };
+  }
+  if (!response.ok) {
+    try {
+      const errData = await response.json();
+      if (errData && typeof errData.error === "string")
+        return { error: errData.error, fromServer: true };
+    } catch {
+      // Empty or invalid body — server may be down (e.g. 502 from proxy)
+    }
+    return {
+      error:
+        response.status >= 500
+          ? "The server could not be reached. Please try again."
+          : AC.LOGOUT_ERROR,
+      fromServer: false,
+    };
   }
   let data: Logout;
   try {
@@ -29,6 +55,6 @@ export const logout = async (token: string): Promise<Logout> => {
     return { error: errString(err), fromServer: false };
   }
   if (data && "error" in data && data.error)
-    return { error: typeof data.error === "string" ? data.error : String(data.error), fromServer: true };
+    return { error: normalizeErrorToString(data.error, AC.LOGOUT_ERROR), fromServer: true };
   return data;
 };

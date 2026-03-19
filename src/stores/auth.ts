@@ -1,5 +1,5 @@
 import { writable, get } from "svelte/store";
-import { replace } from "svelte-spa-router";
+import { replace } from "@/lib/router";
 import type {
   IAuthContext,
   IAuthDetails,
@@ -7,6 +7,7 @@ import type {
   AuthSignup,
 } from "@/lib/types";
 import { login, signup, logout, refreshtoken, unwrapResponse } from "@/lib/api";
+import { normalizeErrorToString } from "@/lib/errorMessageMap";
 import APPLICATION_CONSTANTS from "@/lib/constants";
 import { showErrorSnack } from "./snack";
 
@@ -140,7 +141,9 @@ function createAuthStore() {
         resetAuthContext();
         replace(AC.LOGIN_PAGE);
       } catch (err) {
-        showErrorSnack(`${err}`);
+        showErrorSnack(normalizeErrorToString(err, AC.GENERAL_ERROR), {
+          fromServer: false,
+        });
       }
     }
   };
@@ -169,7 +172,7 @@ function createAuthStore() {
     try {
       const result = unwrapResponse(await login(email, password));
       if (!result.ok) {
-        return { error: result.error };
+        return { error: result.error, fromServer: result.fromServer };
       }
       const data = result.data as {
         success: boolean;
@@ -185,7 +188,10 @@ function createAuthStore() {
       }));
       return data as AuthAuthenticate;
     } catch (err) {
-      return { error: `${err}` };
+      return {
+        error: normalizeErrorToString(err, AC.GENERAL_ERROR),
+        fromServer: false,
+      };
     }
   };
 
@@ -218,7 +224,10 @@ function createAuthStore() {
       }));
       return data as AuthSignup;
     } catch (err) {
-      return { error: `${err}` };
+      return {
+        error: normalizeErrorToString(err, AC.GENERAL_ERROR),
+        fromServer: false,
+      };
     }
   };
 

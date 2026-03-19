@@ -1,4 +1,4 @@
-import { errString } from "../errString";
+import { normalizeErrorToString, toUserFriendlyError } from "../errorMessageMap";
 import APPLICATION_CONSTANTS from "../constants";
 import type { AuthAuthenticate } from "../types";
 
@@ -46,7 +46,7 @@ export const login = async (
       };
     }
   } catch (err: unknown) {
-    return { error: errString(err), fromServer: false };
+    return { error: toUserFriendlyError(err), fromServer: false };
   }
   let data: AuthAuthenticate;
   try {
@@ -54,9 +54,9 @@ export const login = async (
     if (data === null || data === undefined)
       return { error: `${AC.LOGIN_ERROR}`, fromServer: false };
   } catch (err: unknown) {
-    return { error: errString(err), fromServer: false };
+    return { error: toUserFriendlyError(err), fromServer: false };
   }
   if (data && "error" in data && data.error)
-    return { error: typeof data.error === "string" ? data.error : String(data.error), fromServer: true };
+    return { error: normalizeErrorToString(data.error, AC.LOGIN_ERROR), fromServer: true };
   return data;
 };

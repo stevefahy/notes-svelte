@@ -60,22 +60,6 @@ select {
   color: inherit !important;
 }
 
-/* Svelte: .btn-contained replaces v-btn.contained */
-.btn-contained {
-  background-color: #b30000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-contained:hover {
-  background-color: #7d0000;
-}
-
 .vcard {
   border-radius: 4px;
 }

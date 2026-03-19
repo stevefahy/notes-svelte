@@ -21,7 +21,8 @@
   import SelectNotebookForm from "@/components/notebooks/SelectNotebookForm.svelte";
   import NoteList from "@/components/note/NoteList.svelte";
   import { onMount, onDestroy } from "svelte";
-  import { push, link, location } from "svelte-spa-router";
+  import { push } from "@/lib/router";
+import { link, location } from "svelte-spa-router";
 
   interface Props {
     params?: Record<string, string> | null;
@@ -106,7 +107,7 @@
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showErrorSnack(loadError);
+      showErrorSnack(loadError, { fromServer: false });
     } finally {
       notebookLoaded = true;
     }
@@ -137,7 +138,7 @@
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showErrorSnack(loadError);
+      showErrorSnack(loadError, { fromServer: false });
     } finally {
       notesLoaded = true;
     }
@@ -164,7 +165,9 @@
         userNotebooks = [];
       }
     } catch (err) {
-      showErrorSnack(err instanceof Error ? err.message : String(err));
+      showErrorSnack(err instanceof Error ? err.message : String(err), {
+        fromServer: false,
+      });
     }
   };
 
@@ -174,14 +177,18 @@
 
   const deleteNotebookHandler = async () => {
     if (!navigator.onLine) {
-      showErrorSnack("Connection failed. Please check your network.");
+      showErrorSnack("Please check your network and try again.", {
+        fromServer: false,
+      });
       return;
     }
     const token = get(authStore).token;
     if (!token || !notebookId) return;
     const result = unwrapResponse(await deleteNotebook(token, notebookId));
     if (!result.ok) {
-      showErrorSnack(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     push("/notebooks");
@@ -240,7 +247,9 @@
       ),
     );
     if (!result.ok) {
-      showErrorSnack(result.error ?? "Unknown error");
+      showErrorSnack(result.error ?? "Unknown error", {
+        fromServer: result.fromServer,
+      });
       return;
     }
     if (result.data.notebook_edited) {
@@ -306,7 +315,7 @@
     const timeoutId = setTimeout(() => {
       if (!notebookLoaded || !notesLoaded) {
         loadError = "Connection timed out. Please check your network.";
-        showErrorSnack(loadError);
+        showErrorSnack(loadError, { fromServer: false });
         notebookLoaded = true;
         notesLoaded = true;
       }
@@ -316,7 +325,7 @@
       await Promise.all([loadNotebook(nid), loadNotes(nid), loadNotebooks()]);
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showErrorSnack(loadError);
+      showErrorSnack(loadError, { fromServer: false });
       notesLoaded = true;
       notebookLoaded = true;
     } finally {

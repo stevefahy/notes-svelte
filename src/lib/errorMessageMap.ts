@@ -1,28 +1,55 @@
-export function toUserFriendlyError(raw: string): string {
-  const str = typeof raw === "string" ? raw : String(raw ?? "Unknown error");
+import APPLICATION_CONSTANTS from "./constants";
+
+const AC = APPLICATION_CONSTANTS;
+
+/**
+ * Normalizes unknown error values to a displayable string.
+ * Handles string, Error, objects with message, and avoids "[object Object]" for plain objects.
+ */
+export function normalizeErrorToString(
+  err: unknown,
+  fallback = AC.ERROR_FALLBACK,
+): string {
+  if (typeof err === "string") return err.trim() || fallback;
+  if (err instanceof Error && err.message) return err.message;
+  if (
+    err != null &&
+    typeof err === "object" &&
+    "message" in err &&
+    typeof (err as { message: unknown }).message === "string"
+  )
+    return (err as { message: string }).message;
+  const s = String(err ?? fallback);
+  if (s === "[object Object]") return fallback;
+  return s || fallback;
+}
+
+export function toUserFriendlyError(raw: unknown): string {
+  const str = normalizeErrorToString(raw, AC.ERROR_FALLBACK);
   const lower = str.toLowerCase();
+  if (lower.includes("[object object]")) return AC.ERROR_SERVER;
   if (
     lower.includes("failed to fetch") ||
     lower.includes("load failed") ||
     lower.includes("networkerror")
   )
-    return "Please check your network and try again.";
+    return AC.ERROR_NETWORK;
   if (lower.includes("not found") || lower.includes("404"))
-    return "The requested resource was not found.";
+    return AC.ERROR_NOT_FOUND;
   if (lower.includes("500") || lower.includes("internal server error"))
-    return "Something went wrong. Please try again later.";
+    return AC.ERROR_SERVER;
   if (
     lower.includes("timeout") ||
     lower.includes("timed out") ||
     lower.includes("aborted")
   )
-    return "The request took too long. Please try again.";
+    return AC.ERROR_TIMEOUT;
   if (lower.includes("cors") || lower.includes("cross-origin"))
-    return "A connection error occurred. Please try again.";
+    return AC.ERROR_CORS;
   if (
     lower.includes("unexpected end of json") ||
     (lower.includes("json") && lower.includes("unexpected"))
   )
-    return "The server could not be reached. Please try again.";
+    return AC.ERROR_SERVER_UNREACHABLE;
   return str;
 }

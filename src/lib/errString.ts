@@ -1,13 +1,8 @@
-export const errString = (err: unknown, customError: string = "") => {
-  let messageResponseText = customError;
-  if (err instanceof Error) {
-    if (err.message) {
-      if (customError) {
-        messageResponseText = `${customError}\n${err.message}`;
-      } else {
-        messageResponseText = `${err.message}`;
-      }
-    }
+import { normalizeErrorToString } from "./errorMessageMap";
+
+export const errString = (err: unknown, customError: string = ""): string => {
+  if (err instanceof Error && err.message) {
+    return customError ? `${customError}\n${err.message}` : err.message;
   }
-  return messageResponseText;
+  return normalizeErrorToString(err, customError || "Unknown error");
 };

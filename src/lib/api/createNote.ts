@@ -1,4 +1,5 @@
 import { errString } from "../errString";
+import { normalizeErrorToString } from "../errorMessageMap";
 import APPLICATION_CONSTANTS from "../constants";
 import type { CreateNoteObj, CreateNote } from "../types";
 
@@ -27,6 +28,22 @@ export const createNote = async (
   } catch (err: unknown) {
     return { error: errString(err), fromServer: false };
   }
+  if (!response.ok) {
+    try {
+      const errData = await response.json();
+      if (errData && typeof errData.error === "string")
+        return { error: errData.error, fromServer: true };
+    } catch {
+      // Empty or invalid body — server may be down (e.g. 502 from proxy)
+    }
+    return {
+      error:
+        response.status >= 500
+          ? "The server could not be reached. Please try again."
+          : AC.NOTE_CREATE_ERROR,
+      fromServer: false,
+    };
+  }
   let data: CreateNote;
   try {
     data = await response.json();
@@ -35,6 +52,6 @@ export const createNote = async (
     return { error: errString(err), fromServer: false };
   }
   if (data && "error" in data && data.error)
-    return { error: typeof data.error === "string" ? data.error : String(data.error), fromServer: true };
+    return { error: normalizeErrorToString(data.error, AC.NOTE_CREATE_ERROR), fromServer: true };
   return data;
 };

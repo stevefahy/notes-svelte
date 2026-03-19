@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { push, link } from "svelte-spa-router";
+  import { push } from "@/lib/router";
+import { link } from "svelte-spa-router";
   import { showErrorSnack } from "@/stores/snack";
   import FooterView from "@/components/layout/FooterView.svelte";
 

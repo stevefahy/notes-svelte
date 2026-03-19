@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { get } from "svelte/store";
-  import { push } from "svelte-spa-router";
+  import { push, confirmNavigateAwayStore } from "@/lib/router";
   import { params as paramsStore } from "svelte-spa-router";
   import { initScrollSync, removeScrollSync } from "@/lib/scroll_sync";
   import { authStore } from "@/stores/auth";
@@ -148,6 +148,17 @@
     viewText = text;
   };
 
+  /**
+   * Called before leaving the note route when there are unsaved edits.
+   * Saves if changed and shows "Note Saved" on success (matches Angular canDeactivateGuard).
+   */
+  const confirmNavigateAway = async () => {
+    if (!isChanged || isCreate) return;
+    const token = get(authStore).token;
+    if (!token || !notebookId || !noteId || noteId === "create-note") return;
+    await handleSaveNote(viewText);
+  };
+
   const toggleViewEdit = async () => {
     if (isChanged) await handleSaveNote(viewText);
     isViewMode = !isViewMode;
@@ -187,6 +198,7 @@
   onMount(() => {
     checkMobile();
     window.addEventListener("resize", checkMobile);
+    confirmNavigateAwayStore.set(confirmNavigateAway);
     (async () => {
       await authStore.getAuth();
       await loadNotebook();
@@ -195,7 +207,10 @@
       // View mode for existing notes, Edit mode for create-note (matching Vue)
       isViewMode = noteId === "create-note";
     })();
-    return () => window.removeEventListener("resize", checkMobile);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      confirmNavigateAwayStore.set(null);
+    };
   });
 </script>
 

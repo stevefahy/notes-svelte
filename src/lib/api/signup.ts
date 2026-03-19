@@ -1,4 +1,4 @@
-import { errString } from "../errString";
+import { normalizeErrorToString, toUserFriendlyError } from "../errorMessageMap";
 import APPLICATION_CONSTANTS from "../constants";
 import type { AuthSignup } from "../types";
 
@@ -20,37 +20,36 @@ export const signup = async (
       body: JSON.stringify({ username, email, password, framework }),
     });
   } catch (err: unknown) {
-    return { error: errString(err), fromServer: false };
+    return { error: toUserFriendlyError(err), fromServer: false };
+  }
+  if (!response.ok) {
+    try {
+      const errData = await response.json();
+      if (errData && typeof errData.error === "string")
+        return { error: errData.error, fromServer: true };
+    } catch {
+      // Empty or invalid body — server may be down (e.g. 502 from proxy)
+    }
+    return {
+      error:
+        response.status >= 500
+          ? AC.ERROR_SERVER_UNREACHABLE
+          : AC.SIGNUP_GENERAL,
+      fromServer: false,
+    };
   }
   let data: AuthSignup;
   try {
     data = await response.json();
   } catch {
     return {
-      error: response.ok
-        ? AC.SIGNUP_ERROR
-        : `Server error (${response.status}). Check that the backend is running on port 5000 and the database is connected.`,
+      error: AC.ERROR_SERVER_UNREACHABLE,
       fromServer: false,
     };
   }
-  if (data === null || data === undefined) {
-    return {
-      error: response.ok
-        ? AC.SIGNUP_ERROR
-        : `Server error (${response.status}). Check that the backend is running on port 5000 and the database is connected.`,
-      fromServer: false,
-    };
-  }
+  if (data === null || data === undefined)
+    return { error: AC.SIGNUP_GENERAL, fromServer: false };
   if (data && "error" in data && data.error)
-    return { error: typeof data.error === "string" ? data.error : String(data.error), fromServer: true };
-  if (!response.ok) {
-    return {
-      error:
-        data && typeof data === "object" && "error" in data && data.error
-          ? String(data.error)
-          : `Server error (${response.status}). Check that the backend is running on port 5000 and the database is connected.`,
-      fromServer: false,
-    };
-  }
+    return { error: normalizeErrorToString(data.error, AC.SIGNUP_GENERAL), fromServer: true };
   return data;
 };

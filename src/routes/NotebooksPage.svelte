@@ -51,7 +51,7 @@
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
-      showErrorSnack(loadError);
+      showErrorSnack(loadError, { fromServer: false });
       notebooksLoaded = true;
     }
   };

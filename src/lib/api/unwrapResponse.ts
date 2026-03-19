@@ -1,8 +1,4 @@
-function normalizeError(error: unknown): string {
-  if (typeof error === "string") return error;
-  if (error != null) return String(error);
-  return "Unknown error";
-}
+import { normalizeErrorToString } from "../errorMessageMap";
 
 export function unwrapResponse<T extends object>(
   response: unknown
@@ -12,7 +8,7 @@ export function unwrapResponse<T extends object>(
   if (typeof obj === "object" && "error" in obj && obj.error != null)
     return {
       ok: false,
-      error: normalizeError(obj.error),
+      error: normalizeErrorToString(obj.error, "Unknown error"),
       fromServer: obj.fromServer === true,
     };
   if (

@@ -156,6 +156,7 @@ select {
 .viewnote_content {
   font-size: var(--size-095);
   line-height: 1.25rem;
+  letter-spacing: 0.0178571429em;
   border-radius: 6px;
   outline: 0px solid transparent;
 }
@@ -201,6 +202,24 @@ span.token {
 .viewnote_content ol {
   padding-inline-start: 25px;
   margin-block-start: 10px;
+  margin-block-end: 10px;
+}
+
+/* Ensure task-list margin-block-end computes (agent 1em → 0px when font-size is wrong) */
+.viewnote_content ul.task-list {
+  font-size: var(--size-095);
+  margin-block-end: 1em;
+}
+
+.viewnote_thumb.viewnote_content ul {
+  margin-bottom: 10px !important;
+}
+
+.viewnote_content ul ul,
+.viewnote_content ul ol,
+.viewnote_content ol ul,
+.viewnote_content ol ol {
+  padding-inline-start: 25px;
 }
 
 .viewnote_content ul li.task-list-item {
@@ -862,10 +881,6 @@ li code:not(pre code) {
   /* Manually rounding the corner so the hover background/shadow matches the menu */
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
-}
-
-.form button.btn-contained {
-  padding: 10px 20px;
 }
 
 .profile {
