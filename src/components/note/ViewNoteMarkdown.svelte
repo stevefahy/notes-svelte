@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { scrollToElementByHtmlId } from "@/lib/markdownScroll";
+
   const TASK_LINE_RE = /^\s*[-*+]\s+\[[xX \u00a0]\s*\]/;
 
   interface Props {
@@ -8,9 +10,9 @@
   }
   let { viewText, disableLinks = false, onViewTextUpdate }: Props = $props();
 
-  let renderMarkdown = $state<((text: string, disableLinks?: boolean) => string) | null>(
-    null,
-  );
+  let renderMarkdown = $state<
+    ((text: string, disableLinks?: boolean) => string) | null
+  >(null);
   let matterFn = $state<{
     (input: string): { content: string; data: Record<string, unknown> };
     stringify(content: string, data?: Record<string, unknown>): string;
@@ -29,6 +31,47 @@
   );
 
   const isReadOnly = $derived(!onViewTextUpdate);
+
+  function handleMarkdownPointer(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (onViewTextUpdate && target.tagName === "INPUT") {
+      return;
+    }
+
+    const foot = target.closest<HTMLElement>("[data-md-footnote-scroll]");
+    if (foot) {
+      const to = foot.getAttribute("data-md-footnote-scroll");
+      if (to) {
+        event.preventDefault();
+        scrollToElementByHtmlId(to);
+      }
+      return;
+    }
+
+    const anchor = target.closest<HTMLElement>(
+      ".md_anchorlink[data-md-target-id]",
+    );
+    if (anchor) {
+      const id = anchor.getAttribute("data-md-target-id");
+      if (id) {
+        event.preventDefault();
+        scrollToElementByHtmlId(id);
+      }
+    }
+  }
+
+  function handleMarkdownKeyDown(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const target = event.target as HTMLElement;
+    const anchor = target.closest<HTMLElement>(
+      ".md_anchorlink[data-md-target-id]",
+    );
+    if (!anchor || !anchor.contains(target)) return;
+    const id = anchor.getAttribute("data-md-target-id");
+    if (!id) return;
+    event.preventDefault();
+    scrollToElementByHtmlId(id);
+  }
 
   function handleCheckboxClick(event: MouseEvent) {
     if (!onViewTextUpdate || !matterFn) return;
@@ -64,12 +107,18 @@
       }
     }
   }
+
+  function handleClick(event: MouseEvent) {
+    handleMarkdownPointer(event);
+    handleCheckboxClick(event);
+  }
 </script>
 
 <span
-  class="viewnote_content {isReadOnly ? "md-readonly" : ""}"
+  class="viewnote_content {isReadOnly ? 'md-readonly' : ''}"
   data-viewnote-markdown
-  onclick={onViewTextUpdate ? handleCheckboxClick : undefined}
+  onclick={handleClick}
+  onkeydown={handleMarkdownKeyDown}
   role={onViewTextUpdate ? "presentation" : undefined}
 >
   {@html html}

@@ -35,6 +35,11 @@ matter.stringify = function stringify(
 
 export { matter };
 import emojiDefs from "@/lib/emoji_definitions";
+import {
+  sanitizeCustomContainerStyles,
+  sanitizeCustomCssClasses,
+  sanitizeMarkdownTargetId,
+} from "@/lib/markdownSafeStyles";
 import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-css";
@@ -165,19 +170,20 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, slf) {
     tokens[idx].attrs[aIndex][1] = "_blank";
   }
   if (hIndex >= 0 && tokens[idx].attrs) {
-    let linkText = tokens[idx].attrs[hIndex][1];
+    const linkText = tokens[idx].attrs[hIndex][1];
     if (linkText.charAt(0) === "#") {
       anchorLinkStack.push(true);
-      if (tokens[idx].attrs)
-        tokens[idx].attrs[hIndex][1] = "javascript: void(0)";
-      if (linkText.includes("#user-content-")) {
-        linkText = "#" + linkText.substring(14);
+      if (tokens[idx].attrs) tokens[idx].attrs[hIndex][1] = "#";
+      let frag = linkText.slice(1);
+      if (frag.startsWith("user-content-")) {
+        frag = frag.slice("user-content-".length);
       }
-      const anchorLink = "'" + linkText + "'";
+      const safeId = sanitizeMarkdownTargetId(frag);
+      const idAttr = safeId ? md.utils.escapeHtml(safeId) : "";
       return (
-        '<span class="md_anchorlink" onclick="document.querySelector(' +
-        anchorLink +
-        ').scrollIntoView()">'
+        '<span class="md_anchorlink" role="link" tabindex="0" data-md-target-id="' +
+        idAttr +
+        '">'
       );
     }
   }
@@ -230,18 +236,19 @@ md.renderer.rules.image = function (tokens, idx, options, env, slf) {
   );
 };
 
-// Footnotes: scrollIntoView instead of anchor navigation
+// Footnotes: delegated scroll via data-md-footnote-scroll (no inline handlers)
 md.renderer.rules.footnote_anchor = function (tokens, idx, options, env, slf) {
   const id =
     (slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf) ?? "") +
     (tokens[idx].meta?.subId && tokens[idx].meta.subId > 0
       ? ":" + tokens[idx].meta.subId
       : "");
+  const escId = md.utils.escapeHtml(id);
   return (
-    '<span class="footnote-backref" onclick="document.querySelector(\'#fnref' +
-    id +
-    '\').scrollIntoView()" id="fnref' +
-    id +
+    '<span class="footnote-backref" data-md-footnote-scroll="fnref' +
+    escId +
+    '" id="fnref' +
+    escId +
     '">\u21a9\uFE0E</span>'
   );
 };
@@ -256,18 +263,20 @@ md.renderer.rules.footnote_ref = function (tokens, idx, options, env, slf) {
     (tokens[idx].meta?.subId && tokens[idx].meta.subId > 0
       ? ":" + tokens[idx].meta.subId
       : "");
+  const escRef = md.utils.escapeHtml(refid);
+  const escId = md.utils.escapeHtml(id);
   return (
-    '<sup class="footnote-ref"><span onclick="document.querySelector(\'#fn' +
-    id +
-    '\').scrollIntoView()" id="fnref' +
-    refid +
+    '<sup class="footnote-ref"><span class="md-footnote-ref" data-md-footnote-scroll="fn' +
+    escId +
+    '" id="fnref' +
+    escRef +
     '">' +
     caption +
     "</span></sup>"
   );
 };
 
-// Custom container with inline styles: ::: custom font-size: 55px; color: red;
+// Custom container: allowlisted inline styles only (see markdownSafeStyles)
 md.use(markdownItContainer, "custom", {
   validate: (params: string) => !!params.trim().match(/^custom\s+(.*)$/),
   render: (
@@ -275,14 +284,15 @@ md.use(markdownItContainer, "custom", {
     idx: number,
     _options: unknown,
     _env: unknown,
-    slf: { renderToken: (...args: unknown[]) => string },
+    _slf: { renderToken: (...args: unknown[]) => string },
   ) => {
     const m = tokens[idx].info.trim().match(/^custom\s+(.*)$/);
     if (tokens[idx].nesting === 1) {
-      return '<span style="' + md.utils.escapeHtml(m![1]) + '">\n';
-    } else {
-      return "</span>\n";
+      const safe = sanitizeCustomContainerStyles(m![1] ?? "");
+      if (safe) return '<span style="' + md.utils.escapeHtml(safe) + '">\n';
+      return '<span class="md-custom-unstyled">\n';
     }
+    return "</span>\n";
   },
 });
 
@@ -291,14 +301,17 @@ md.use(markdownItContainer, "custom-css", {
   render: (
     tokens: { info: string; nesting: number }[],
     idx: number,
-    _options: unknown,
-    _env: unknown,
+    options: unknown,
+    env: unknown,
     slf: { renderToken: (...args: unknown[]) => string },
   ) => {
     if (tokens[idx].nesting === 1) {
       const m = tokens[idx].info.trim().match(/^custom-css\s+(.*)$/);
-      if (!m) return slf.renderToken(tokens, idx, _options, _env, slf);
-      return '<span class="' + md.utils.escapeHtml(m[1]) + '">\n';
+      if (!m) return slf.renderToken(tokens, idx, options, env, slf);
+      const classes = sanitizeCustomCssClasses(m[1]);
+      if (classes)
+        return '<span class="' + md.utils.escapeHtml(classes) + '">\n';
+      return '<span class="md-custom-css-fallback">\n';
     }
     return "</span>\n";
   },
