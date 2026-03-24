@@ -160,7 +160,12 @@
         return;
       }
       try {
-        const result = await onRegister?.(username, email, password, "svelte");
+        const result = await onRegister?.(
+          username,
+          email,
+          password,
+          AC.FRAMEWORK,
+        );
         isSubmitting = false;
         if (!result) return;
         if ("error" in result) {
@@ -273,11 +278,16 @@
       <label class="form-label" for="password">Password</label>
       <input
         class="form-input"
-        class:input-error={!!(fieldErrors.password || (!isLogin && passwordError))}
+        class:input-error={!!(
+          fieldErrors.password ||
+          (!isLogin && passwordError)
+        )}
         type="password"
         id="password"
         required
-        placeholder={isLogin ? "Password" : `Min. ${AC.PASSWORD_MIN} Characters`}
+        placeholder={isLogin
+          ? "Password"
+          : `Min. ${AC.PASSWORD_MIN} Characters`}
         autocomplete={isLogin ? "current-password" : "new-password"}
         bind:value={password}
         onchange={() => {
@@ -304,7 +314,10 @@
       <div class="field-feedback">
         <div
           class="inline-error"
-          class:visible={!!(fieldErrors.password || (!isLogin && passwordError))}
+          class:visible={!!(
+            fieldErrors.password ||
+            (!isLogin && passwordError)
+          )}
         >
           {fieldErrors.password || (!isLogin ? passwordError : "")}
         </div>

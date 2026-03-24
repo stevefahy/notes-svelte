@@ -173,7 +173,7 @@
       isSplitScreen = true;
     }
     try {
-      const res = await fetch("/markdown/welcome_markdown_angular.md");
+      const res = await fetch("/markdown/welcome_markdown.md");
       if (res.ok) viewText = await res.text();
       else viewText = "# Example Note\n\nStart typing your note here...";
     } catch {
