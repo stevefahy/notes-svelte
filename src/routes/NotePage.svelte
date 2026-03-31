@@ -3,7 +3,22 @@
   import { get } from "svelte/store";
   import { push, confirmNavigateAwayStore } from "@/lib/router";
   import { params as paramsStore } from "svelte-spa-router";
-  import { initScrollSync, removeScrollSync } from "@/lib/scroll_sync";
+  import {
+    initScrollSync,
+    removeScrollSync,
+    detachScrollSyncListeners,
+    alignNotePanesScroll,
+    captureSplitEnterScrollSnap,
+    stabilizeSplitEnterScroll,
+    type SplitEnterScrollSnap,
+  } from "@/lib/scroll_sync";
+  import {
+    commitNoteShellTransition,
+    getNoteShellEditViewTransitionCleanupMs,
+    getNoteShellSplitTransitionCleanupMs,
+    type NoteShellLayout,
+  } from "@/lib/noteShellDom";
+  import { attachNoteShellSwipeNavigation } from "@/lib/noteShellSwipeNavigation";
   import { authStore } from "@/stores/auth";
   import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import { notebookEditStore } from "@/stores/notebookEdit";
@@ -51,10 +66,23 @@
   let isViewMode = $state(true);
   let isSplitScreen = $state(false);
   let isMobile = $state(false);
+  let viewContainerEl = $state<HTMLDivElement | undefined>(undefined);
   const isCreate = $derived(noteId === "create-note");
 
   const showEditPane = $derived(isViewMode || isSplitScreen);
-  const showViewPane = $derived(!isViewMode || isSplitScreen);
+
+  const noteShellLayout = $derived<NoteShellLayout>(
+    isSplitScreen ? "split" : isViewMode ? "view" : "edit",
+  );
+
+  let prevIsSplitRef = false;
+  let splitEnterFromRef: "edit" | "view" | null = null;
+  let prevNoteShellLayoutRef: NoteShellLayout | null = null;
+  let splitPostAlignTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+  let splitEnterSnapRef: SplitEnterScrollSnap | null = null;
+  let splitStabilizeCleanupRef: (() => void) | null = null;
+  let prevIsSplitForScrollRef = false;
+  let prevNoteShellLayoutScrollRef: NoteShellLayout | null = null;
 
   const loadNotebook = async () => {
     const token = get(authStore).token;
@@ -165,11 +193,17 @@
   };
 
   const toggleSplitScreen = () => {
+    if (!isSplitScreen) {
+      splitEnterSnapRef = captureSplitEnterScrollSnap(isViewMode);
+    } else {
+      splitEnterSnapRef = null;
+    }
     isSplitScreen = !isSplitScreen;
   };
 
   const loadExampleNote = async () => {
     if (!isMobile) {
+      splitEnterSnapRef = captureSplitEnterScrollSnap(isViewMode);
       isSplitScreen = true;
     }
     try {
@@ -185,6 +219,151 @@
     isMobile = window.innerWidth < AC.SPLITSCREEN_MINIMUM_WIDTH;
     if (isMobile) isSplitScreen = false;
   };
+
+  $effect(() => {
+    if (!noteLoaded) return;
+    if (!prevIsSplitRef && isSplitScreen) {
+      splitEnterFromRef = isViewMode ? "view" : "edit";
+    }
+    prevIsSplitRef = isSplitScreen;
+  });
+
+  $effect(() => {
+    if (!noteLoaded) return;
+    const el = viewContainerEl ?? null;
+    const prev = prevNoteShellLayoutRef;
+    if (prev !== null && prev !== noteShellLayout) {
+      commitNoteShellTransition(el, prev, noteShellLayout);
+    }
+    prevNoteShellLayoutRef = noteShellLayout;
+  });
+
+  $effect(() => {
+    if (!noteLoaded) return;
+
+    const prevLayout = prevNoteShellLayoutScrollRef;
+    const editViewTransition =
+      prevLayout !== null &&
+      ((prevLayout === "edit" && noteShellLayout === "view") ||
+        (prevLayout === "view" && noteShellLayout === "edit"));
+
+    const wasSplit = prevIsSplitForScrollRef;
+    const leavingSplit = wasSplit && !isSplitScreen;
+    const enteringSplit = !wasSplit && isSplitScreen;
+    prevIsSplitForScrollRef = isSplitScreen;
+
+    if (leavingSplit || enteringSplit || editViewTransition) {
+      detachScrollSyncListeners();
+    }
+
+    if (splitPostAlignTimeoutRef !== null) {
+      window.clearTimeout(splitPostAlignTimeoutRef);
+      splitPostAlignTimeoutRef = null;
+    }
+    splitStabilizeCleanupRef?.();
+    splitStabilizeCleanupRef = null;
+
+    let raf1 = 0;
+    let raf2 = 0;
+    const splitFrom = splitEnterFromRef;
+    const snapCaptured = splitEnterSnapRef;
+
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        if (!isSplitScreen) {
+          if (leavingSplit) {
+            const exitSettleMs = getNoteShellSplitTransitionCleanupMs() + 120;
+            splitPostAlignTimeoutRef = window.setTimeout(() => {
+              splitPostAlignTimeoutRef = null;
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  splitEnterFromRef = null;
+                  initScrollSync();
+                });
+              });
+            }, exitSettleMs);
+            return;
+          }
+          if (editViewTransition) {
+            const settleMs = getNoteShellEditViewTransitionCleanupMs() + 120;
+            splitPostAlignTimeoutRef = window.setTimeout(() => {
+              splitPostAlignTimeoutRef = null;
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  alignNotePanesScroll(noteShellLayout, null);
+                  splitEnterFromRef = null;
+                  initScrollSync();
+                });
+              });
+            }, settleMs);
+            return;
+          }
+          alignNotePanesScroll(noteShellLayout, null);
+          splitEnterFromRef = null;
+          initScrollSync();
+          return;
+        }
+
+        const splitEnterWithOrigin = splitFrom !== null;
+        if (splitEnterWithOrigin) {
+          splitEnterFromRef = null;
+        }
+
+        if (splitEnterWithOrigin && snapCaptured) {
+          splitEnterSnapRef = null;
+          const splitStabilizeMs = getNoteShellSplitTransitionCleanupMs() + 120;
+          splitStabilizeCleanupRef = stabilizeSplitEnterScroll(
+            snapCaptured,
+            splitStabilizeMs,
+            () => {
+              splitStabilizeCleanupRef = null;
+              initScrollSync();
+            },
+          );
+          return;
+        }
+
+        if (splitEnterWithOrigin) {
+          splitPostAlignTimeoutRef = window.setTimeout(() => {
+            splitPostAlignTimeoutRef = null;
+            alignNotePanesScroll("split", splitFrom);
+            initScrollSync();
+          }, getNoteShellSplitTransitionCleanupMs());
+          return;
+        }
+
+        alignNotePanesScroll("split", null);
+        initScrollSync();
+      });
+    });
+
+    prevNoteShellLayoutScrollRef = noteShellLayout;
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      if (splitPostAlignTimeoutRef !== null) {
+        window.clearTimeout(splitPostAlignTimeoutRef);
+        splitPostAlignTimeoutRef = null;
+      }
+      splitStabilizeCleanupRef?.();
+      splitStabilizeCleanupRef = null;
+    };
+  });
+
+  $effect(() => {
+    if (!noteLoaded || !viewContainerEl) return;
+    return attachNoteShellSwipeNavigation(
+      viewContainerEl,
+      () => noteShellLayout,
+      () => {
+        if (!isViewMode) void toggleViewEdit();
+      },
+      () => {
+        if (isViewMode) void toggleViewEdit();
+      },
+    );
+  });
 
   $effect(() => {
     if (!noteLoaded) return;
@@ -205,7 +384,7 @@
       if (loadError) return;
       await loadNote();
       // View mode for existing notes, Edit mode for create-note (matching Vue)
-      isViewMode = noteId === "create-note";
+      isViewMode = noteId !== "create-note";
     })();
     return () => {
       window.removeEventListener("resize", checkMobile);
@@ -231,8 +410,10 @@
 {:else}
   <div class="page_scrollable_header_breadcrumb_footer">
     <div
+      bind:this={viewContainerEl}
       class="view_container {isSplitScreen ? 'editnote_box_split' : ''}"
       id="view_container"
+      data-note-layout={noteShellLayout}
     >
       <EditNote
         loadedText={viewText}
@@ -241,12 +422,7 @@
         splitScreen={isSplitScreen}
       />
 
-      <ViewNote
-        {viewText}
-        onEdit={(t) => handleViewTextUpdate(t)}
-        visible={showViewPane}
-        splitScreen={isSplitScreen}
-      />
+      <ViewNote {viewText} onEdit={(t) => handleViewTextUpdate(t)} />
     </div>
   </div>
   <FooterView>
@@ -315,25 +491,9 @@
           class="btn-action-ghost"
           onclick={toggleViewEdit}
           type="button"
-          aria-label={isViewMode ? "Switch to View" : "Switch to Edit"}
+          aria-label={isViewMode ? "Switch to Edit" : "Switch to View"}
         >
           {#if isViewMode}
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            View
-          {:else}
             <svg
               width="17"
               height="17"
@@ -353,6 +513,22 @@
               />
             </svg>
             Edit
+          {:else}
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            View
           {/if}
         </button>
       {/if}

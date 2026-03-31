@@ -40,24 +40,22 @@
 
 <div
   id="edit"
-  class="edit editnote_box {splitScreen
-    ? 'view_split show'
-    : ''} {!splitScreen && showPane ? 'show' : ''} {!splitScreen && !showPane
-    ? 'hide'
-    : ''}"
+  class="note-pane note-pane--edit edit editnote_box"
 >
-  <div class="edit-note">
-    <div class="note-card">
-      <article class="v-card-text viewnote_content editor">
-        <div
-          bind:this={editRef}
-          contenteditable={showPane ? "true" : "false"}
-          class="viewnote_content editable"
-          data-placeholder="Start writing..."
-          oninput={handleInput}
-          role="textbox"
-        ></div>
-      </article>
+  <div class="note-pane-scroll">
+    <div class="edit-note">
+      <div class="note-card">
+        <article class="v-card-text viewnote_content editor">
+          <div
+            bind:this={editRef}
+            contenteditable={showPane ? "true" : "false"}
+            class="viewnote_content editable"
+            data-placeholder="Start writing..."
+            oninput={handleInput}
+            role="textbox"
+          ></div>
+        </article>
+      </div>
     </div>
   </div>
 </div>

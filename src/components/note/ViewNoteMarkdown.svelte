@@ -1,4 +1,5 @@
 <script lang="ts">
+  import morphdom from "morphdom";
   import { scrollToElementByHtmlId } from "@/lib/markdownScroll";
 
   const TASK_LINE_RE = /^\s*[-*+]\s+\[[xX \u00a0]\s*\]/;
@@ -18,6 +19,8 @@
     stringify(content: string, data?: Record<string, unknown>): string;
   } | null>(null);
 
+  let containerEl = $state<HTMLSpanElement | undefined>(undefined);
+
   $effect(() => {
     if (renderMarkdown && matterFn) return;
     import("@/lib/markdown").then((mod) => {
@@ -31,6 +34,63 @@
   );
 
   const isReadOnly = $derived(!onViewTextUpdate);
+
+  $effect(() => {
+    const el = containerEl;
+    if (!el) return;
+
+    const temp = document.createElement("span");
+    temp.innerHTML = html;
+
+    morphdom(el, temp, {
+      childrenOnly: true,
+      getNodeKey: (node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const domEl = node as Element;
+          if (domEl.classList.contains("image")) {
+            const img = domEl.querySelector("img");
+            if (img) return `img-${img.getAttribute("src")}`;
+          }
+          if (domEl.tagName === "IMG") {
+            return `img-${domEl.getAttribute("src")}`;
+          }
+        }
+        return undefined;
+      },
+      onBeforeElUpdated: (fromEl, toEl) => {
+        if (
+          fromEl.classList.contains("image") &&
+          toEl.classList.contains("image")
+        ) {
+          const fromImg = fromEl.querySelector("img");
+          const toImg = toEl.querySelector("img");
+          if (
+            fromImg &&
+            toImg &&
+            fromImg.getAttribute("src") === toImg.getAttribute("src")
+          ) {
+            for (const attr of Array.from(toImg.attributes)) {
+              if (fromImg.getAttribute(attr.name) !== attr.value) {
+                fromImg.setAttribute(attr.name, attr.value);
+              }
+            }
+            return false;
+          }
+        }
+        if (fromEl.tagName === "IMG" && toEl.tagName === "IMG") {
+          if (fromEl.getAttribute("src") === toEl.getAttribute("src")) {
+            for (const attr of Array.from(toEl.attributes)) {
+              if (fromEl.getAttribute(attr.name) !== attr.value) {
+                fromEl.setAttribute(attr.name, attr.value);
+              }
+            }
+            return false;
+          }
+        }
+        return true;
+      },
+    });
+  });
 
   function handleMarkdownPointer(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -115,11 +175,10 @@
 </script>
 
 <span
+  bind:this={containerEl}
   class="viewnote_content {isReadOnly ? 'md-readonly' : ''}"
   data-viewnote-markdown
   onclick={handleClick}
   onkeydown={handleMarkdownKeyDown}
   role={onViewTextUpdate ? "presentation" : undefined}
->
-  {@html html}
-</span>
+></span>
