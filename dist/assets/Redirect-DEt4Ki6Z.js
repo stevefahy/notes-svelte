@@ -1,0 +1,1 @@
+import{J as e,Y as t,l as n}from"./Router-qnnO_5GA.js";import{r}from"./router-3ACrrDLq.js";function i(i,a){t(a,!1),r(`/notebooks`),n(),e()}export{i as default};

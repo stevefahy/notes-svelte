@@ -6,7 +6,6 @@
   import { notebookEditStore } from "@/stores/notebookEdit";
   import { editNotesStore } from "@/stores/editNotes";
   import {
-    getNotebook,
     getNotebooks,
     getNotes,
     deleteNotebook,
@@ -14,6 +13,8 @@
     moveNotes,
     unwrapResponse,
   } from "@/lib/api";
+  import { loadNotebookForEdit } from "@/lib/notebookLoad";
+  import { notebookPageNotebookId } from "@/lib/noteRouteParams";
   import { getDisplayCover } from "@/lib/notebookCoverUtils";
   import type { Note, Notebook, SelectedNote } from "@/lib/types";
   import FooterView from "@/components/layout/FooterView.svelte";
@@ -27,20 +28,14 @@
   }
   let { params: routeParams }: Props = $props();
 
-  // notebookId: params from router, then store, then parse from window.location.hash
-  const notebookId = $derived.by(() => {
-    const fromParams = (routeParams ?? router.params)?.notebookId;
-    if (fromParams) return fromParams;
-    const loc = router.location;
-    if (loc) {
-      const m = /^\/notebook\/([^/]+)/.exec(loc);
-      if (m?.[1]) return m[1];
-    }
-    // Fallback: parse from hash (available before store updates)
-    const hash = typeof window !== "undefined" ? window.location.hash : "";
-    const hashMatch = /#?\/notebook\/([^/]+)/.exec(hash);
-    return hashMatch?.[1] ?? null;
-  });
+  const notebookId = $derived.by(() =>
+    notebookPageNotebookId(
+      routeParams ?? undefined,
+      router.params ?? undefined,
+      router.location,
+      typeof window !== "undefined" ? window.location.hash : "",
+    ),
+  );
 
   let notes = $state<Note[] | null>(null);
   let notebook = $state<Notebook | null>(null);
@@ -84,9 +79,7 @@
         push("/login");
         return;
       }
-      const result = unwrapResponse<{ notebook: Notebook }>(
-        await getNotebook(token, nid),
-      );
+      const result = await loadNotebookForEdit(token, nid);
       if (!result.ok) {
         showErrorSnack(result.error ?? "Unknown error", {
           fromServer: result.fromServer,
@@ -95,14 +88,7 @@
         notebookLoaded = true;
         return;
       }
-      if (result.data.notebook) {
-        const nb = result.data.notebook;
-        notebook = nb;
-        notebookEditStore.update((s) => ({
-          ...s,
-          edited: { ...nb, notebook_cover: getDisplayCover(nb.notebook_cover) },
-        }));
-      }
+      notebook = result.notebook;
     } catch (err) {
       loadError = err instanceof Error ? err.message : String(err);
       showErrorSnack(loadError, { fromServer: false });

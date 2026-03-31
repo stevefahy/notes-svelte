@@ -20,12 +20,11 @@
   } from "@/lib/noteShellDom";
   import { attachNoteShellSwipeNavigation } from "@/lib/noteShellSwipeNavigation";
   import { authStore } from "@/stores/auth";
-  import { getDisplayCover } from "@/lib/notebookCoverUtils";
-  import { notebookEditStore } from "@/stores/notebookEdit";
+  import { loadNotebookForEdit } from "@/lib/notebookLoad";
+  import { notePageNotebookId, notePageNoteId } from "@/lib/noteRouteParams";
   import {
     createNote,
     getNote,
-    getNotebook,
     saveNote,
     unwrapResponse,
   } from "@/lib/api";
@@ -42,20 +41,20 @@
 
   let { params: routeParams }: NotePageProps = $props();
 
-  const notebookId = $derived.by(() => {
-    const fromParams = (routeParams ?? router.params)?.notebookId;
-    if (fromParams) return fromParams;
-    const hash = typeof window !== "undefined" ? window.location.hash : "";
-    const m = /#?\/notebook\/([^/]+)\/([^/]+)/.exec(hash);
-    return m?.[1] ?? null;
-  });
-  const noteId = $derived.by(() => {
-    const fromParams = (routeParams ?? router.params)?.noteId;
-    if (fromParams) return fromParams;
-    const hash = typeof window !== "undefined" ? window.location.hash : "";
-    const m = /#?\/notebook\/([^/]+)\/([^/]+)/.exec(hash);
-    return m?.[2] ?? null;
-  });
+  const notebookId = $derived.by(() =>
+    notePageNotebookId(
+      routeParams ?? undefined,
+      router.params ?? undefined,
+      typeof window !== "undefined" ? window.location.hash : "",
+    ),
+  );
+  const noteId = $derived.by(() =>
+    notePageNoteId(
+      routeParams ?? undefined,
+      router.params ?? undefined,
+      typeof window !== "undefined" ? window.location.hash : "",
+    ),
+  );
 
   let note = $state<Note | null>(null);
   let notebook = $state<Notebook | null>(null);
@@ -92,23 +91,14 @@
       noteLoaded = true;
       return;
     }
-    const result = unwrapResponse<{ notebook: Notebook }>(
-      await getNotebook(token, notebookId),
-    );
+    const result = await loadNotebookForEdit(token, notebookId);
     if (!result.ok) {
       loadError = result.error ?? "Unknown error";
       showErrorSnack(loadError, { fromServer: result.fromServer });
       noteLoaded = true;
       return;
     }
-    if (result.data.notebook) {
-      const nb = result.data.notebook;
-      notebook = nb;
-      notebookEditStore.update((s) => ({
-        ...s,
-        edited: { ...nb, notebook_cover: getDisplayCover(nb.notebook_cover) },
-      }));
-    }
+    notebook = result.notebook;
   };
 
   const loadNote = async () => {

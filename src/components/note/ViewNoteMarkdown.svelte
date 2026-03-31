@@ -1,6 +1,7 @@
 <script lang="ts">
   import morphdom from "morphdom";
   import { scrollToElementByHtmlId } from "@/lib/markdownScroll";
+  import { matter } from "@/lib/matterUtil";
 
   const TASK_LINE_RE = /^\s*[-*+]\s+\[[xX \u00a0]\s*\]/;
 
@@ -12,26 +13,36 @@
   let { viewText, disableLinks = false, onViewTextUpdate }: Props = $props();
 
   let renderMarkdown = $state<
-    ((text: string, disableLinks?: boolean) => string) | null
+    ((text: string, disableLinks?: boolean) => Promise<string>) | null
   >(null);
-  let matterFn = $state<{
-    (input: string): { content: string; data: Record<string, unknown> };
-    stringify(content: string, data?: Record<string, unknown>): string;
-  } | null>(null);
 
   let containerEl = $state<HTMLSpanElement | undefined>(undefined);
 
   $effect(() => {
-    if (renderMarkdown && matterFn) return;
+    if (renderMarkdown) return;
     import("@/lib/markdown").then((mod) => {
       renderMarkdown = mod.renderMarkdown;
-      matterFn = mod.matter;
     });
   });
 
-  const html = $derived(
-    renderMarkdown ? renderMarkdown(viewText, disableLinks) : "",
-  );
+  let html = $state("");
+
+  $effect(() => {
+    const fn = renderMarkdown;
+    const text = viewText;
+    const dl = disableLinks;
+    if (!fn) {
+      html = "";
+      return;
+    }
+    let cancelled = false;
+    fn(text, dl).then((h) => {
+      if (!cancelled) html = h;
+    });
+    return () => {
+      cancelled = true;
+    };
+  });
 
   const isReadOnly = $derived(!onViewTextUpdate);
 
@@ -134,7 +145,7 @@
   }
 
   function handleCheckboxClick(event: MouseEvent) {
-    if (!onViewTextUpdate || !matterFn) return;
+    if (!onViewTextUpdate) return;
     const target = event.target as HTMLInputElement;
     if (target.tagName !== "INPUT" || target.type !== "checkbox") return;
     const id = target.id;
@@ -144,7 +155,7 @@
 
     const checked = target.checked;
 
-    const parsed = matterFn(viewText);
+    const parsed = matter(viewText);
     const content = parsed.content;
     const lines = content.split("\n");
     let nth = 0;
@@ -158,7 +169,7 @@
           const newContent = lines.join("\n");
           const updatedFull =
             Object.keys(parsed.data).length > 0
-              ? matterFn.stringify(newContent, parsed.data)
+              ? matter.stringify(newContent, parsed.data)
               : newContent;
           onViewTextUpdate(updatedFull);
           return;

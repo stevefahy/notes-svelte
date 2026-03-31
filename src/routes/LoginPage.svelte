@@ -5,9 +5,16 @@
   import APPLICATION_CONSTANTS from "@/lib/constants";
   import { router } from "svelte-spa-router";
   import { toUserFriendlyError } from "@/lib/errorMessageMap";
+  import {
+    EMAIL_REGEX,
+    signupUsernameError,
+    signupEmailErrorMessage,
+    signupPasswordError,
+    passwordStrengthScore,
+    signupTooltipText,
+  } from "@/lib/loginValidation";
 
   const AC = APPLICATION_CONSTANTS;
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   let isLogin = $state(true);
   let isSubmitting = $state(false);
@@ -33,31 +40,15 @@
     password = "";
   };
 
-  // Create Account validation (real-time)
-  const usernameError = $derived.by((): string => {
-    const t = username.trim();
-    const len = t.length;
-    if (len === 0) return "";
-    if (len < AC.USERNAME_MIN) return AC.SIGNUP_INVALID_USERNAME;
-    if (username.length > AC.USERNAME_MAX)
-      return `Too long — max ${AC.USERNAME_MAX} characters`;
-    return "";
-  });
+  const usernameError = $derived.by(() => signupUsernameError(username, AC));
 
-  const emailError = $derived.by((): string => {
-    const t = email.trim();
-    if (t.length === 0) return "";
-    if (!EMAIL_REGEX.test(t)) return AC.EMAIL_INVALID;
-    return "";
-  });
+  const emailError = $derived.by(() =>
+    signupEmailErrorMessage(email, AC),
+  );
 
-  const passwordError = $derived.by((): string => {
-    if (!password) return "";
-    if (password.length < AC.PASSWORD_MIN) return AC.SIGNUP_INVALID_PASSWORD;
-    if (password.length > AC.PASSWORD_MAX)
-      return `Max ${AC.PASSWORD_MAX} characters`;
-    return "";
-  });
+  const passwordError = $derived.by(() =>
+    signupPasswordError(password, AC),
+  );
 
   const usernameValid = $derived(
     username.trim().length >= AC.USERNAME_MIN &&
@@ -73,27 +64,24 @@
     usernameValid && emailValid && passwordValid,
   );
 
-  const strengthScore = $derived.by((): number => {
-    let s = 0;
-    if (password.length >= AC.PASSWORD_MIN) s++;
-    if (/[A-Z]/.test(password)) s++;
-    if (/[0-9]/.test(password)) s++;
-    if (/[^A-Za-z0-9]/.test(password)) s++;
-    return s;
-  });
+  const strengthScore = $derived.by(() =>
+    passwordStrengthScore(password, AC),
+  );
   const strengthClass = $derived(
     strengthScore <= 1 ? "weak" : strengthScore <= 2 ? "ok" : "good",
   );
 
-  const signupTooltip = $derived.by((): string => {
-    if (!username.trim()) return "Enter a username";
-    if (!email.trim()) return AC.EMAIL_INVALID;
-    if (!password) return "Enter a password";
-    if (usernameError) return usernameError;
-    if (emailError) return emailError;
-    if (passwordError) return passwordError;
-    return "";
-  });
+  const signupTooltip = $derived.by(() =>
+    signupTooltipText(
+      username,
+      email,
+      password,
+      usernameError,
+      emailError,
+      passwordError,
+      AC,
+    ),
+  );
 
   function suppressTooltip() {
     tooltipSuppressed = true;

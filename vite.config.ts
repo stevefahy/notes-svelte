@@ -14,11 +14,15 @@ export default defineConfig({
       globals: { Buffer: true },
     }),
     svelte(),
-    visualizer({
-      filename: "dist/stats.html",
-      gzipSize: true,
-      open: false,
-    }),
+    ...(process.env.ANALYZE
+      ? [
+          visualizer({
+            filename: "dist/stats.html",
+            gzipSize: true,
+            open: false,
+          }),
+        ]
+      : []),
   ],
   resolve: {
     alias: {

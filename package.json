@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "audit:css": "vite build && node scripts/audit-css-report.js"
+    "audit:css": "vite build && node scripts/audit-css-report.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
@@ -25,13 +27,13 @@
     "svelte-check": "^4.4.6",
     "typescript": "~6.0.2",
     "vite": "^8.0.3",
-    "vite-plugin-node-polyfills": "^0.26.0"
+    "vite-plugin-node-polyfills": "^0.26.0",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
-    "bits-ui": "^2.16.5",
-    "buffer": "^6.0.3",
     "date-fns": "^4.1.0",
     "front-matter": "^4.0.2",
+    "js-yaml": "^4.1.0",
     "markdown-it": "^14.1.1",
     "markdown-it-abbr": "^2.0.0",
     "markdown-it-anchor": "^9.2.0",
