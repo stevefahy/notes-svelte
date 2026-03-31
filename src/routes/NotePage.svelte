@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { push, confirmNavigateAwayStore } from "@/lib/router";
-  import { params as paramsStore } from "svelte-spa-router";
+  import { router } from "svelte-spa-router";
   import {
     initScrollSync,
     removeScrollSync,
@@ -43,14 +43,14 @@
   let { params: routeParams }: NotePageProps = $props();
 
   const notebookId = $derived.by(() => {
-    const fromParams = (routeParams ?? $paramsStore)?.notebookId;
+    const fromParams = (routeParams ?? router.params)?.notebookId;
     if (fromParams) return fromParams;
     const hash = typeof window !== "undefined" ? window.location.hash : "";
     const m = /#?\/notebook\/([^/]+)\/([^/]+)/.exec(hash);
     return m?.[1] ?? null;
   });
   const noteId = $derived.by(() => {
-    const fromParams = (routeParams ?? $paramsStore)?.noteId;
+    const fromParams = (routeParams ?? router.params)?.noteId;
     if (fromParams) return fromParams;
     const hash = typeof window !== "undefined" ? window.location.hash : "";
     const m = /#?\/notebook\/([^/]+)\/([^/]+)/.exec(hash);
@@ -69,7 +69,8 @@
   let viewContainerEl = $state<HTMLDivElement | undefined>(undefined);
   const isCreate = $derived(noteId === "create-note");
 
-  const showEditPane = $derived(isViewMode || isSplitScreen);
+  /** Edit textarea is active in edit-only mode or whenever split shows the editor alongside view. */
+  const showEditPane = $derived(!isViewMode || isSplitScreen);
 
   const noteShellLayout = $derived<NoteShellLayout>(
     isSplitScreen ? "split" : isViewMode ? "view" : "edit",

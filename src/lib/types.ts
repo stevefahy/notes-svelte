@@ -51,7 +51,7 @@ export interface CreateNoteObj {
 }
 
 export type CreateNote =
-  | { error: string; success?: never; note?: never }
+  | { error: string; success?: never; note?: never; fromServer?: boolean }
   | { error?: never; success: boolean; note: { insertedId: string } };
 
 export type DeleteNotebook =
@@ -60,6 +60,7 @@ export type DeleteNotebook =
       success?: never;
       notebook_deleted?: never;
       server_response?: never;
+      fromServer?: boolean;
     }
   | {
       error?: never;
@@ -74,6 +75,7 @@ export type EditNotebookDate =
       success?: never;
       notebook_deleted?: never;
       server_response?: never;
+      fromServer?: boolean;
     }
   | {
       error?: never;
@@ -83,17 +85,18 @@ export type EditNotebookDate =
     };
 
 export type EditNotebook =
-  | { error: string; success?: never; notebook_edited?: never }
+  | { error: string; success?: never; notebook_edited?: never; fromServer?: boolean }
   | { error?: never; success: boolean; notebook_edited: Notebook };
 
 export type GetNotebook =
-  | { error: string; success?: never; notebook?: never }
+  | { error: string; success?: never; notebook?: never; fromServer?: boolean }
   | { error?: never; success: boolean; notebook: Notebook };
 
 export interface GetNotebooksError {
   error: string;
   success?: never;
   notebooks?: never;
+  fromServer?: boolean;
 }
 
 export interface GetNotebooksSuccess {
@@ -173,15 +176,15 @@ export interface Snack {
 }
 
 export type DeleteNotes =
-  | { success?: never; notes_deleted?: never; error: string }
+  | { success?: never; notes_deleted?: never; error: string; fromServer?: boolean }
   | { success: boolean; notes_deleted: unknown; error?: never };
 
 export type GetNote =
-  | { success?: never; note?: never; error: string }
+  | { success?: never; note?: never; error: string; fromServer?: boolean }
   | { success: boolean; note: Note; error?: never };
 
 export type GetNotes =
-  | { success?: never; notes?: never; error: string }
+  | { success?: never; notes?: never; error: string; fromServer?: boolean }
   | { success: boolean; notes: Note[]; error?: never };
 
 export type MoveNotes =
@@ -190,6 +193,7 @@ export type MoveNotes =
       notes_moved?: never;
       server_response?: never;
       error: string;
+      fromServer?: boolean;
     }
   | {
       success: boolean;
@@ -199,19 +203,19 @@ export type MoveNotes =
     };
 
 export type SaveNote =
-  | { success?: never; server_response?: never; error: string }
+  | { success?: never; server_response?: never; error: string; fromServer?: boolean }
   | { success: boolean; server_response: unknown; error?: never };
 
 export type ChangePassword =
-  | { success?: never; error: string }
+  | { success?: never; error: string; fromServer?: boolean }
   | { success: boolean; error?: never };
 
 export type ChangeUsername =
-  | { success?: never; details?: never; error: string }
+  | { success?: never; details?: never; error: string; fromServer?: boolean }
   | { success: boolean; details: IAuthDetails; error?: never };
 
 export type Logout =
-  | { success?: never; error: string }
+  | { success?: never; error: string; fromServer?: boolean }
   | { success: boolean; error?: never };
 
 export interface IAuthDetails {

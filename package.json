@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -11,23 +12,23 @@
     "audit:css": "vite build && node scripts/audit-css-report.js"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^6.2.1",
-    "@tsconfig/svelte": "^5.0.6",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@tsconfig/svelte": "^5.0.8",
     "@types/js-yaml": "^4.0.9",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^24.10.1",
-    "@types/morphdom": "^2.3.0",
+    "@types/node": "^25.5.0",
     "@types/prismjs": "^1.26.6",
+    "patch-package": "^8.0.1",
     "purgecss": "^8.0.0",
     "rollup-plugin-visualizer": "^6.0.5",
-    "svelte": "^5.45.2",
-    "svelte-check": "^4.3.4",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-node-polyfills": "^0.25.0"
+    "svelte": "^5.55.1",
+    "svelte-check": "^4.4.6",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.3",
+    "vite-plugin-node-polyfills": "^0.26.0"
   },
   "dependencies": {
-    "bits-ui": "^2.15.5",
+    "bits-ui": "^2.16.5",
     "buffer": "^6.0.3",
     "date-fns": "^4.1.0",
     "front-matter": "^4.0.2",
@@ -45,7 +46,7 @@
     "markdown-it-task-checkbox": "^1.0.6",
     "morphdom": "^2.7.8",
     "prismjs": "^1.30.0",
-    "sass": "^1.97.3",
-    "svelte-spa-router": "^4.0.1"
+    "sass": "^1.98.0",
+    "svelte-spa-router": "^5.0.0"
   }
 }

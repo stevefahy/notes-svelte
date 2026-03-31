@@ -1,0 +1,1 @@
+var e={default:`sage`,red:`forest`,green:`lime`,blue:`emerald`};function t(t){if(!t)return`sage`;let n=t.toLowerCase();return e[n]??n}export{t};

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { link } from "svelte-spa-router";
-  import { location } from "svelte-spa-router";
+  import { link, router } from "svelte-spa-router";
   import { notebookEditStore } from "@/stores/notebookEdit";
   import type { PageType, NotebookType, NotebookCoverType } from "@/lib/types";
   import NotebooksLink from "./NotebooksLink.svelte";
@@ -9,11 +8,11 @@
   let pageLayout = $state<PageType>("other");
   let notebook = $state<NotebookType>({ name: "", cover: "sage", id: "" });
 
-  const currentLocation = $derived($location);
+  const currentLocation = $derived(router.location);
 
   $effect(() => {
-    // Use $location; fallback to window.location.hash (available before router store updates, e.g. on refresh)
-    let loc = $location;
+    // Use router.location; fallback to window.location.hash (available before router updates, e.g. on refresh)
+    let loc = router.location;
     if (!loc && typeof window !== "undefined") {
       const hash = window.location.hash || "";
       loc = hash.replace(/^#?/, "") || "/";

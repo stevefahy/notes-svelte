@@ -1,7 +1,7 @@
 <script lang="ts">
   let { children } = $props();
   import { get } from "svelte/store";
-  import { location } from "svelte-spa-router";
+  import { router } from "svelte-spa-router";
   import { push } from "@/lib/router";
   import { confirmNavigateAwayStore } from "@/lib/router";
   import MainNavigation from "./MainNavigation.svelte";
@@ -12,7 +12,7 @@
 
   const AC = APPLICATION_CONSTANTS;
   const NOTE_ROUTE = /^\/notebook\/[^/]+\/[^/]+$/;
-  const isLoginPage = $derived($location === "/login");
+  const isLoginPage = $derived(router.location === "/login");
 
   const setScreenHeight = () => {
     const jsvh = window?.innerHeight;
@@ -26,7 +26,7 @@
   };
 
   $effect(() => {
-    const loc = $location;
+    const loc = router.location;
     if (loc !== "/login") {
       setTimeout(setScreenHeight, 0);
     }
@@ -45,7 +45,7 @@
     const href = anchor.getAttribute("href");
     if (!href || (!href.startsWith("/") && !href.startsWith("#/"))) return;
     const path = href.replace(/^#/, "") || "/";
-    const currentLoc = get(location);
+    const currentLoc = router.location;
     if (!currentLoc?.match(NOTE_ROUTE)) return;
     if (path === currentLoc) return;
     const fn = get(confirmNavigateAwayStore);

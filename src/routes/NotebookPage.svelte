@@ -1,6 +1,6 @@
 <script lang="ts">
   import { get } from "svelte/store";
-  import { params as paramsStore } from "svelte-spa-router";
+  import { router, link } from "svelte-spa-router";
   import { authStore } from "@/stores/auth";
   import { showErrorSnack } from "@/stores/snack";
   import { notebookEditStore } from "@/stores/notebookEdit";
@@ -22,8 +22,6 @@
   import NoteList from "@/components/note/NoteList.svelte";
   import { onMount, onDestroy } from "svelte";
   import { push } from "@/lib/router";
-import { link, location } from "svelte-spa-router";
-
   interface Props {
     params?: Record<string, string> | null;
   }
@@ -31,9 +29,9 @@ import { link, location } from "svelte-spa-router";
 
   // notebookId: params from router, then store, then parse from window.location.hash
   const notebookId = $derived.by(() => {
-    const fromParams = (routeParams ?? $paramsStore)?.notebookId;
+    const fromParams = (routeParams ?? router.params)?.notebookId;
     if (fromParams) return fromParams;
-    const loc = $location;
+    const loc = router.location;
     if (loc) {
       const m = /^\/notebook\/([^/]+)/.exec(loc);
       if (m?.[1]) return m[1];
@@ -334,10 +332,10 @@ import { link, location } from "svelte-spa-router";
   };
 
   onMount(() => {
-    const fromParams = routeParams ?? get(paramsStore);
+    const fromParams = routeParams ?? router.params;
     let nid: string | null | undefined = fromParams?.notebookId;
     if (!nid) {
-      const loc = get(location);
+      const loc = router.location;
       if (loc) {
         const m = /\/notebook\/([^/]+)/.exec(loc);
         nid = m?.[1] ?? null;

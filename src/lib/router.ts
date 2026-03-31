@@ -4,7 +4,7 @@ import type { RoutePrecondition } from "svelte-spa-router";
 import { get, writable } from "svelte/store";
 import { authStore } from "@/stores/auth";
 import APPLICATION_CONSTANTS from "@/lib/constants";
-import type { ComponentType } from "svelte";
+import type { Component } from "svelte";
 import RouteLoadError from "@/routes/RouteLoadError.svelte";
 
 const AC = APPLICATION_CONSTANTS;
@@ -30,18 +30,14 @@ export async function replace(path: string): Promise<void> {
   return spaReplace(path);
 }
 
-function asyncRoute<T>(importFn: () => Promise<{ default: T }>) {
-  return importFn as () => Promise<{ default: ComponentType }>;
-}
-
-function asyncRouteWithFallback<T>(
-  importFn: () => Promise<{ default: T }>,
-): () => Promise<{ default: ComponentType }> {
+function asyncRouteWithFallback(
+  importFn: () => Promise<{ default: Component }>,
+): () => Promise<{ default: Component }> {
   return async () => {
     try {
-      return (await importFn()) as { default: ComponentType };
+      return await importFn();
     } catch {
-      return { default: RouteLoadError as unknown as ComponentType };
+      return { default: RouteLoadError as unknown as Component };
     }
   };
 }

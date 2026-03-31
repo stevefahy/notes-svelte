@@ -3,7 +3,7 @@
   import { get } from "svelte/store";
   import { authStore } from "@/stores/auth";
   import APPLICATION_CONSTANTS from "@/lib/constants";
-  import { querystring } from "svelte-spa-router";
+  import { router } from "svelte-spa-router";
   import { toUserFriendlyError } from "@/lib/errorMessageMap";
 
   const AC = APPLICATION_CONSTANTS;
@@ -19,7 +19,7 @@
   let tooltipSuppressed = $state(false);
 
   const getRedirectPath = () => {
-    const qs = $querystring || "";
+    const qs = router.querystring ?? "";
     const params = new URLSearchParams(qs);
     return params.get("redirect") || AC.DEFAULT_PAGE;
   };
