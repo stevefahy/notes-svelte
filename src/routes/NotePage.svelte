@@ -178,8 +178,8 @@
     await handleSaveNote(viewText);
   };
 
-  const toggleViewEdit = async () => {
-    if (isChanged) await handleSaveNote(viewText);
+  /** Match Vue NotePage: toggling Edit/View does not persist; Save or route leave does. */
+  const toggleViewEdit = () => {
     isViewMode = !isViewMode;
   };
 
@@ -348,10 +348,10 @@
       viewContainerEl,
       () => noteShellLayout,
       () => {
-        if (!isViewMode) void toggleViewEdit();
+        if (!isViewMode) toggleViewEdit();
       },
       () => {
-        if (isViewMode) void toggleViewEdit();
+        if (isViewMode) toggleViewEdit();
       },
     );
   });
