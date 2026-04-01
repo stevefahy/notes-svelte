@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { tick } from "svelte";
 
   interface Props {
     loadedText: string;
@@ -29,13 +29,15 @@
     if (editRef) onUpdate(editRef.innerText || "");
   };
 
-  onMount(() => {
-    if (editRef && !loadedText && editRef.innerText === "") {
-      editRef.focus();
-    }
-  });
-
   const showPane = $derived(visible || splitScreen);
+
+  /** Match Next.js editnote: focus when empty and the editor is shown (create-note / empty edit). */
+  $effect(() => {
+    if (!editRef || loadedText !== "" || !showPane) return;
+    void tick().then(() => {
+      editRef?.focus();
+    });
+  });
 </script>
 
 <div

@@ -1,1 +1,0 @@
-import{O as e,X as t,w as n}from"./Router-qnnO_5GA.js";function r(r){t(),n(r,e(`Page not found`))}export{r as default};

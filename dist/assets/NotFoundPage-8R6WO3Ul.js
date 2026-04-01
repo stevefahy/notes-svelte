@@ -1,0 +1,1 @@
+import{O as e,Z as t,w as n}from"./Router-wTEc0CWd.js";function r(r){t(),n(r,e(`Page not found`))}export{r as default};

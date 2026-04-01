@@ -62,7 +62,14 @@
   let originalText = $state("");
   let noteLoaded = $state(false);
   let loadError = $state<string | null>(null);
-  let isViewMode = $state(true);
+  /** Match Next.js: create-note opens in edit immediately so the shell does not animate view→edit on load. */
+  let isViewMode = $state(
+    notePageNoteId(
+      undefined,
+      router.params ?? undefined,
+      typeof window !== "undefined" ? window.location.hash : "",
+    ) !== "create-note",
+  );
   let isSplitScreen = $state(false);
   let isMobile = $state(false);
   let viewContainerEl = $state<HTMLDivElement | undefined>(undefined);
@@ -83,6 +90,23 @@
   let splitStabilizeCleanupRef: (() => void) | null = null;
   let prevIsSplitForScrollRef = false;
   let prevNoteShellLayoutScrollRef: NoteShellLayout | null = null;
+
+  /** When reusing this route (param change), enter/leave create-note without clobbering Edit/View toggles on the same note. */
+  let lastNoteIdForCreateView: string | null = null;
+
+  $effect(() => {
+    if (!noteLoaded) return;
+    const id = noteId;
+    if (!id) return;
+    if (lastNoteIdForCreateView === id) return;
+    const prev = lastNoteIdForCreateView;
+    lastNoteIdForCreateView = id;
+    if (id === "create-note") {
+      isViewMode = false;
+    } else if (prev === "create-note") {
+      isViewMode = true;
+    }
+  });
 
   const loadNotebook = async () => {
     const token = get(authStore).token;
@@ -374,8 +398,6 @@
       await loadNotebook();
       if (loadError) return;
       await loadNote();
-      // View mode for existing notes, Edit mode for create-note (matching Vue)
-      isViewMode = noteId !== "create-note";
     })();
     return () => {
       window.removeEventListener("resize", checkMobile);
