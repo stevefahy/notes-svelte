@@ -10,6 +10,7 @@ import { login, signup, logout, refreshtoken, unwrapResponse } from "@/lib/api";
 import { normalizeErrorToString } from "@/lib/errorMessageMap";
 import APPLICATION_CONSTANTS from "@/lib/constants";
 import { showErrorSnack } from "./snack";
+import { isJwtExpired } from "@/lib/jwt";
 
 const AC = APPLICATION_CONSTANTS;
 
@@ -36,16 +37,6 @@ function createAuthStore() {
       details: null,
       loading: false,
     }));
-  };
-
-  const isTokenExpired = (token: string | null): boolean => {
-    if (!token || token.length <= 0) return true;
-    try {
-      const decode = JSON.parse(atob(token.split(".")[1]));
-      return decode.exp * 1000 < Date.now();
-    } catch {
-      return true;
-    }
   };
 
   let refreshInProgress: Promise<AuthAuthenticate | undefined> | null = null;
@@ -233,12 +224,12 @@ function createAuthStore() {
 
   const authGuardVerify = (): boolean => {
     const ctx = get({ subscribe });
-    return !isTokenExpired(ctx.token);
+    return !isJwtExpired(ctx.token);
   };
 
   const getAuth = async () => {
     const ctx = get({ subscribe });
-    if (!ctx.token) await verifyRefreshTokenWithRetry();
+    if (!ctx.token || isJwtExpired(ctx.token)) await verifyRefreshTokenWithRetry();
   };
 
   const autoRefreshToken = () => {
@@ -246,7 +237,7 @@ function createAuthStore() {
       if (document.visibilityState === "hidden") return;
       const ctx = get({ subscribe });
       if (!ctx.success) autoLogout();
-      else verifyRefreshToken();
+      else void verifyRefreshTokenWithRetry();
     }, AC.REFRESH_TOKEN_INTERVAL);
   };
 

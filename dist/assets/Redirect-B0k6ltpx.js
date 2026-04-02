@@ -1,1 +1,0 @@
-import{X as e,Y as t,l as n}from"./Router-wTEc0CWd.js";import{r}from"./router-BP3xH2EC.js";function i(i,a){e(a,!1),r(`/notebooks`),n(),t()}export{i as default};

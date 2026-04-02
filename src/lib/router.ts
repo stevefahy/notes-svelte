@@ -3,6 +3,7 @@ import { wrap } from "svelte-spa-router/wrap";
 import type { RoutePrecondition } from "svelte-spa-router";
 import { get, writable } from "svelte/store";
 import { authStore } from "@/stores/auth";
+import { isJwtExpired } from "@/lib/jwt";
 import APPLICATION_CONSTANTS from "@/lib/constants";
 import type { Component } from "svelte";
 import RouteLoadError from "@/routes/RouteLoadError.svelte";
@@ -42,11 +43,15 @@ function asyncRouteWithFallback(
   };
 }
 
-const authGuard: RoutePrecondition = (detail) => {
+const authGuard: RoutePrecondition = async (detail) => {
+  const ctx = get(authStore);
+  if (!ctx.token || isJwtExpired(ctx.token)) {
+    await authStore.verifyRefreshTokenWithRetry();
+  }
   if (!authStore.authGuardVerify()) {
     const redirect =
       detail.location + (detail.querystring ? "?" + detail.querystring : "");
-    replace(`/login?redirect=${encodeURIComponent(redirect)}`);
+    await replace(`/login?redirect=${encodeURIComponent(redirect)}`);
     return false;
   }
   return true;
